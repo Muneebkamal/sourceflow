@@ -2,838 +2,692 @@
 <html lang="en">
 
 
-<!-- Mirrored from demo.plainadmin.com/ by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 28 Sep 2025 14:37:25 GMT -->
-<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 <head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" href="{{ asset('assets/images/logo/logo-default.png') }}" type="image/x-icon" />
-  <title>@yield('title') - Source Flow  </title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="{{ asset('assets/images/logo/default-logo.png') }}" type="image/x-icon" />
+    <title>@yield('title') - Source Flow  </title>
 
-  <!-- ========== All CSS files linkup ========= -->
-  <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
-  <link rel="stylesheet" href="{{ asset('assets/css/lineicons.css') }}" />
-  <link rel="stylesheet" href="{{ asset('assets/css/quill/bubble.css') }}" />
-  <link rel="stylesheet" href="{{ asset('assets/css/quill/snow.css') }}" />
-  <link rel="stylesheet" href="{{ asset('assets/css/fullcalendar.css') }}" />
-  <link rel="stylesheet" href="{{ asset('assets/css/morris.css') }}" />
-  <link rel="stylesheet" href="{{ asset('assets/css/datatable.css') }}" />
-  <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-  
+    <!-- Theme Config Js -->
+    <script src="{{ asset('assets/js/config.js') }}"></script>
+    <script>
+        sessionStorage.removeItem("__OSEN_CONFIG__"); // clear old config
+        document.documentElement.setAttribute('data-menu-color', 'brand');
+    </script>
 
-  @yield('styles')
-  <style>
-   /* 🌙 Dark Theme Global */
-.dark-theme {
-  background-color: #18191a !important;
-  color: #e4e6eb !important;
-}
+    <!-- Vendor css -->
+    <link href="{{ asset('assets/css/vendor.min.css') }}" rel="stylesheet" type="text/css" />
 
-/* Text */
-.dark-theme body,
-.dark-theme p,
-.dark-theme span,
-.dark-theme strong,
-.dark-theme h1,
-.dark-theme h2,
-.dark-theme h3,
-.dark-theme h4,
-.dark-theme h5,
-.dark-theme h6,
-.dark-theme .text-dark {
-  color: #e4e6eb !important;
-}
+    <!-- App css -->
+    <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css" id="app-style" />
 
-/* Links */
-.dark-theme a {
-  color: #9ab4ff !important;
-}
-.dark-theme a:hover {
-  color: #c7d3ff !important;
-}
+    <!-- Icons css -->
+    <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
 
-/* Header */
-.dark-theme .header {
-  background-color: #242526 !important;
-  border-bottom: 1px solid #3a3b3c !important;
-}
+    <!-- Daterangepicker CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
 
-/* Sidebar */
-.dark-theme .sidebar,
-.dark-theme .sidebar-nav-wrapper {
-  background-color: #202122 !important;
-  border-right: 1px solid #3a3b3c !important;
-}
-.dark-theme .sidebar a {
-  color: #ccc !important;
-}
-.dark-theme .sidebar a:hover,
-.dark-theme .sidebar .active {
-  background-color: #333 !important;
-  color: #fff !important;
-}
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.bootstrap5.min.css" rel="stylesheet">
 
-/* Cards */
-.dark-theme .card {
-  background-color: #242526 !important;
-  border: 1px solid #3a3b3c !important;
-  color: #e4e6eb !important;
-}
-.dark-theme .card-header,
-.dark-theme .card-footer {
-  background-color: #202122 !important;
-  border-color: #3a3b3c !important;
-  color: #e4e6eb !important;
-}
+    <style>
+        .daterangepicker td.active,
+        .daterangepicker td.active:hover,
+        .daterangepicker .ranges li.active {
+            background-color: var(--osen-primary) !important;
+            border-color: var(--osen-primary) !important;
+            color: #fff !important;
+        }
+        .draggable-item {
+            cursor: grab;
+            user-select: none;
+            padding: 3px 8px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+            position: relative;
+        }
 
-/* Dropdowns */
-.dark-theme .dropdown-menu {
-  background-color: #242526 !important;
-  border: 1px solid #3a3b3c !important;
-}
-.dark-theme .dropdown-item {
-  color: #e4e6eb !important;
-}
-.dark-theme .dropdown-item:hover {
-  background-color: #333 !important;
-  color: #fff !important;
-}
+        .draggable-item:hover {
+            background-color: #f8f9fa;
+        }
 
-/* Buttons */
-.dark-theme .btn {
-  background-color: #3a3b3c !important;
-  color: #e4e6eb !important;
-  border: 1px solid #555 !important;
-}
-.dark-theme .btn:hover {
-  background-color: #555 !important;
-  color: #fff !important;
-}
+        .grip-icon {
+            font-size: 1.2rem;
+            color: #000;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .draggable-item:hover .grip-icon {
+            opacity: 1;
+        }
 
-/* Tables */
-.dark-theme table {
-  color: #e4e6eb !important;
-}
-.dark-theme table th,
-.dark-theme table td {
-  border-color: #3a3b3c !important;
-}
-.dark-theme table thead {
-  background-color: #242526 !important;
-}
+        .draggable-item:active {
+            cursor: grabbing;
+        }
 
-/* Forms */
-.dark-theme .form-control,
-.dark-theme .form-select {
-  background-color: #2a2b2c !important;
-  border: 1px solid #555 !important;
-  color: #e4e6eb !important;
-}
-.dark-theme .form-control:focus,
-.dark-theme .form-select:focus {
-  background-color: #2a2b2c !important;
-  border-color: #777 !important;
-  color: #fff !important;
-  box-shadow: none !important;
-}
+        .column-list-draggable {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 0.25rem;
+        }
 
-/* List groups */
-.dark-theme .list-group-item {
-  background-color: #242526 !important;
-  border: 1px solid #3a3b3c !important;
-  color: #e4e6eb !important;
-}
-.dark-theme .list-group-item.active {
-  background-color: #333 !important;
-  color: #fff !important;
-}
+        /* Optional: make scrollbar neat */
+        .column-list-draggable::-webkit-scrollbar {
+            width: 6px;
+        }
+        .column-list-draggable::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 3px;
+        }
+        .column-list-draggable::-webkit-scrollbar-thumb:hover {
+            background-color: #999;
+        }
 
-/* Modals */
-.dark-theme .modal-content {
-  background-color: #242526 !important;
-  color: #e4e6eb !important;
-  border: 1px solid #3a3b3c !important;
-}
-.dark-theme .modal-header,
-.dark-theme .modal-footer {
-  border-color: #3a3b3c !important;
-}
+        .column-list {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 0.25rem;
+        }
 
+        /* Scrollbar */
+        .column-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .column-list::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 3px;
+        }
+        .column-list::-webkit-scrollbar-thumb:hover {
+            background-color: #999;
+        }
 
+        .column-item:hover .column-actions {
+            display: flex !important;
+        }
 
-  </style>
+        .dataTables_scrollBody::-webkit-scrollbar {
+            height: 6px; /* horizontal scrollbar height */
+            width: 6px;  /* vertical scrollbar width */
+        }
+
+        .dataTables_scrollBody::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 3px;
+        }
+
+        .dataTables_scrollBody::-webkit-scrollbar-thumb:hover {
+            background-color: #999;
+        }
+
+        .sticky-col {
+            position: sticky;
+            right: 0;
+            z-index: 2;
+        }
+
+        .sticky-col .dropdown-menu {
+            position: absolute !important;
+            z-index: 9999 !important;
+        }
+        table.dataTable {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
+        .dataTables_info {
+            padding: 15px;
+        }
+        .dataTables_paginate.paging_simple_numbers {
+            padding: 15px;
+        }
+
+        .table-row-selected {
+            background-color: var(--osen-primary-bg-subtle) !important;
+            outline: 2px solid var(--osen-primary) !important;
+            outline-offset: -2px;
+        }
+        .table > :not(caption) > * > .sticky-col,
+        .table > :not(caption) > .table-row-selected > * {
+            border-bottom-width: 0px !important;
+        }
+    </style>
+    @yield('styles')
 </head>
 
 <body>
-  <!-- ======== Preloader =========== -->
-  <div id="preloader">
-    <div class="spinner"></div>
-  </div>
-  <!-- ======== Preloader =========== -->
+    <!-- Begin page -->
+    <div class="wrapper">
 
-  <!-- ======== sidebar-nav start =========== -->
-  @include('layouts.sidebar')
-  <div class="overlay"></div>
-  <!-- ======== sidebar-nav end =========== -->
+        
+        <!-- Sidenav Menu Start -->
+        @include('layouts.sidebar')
+        <!-- Sidenav Menu End -->
+        
 
-  <!-- ======== main-wrapper start =========== -->
-  <main class="main-wrapper">
-    <!-- ========== header start ========== -->
-    @include('layouts.navbar')
-    <!-- ========== header end ========== -->
+        <!-- Topbar Start -->
+        @include('layouts.navbar')
+        <!-- Topbar End -->
 
-    <!-- ========== section start ========== -->
-    <section class="section">
-      <div class="container-fluid">
-            @yield('content')
-      </div>
-      <!-- end container -->
-    </section>
-    <!-- ========== section end ========== -->
+        <!-- Search Modal -->
+        <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content bg-transparent">
+                    <div class="card mb-1">
+                        <div class="px-3 py-2 d-flex flex-row align-items-center" id="top-search">
+                            <i class="ti ti-search fs-22"></i>
+                            <input type="search" class="form-control border-0" id="search-modal-input" placeholder="Search for actions, people,">
+                            <button type="button" class="btn p-0" data-bs-dismiss="modal" aria-label="Close">[esc]</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <!-- ========== footer start =========== -->
-        @include('layouts.footer')
-    <!-- ========== footer end =========== -->
-  </main>
-  <!-- ======== main-wrapper end =========== -->
-  <!-- ============ Theme Option End ============= -->
+        <!-- ============================================================== -->
+        <!-- Start Page Content here -->
+        <!-- ============================================================== -->
+        <div class="page-content">
+            <div class="page-container">
 
-  <!-- ========= All Javascript files linkup ======== -->
-<script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ asset('assets/js/Chart.min.js') }}"></script>
-<script src="{{ asset('assets/js/apexcharts.min.js') }}"></script>
-<script src="{{ asset('assets/js/dynamic-pie-chart.js') }}"></script>
-<script src="{{ asset('assets/js/moment.min.js') }}"></script>
-<script src="{{ asset('assets/js/fullcalendar.js') }}"></script>
-<script src="{{ asset('assets/js/jvectormap.min.js') }}"></script>
-<script src="{{ asset('assets/js/world-merc.js') }}"></script>
-<script src="{{ asset('assets/js/polyfill.js') }}"></script>
-<script src="{{ asset('assets/js/quill.min.js') }}"></script>
-<script src="{{ asset('assets/js/datatable.js') }}"></script>
-<script src="{{ asset('assets/js/Sortable.min.js') }}"></script>
-<script src="{{ asset('assets/js/main.js') }}"></script>
-  @yield('scripts')
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const toggleBtn = document.getElementById("theme-toggle");
-    const themeIcon = document.getElementById("theme-icon");
-    const body = document.body;
+                @yield('content')
 
-    // Load saved theme
-    if (localStorage.getItem("theme") === "dark") {
-      body.classList.add("dark-theme");
-      themeIcon.classList.replace("lni-sun", "lni-night");
-    }
+            </div> <!-- container -->
 
-    toggleBtn.addEventListener("click", function () {
-      body.classList.toggle("dark-theme");
+            <!-- Footer Start -->
+            @include('layouts.footer')
+            <!-- end Footer -->
 
-      if (body.classList.contains("dark-theme")) {
-        themeIcon.classList.replace("lni-sun", "lni-night");
-        localStorage.setItem("theme", "dark");
-      } else {
-        themeIcon.classList.replace("lni-night", "lni-sun");
-        localStorage.setItem("theme", "light");
-      }
-    });
-  });
+        </div>
 
-</script>
+        <!-- ============================================================== -->
+        <!-- End Page content -->
+        <!-- ============================================================== -->
 
-  <script>
-    // ======== jvectormap activation
-    var markers = [
-      { name: "Egypt", coords: [26.8206, 30.8025] },
-      { name: "Russia", coords: [61.524, 105.3188] },
-      { name: "Canada", coords: [56.1304, -106.3468] },
-      { name: "Greenland", coords: [71.7069, -42.6043] },
-      { name: "Brazil", coords: [-14.235, -51.9253] },
-    ];
+    </div>
+    <!-- END wrapper -->
 
-    var jvm = new jsVectorMap({
-      map: "world_merc",
-      selector: "#map",
-      zoomButtons: true,
+    <!-- Theme Settings -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="theme-settings-offcanvas">
+        <div class="d-flex align-items-center gap-2 px-3 py-3 offcanvas-header border-bottom border-dashed">
+            <h5 class="flex-grow-1 mb-0">Theme Settings</h5>
 
-      regionStyle: {
-        initial: {
-          fill: "#d1d5db",
-        },
-      },
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
 
-      labels: {
-        markers: {
-          render: (marker) => marker.name,
-        },
-      },
+        <div class="offcanvas-body p-0 h-100" data-simplebar>
+            <div class="p-3 border-bottom border-dashed">
+                <h5 class="mb-3 fs-16 fw-bold">Color Scheme</h5>
 
-      markersSelectable: true,
-      selectedMarkers: markers.map((marker, index) => {
-        var name = marker.name;
+                <div class="row">
+                    <div class="col-4">
+                        <div class="form-check card-radio">
+                            <input class="form-check-input" type="radio" name="data-bs-theme" id="layout-color-light" value="light">
+                            <label class="form-check-label p-3 w-100 d-flex justify-content-center align-items-center" for="layout-color-light">
+                                <iconify-icon icon="solar:sun-bold-duotone" class="fs-32 text-muted"></iconify-icon>
+                            </label>
+                        </div>
+                        <h5 class="fs-14 text-center text-muted mt-2">Light</h5>
+                    </div>
 
-        if (name === "Russia" || name === "Brazil") {
-          return index;
-        }
-      }),
-      markers: markers,
-      markerStyle: {
-        initial: { fill: "#4A6CF7" },
-        selected: { fill: "#ff5050" },
-      },
-      markerLabelStyle: {
-        initial: {
-          fontWeight: 400,
-          fontSize: 14,
-        },
-      },
-    });
-    // ====== calendar activation
-    document.addEventListener("DOMContentLoaded", function () {
-      var calendarMiniEl = document.getElementById("calendar-mini");
-      var calendarMini = new FullCalendar.Calendar(calendarMiniEl, {
-        initialView: "dayGridMonth",
-        headerToolbar: {
-          end: "today prev,next",
-        },
-      });
-      calendarMini.render();
-    });
+                    <div class="col-4">
+                        <div class="form-check card-radio">
+                            <input class="form-check-input" type="radio" name="data-bs-theme" id="layout-color-dark" value="dark">
+                            <label class="form-check-label p-3 w-100 d-flex justify-content-center align-items-center" for="layout-color-dark">
+                                <iconify-icon icon="solar:cloud-sun-2-bold-duotone" class="fs-32 text-muted"></iconify-icon>
+                            </label>
+                        </div>
+                        <h5 class="fs-14 text-center text-muted mt-2">Dark</h5>
+                    </div>
+                </div>
+            </div>
 
-    // =========== chart one start
-    const ctx1 = document.getElementById("Chart1").getContext("2d");
-    const chart1 = new Chart(ctx1, {
-      type: "line",
-      data: {
-        labels: [
-          "Jan",
-          "Fab",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ],
-        datasets: [
-          {
-            label: "",
-            backgroundColor: "transparent",
-            borderColor: "#365CF5",
-            data: [
-              600, 800, 750, 880, 940, 880, 900, 770, 920, 890, 976, 1100,
-            ],
-            pointBackgroundColor: "transparent",
-            pointHoverBackgroundColor: "#365CF5",
-            pointBorderColor: "transparent",
-            pointHoverBorderColor: "#fff",
-            pointHoverBorderWidth: 5,
-            borderWidth: 5,
-            pointRadius: 8,
-            pointHoverRadius: 8,
-            cubicInterpolationMode: "monotone", // Add this line for curved line
-          },
-        ],
-      },
-      options: {
-        plugins: {
-          tooltip: {
-            callbacks: {
-              labelColor: function (context) {
-                return {
-                  backgroundColor: "#ffffff",
-                  color: "#171717"
-                };
-              },
-            },
-            intersect: false,
-            backgroundColor: "#f9f9f9",
-            title: {
-              fontFamily: "Plus Jakarta Sans",
-              color: "#8F92A1",
-              fontSize: 12,
-            },
-            body: {
-              fontFamily: "Plus Jakarta Sans",
-              color: "#171717",
-              fontStyle: "bold",
-              fontSize: 16,
-            },
-            multiKeyBackground: "transparent",
-            displayColors: false,
-            padding: {
-              x: 30,
-              y: 10,
-            },
-            bodyAlign: "center",
-            titleAlign: "center",
-            titleColor: "#8F92A1",
-            bodyColor: "#171717",
-            bodyFont: {
-              family: "Plus Jakarta Sans",
-              size: "16",
-              weight: "bold",
-            },
-          },
-          legend: {
-            display: false,
-          },
-        },
-        responsive: true,
-        maintainAspectRatio: false,
-        title: {
-          display: false,
-        },
-        scales: {
-          y: {
-            grid: {
-              display: false,
-              drawTicks: false,
-              drawBorder: false,
-            },
-            ticks: {
-              padding: 35,
-              max: 1200,
-              min: 500,
-            },
-          },
-          x: {
-            grid: {
-              drawBorder: false,
-              color: "rgba(143, 146, 161, .1)",
-              zeroLineColor: "rgba(143, 146, 161, .1)",
-            },
-            ticks: {
-              padding: 20,
-            },
-          },
-        },
-      },
-    });
-    // =========== chart one end
+            <div class="p-3 border-bottom border-dashed">
+                <h5 class="mb-3 fs-16 fw-bold">Layout Mode</h5>
 
-    // =========== chart two start
-    const ctx2 = document.getElementById("Chart2").getContext("2d");
-    const chart2 = new Chart(ctx2, {
-      type: "bar",
-      data: {
-        labels: [
-          "Jan",
-          "Fab",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ],
-        datasets: [
-          {
-            label: "",
-            backgroundColor: "#365CF5",
-            borderRadius: 30,
-            barThickness: 6,
-            maxBarThickness: 8,
-            data: [
-              600, 700, 1000, 700, 650, 800, 690, 740, 720, 1120, 876, 900,
-            ],
-          },
-        ],
-      },
-      options: {
-        plugins: {
-          tooltip: {
-            callbacks: {
-              titleColor: function (context) {
-                return "#8F92A1";
-              },
-              label: function (context) {
-                let label = context.dataset.label || "";
+                <div class="row">
+                    <div class="col-4">
+                        <div class="form-check card-radio">
+                            <input class="form-check-input" type="radio" name="data-layout-mode" id="layout-mode-fluid" value="fluid">
+                            <label class="form-check-label p-0 avatar-xl w-100" for="layout-mode-fluid">
+                                <div>
+                                    <span class="d-flex h-100">
+                                        <span class="flex-shrink-0">
+                                            <span class="bg-light d-flex h-100 border-end flex-column p-1 px-2">
+                                                <span class="d-block p-1 bg-dark-subtle rounded mb-1"></span>
+                                                <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                                <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                                <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                                <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                            </span>
+                                        </span>
+                                        <span class="flex-grow-1">
+                                            <span class="d-flex h-100 flex-column rounded-2">
+                                                <span class="bg-light d-block p-1"></span>
+                                            </span>
+                                        </span>
+                                    </span>
+                                </div>
 
-                if (label) {
-                  label += ": ";
-                }
-                label += context.parsed.y;
-                return label;
-              },
-            },
-            backgroundColor: "#F3F6F8",
-            titleAlign: "center",
-            bodyAlign: "center",
-            titleFont: {
-              size: 12,
-              weight: "bold",
-              color: "#8F92A1",
-            },
-            bodyFont: {
-              size: 16,
-              weight: "bold",
-              color: "#171717",
-            },
-            displayColors: false,
-            padding: {
-              x: 30,
-              y: 10,
-            },
-          },
-        },
-        layout: {
-          padding: {
-            top: 15,
-            right: 15,
-            bottom: 15,
-            left: 15,
-          },
-        },
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            grid: {
-              display: false,
-              drawTicks: false,
-              drawBorder: false,
-            },
-            ticks: {
-              padding: 35,
-              max: 1200,
-              min: 0,
-            },
-          },
-          x: {
-            grid: {
-              display: false,
-              drawBorder: false,
-              color: "rgba(143, 146, 161, .1)",
-              drawTicks: false,
-              zeroLineColor: "rgba(143, 146, 161, .1)",
-            },
-            ticks: {
-              padding: 20,
-            },
-          },
-        },
-        plugins: {
-          legend: {
-            display: false,
-          },
-          title: {
-            display: false,
-          },
-        },
-      },
-    });
-    // =========== chart two end
+                                <div>
+                                    <span class="d-flex h-100 flex-column">
+                                        <span class="bg-light d-flex p-1 align-items-center border-bottom border-secondary border-opacity-25">
+                                            <span class="d-block p-1 bg-dark-subtle rounded me-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded ms-auto"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded ms-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded ms-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded ms-1"></span>
+                                        </span>
+                                        <span class="bg-light d-block p-1"></span>
+                                    </span>
+                                </div>
+                            </label>
+                        </div>
+                        <h5 class="fs-14 text-center text-muted mt-2">Fluid</h5>
+                    </div>
 
-    // =========== chart three start
-    const ctx3 = document.getElementById("Chart3").getContext("2d");
-    const chart3 = new Chart(ctx3, {
-      type: "line",
-      data: {
-        labels: [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ],
-        datasets: [
-          {
-            label: "Revenue",
-            backgroundColor: "transparent",
-            borderColor: "#365CF5",
-            data: [80, 120, 110, 100, 130, 150, 115, 145, 140, 130, 160, 210],
-            pointBackgroundColor: "transparent",
-            pointHoverBackgroundColor: "#365CF5",
-            pointBorderColor: "transparent",
-            pointHoverBorderColor: "#365CF5",
-            pointHoverBorderWidth: 3,
-            pointBorderWidth: 5,
-            pointRadius: 5,
-            pointHoverRadius: 8,
-            fill: false,
-            tension: 0.4,
-          },
-          {
-            label: "Profit",
-            backgroundColor: "transparent",
-            borderColor: "#9b51e0",
-            data: [
-              120, 160, 150, 140, 165, 210, 135, 155, 170, 140, 130, 200,
-            ],
-            pointBackgroundColor: "transparent",
-            pointHoverBackgroundColor: "#9b51e0",
-            pointBorderColor: "transparent",
-            pointHoverBorderColor: "#9b51e0",
-            pointHoverBorderWidth: 3,
-            pointBorderWidth: 5,
-            pointRadius: 5,
-            pointHoverRadius: 8,
-            fill: false,
-            tension: 0.4,
-          },
-          {
-            label: "Order",
-            backgroundColor: "transparent",
-            borderColor: "#f2994a",
-            data: [180, 110, 140, 135, 100, 90, 145, 115, 100, 110, 115, 150],
-            pointBackgroundColor: "transparent",
-            pointHoverBackgroundColor: "#f2994a",
-            pointBorderColor: "transparent",
-            pointHoverBorderColor: "#f2994a",
-            pointHoverBorderWidth: 3,
-            pointBorderWidth: 5,
-            pointRadius: 5,
-            pointHoverRadius: 8,
-            fill: false,
-            tension: 0.4,
-          },
-        ],
-      },
-      options: {
-        plugins: {
-          tooltip: {
-            intersect: false,
-            backgroundColor: "#fbfbfb",
-            titleColor: "#8F92A1",
-            bodyColor: "#272727",
-            titleFont: {
-              size: 16,
-              family: "Plus Jakarta Sans",
-              weight: "400",
-            },
-            bodyFont: {
-              family: "Plus Jakarta Sans",
-              size: 16,
-            },
-            multiKeyBackground: "transparent",
-            displayColors: false,
-            padding: {
-              x: 30,
-              y: 15,
-            },
-            borderColor: "rgba(143, 146, 161, .1)",
-            borderWidth: 1,
-            enabled: true,
-          },
-          title: {
-            display: false,
-          },
-          legend: {
-            display: false,
-          },
-        },
-        layout: {
-          padding: {
-            top: 0,
-          },
-        },
-        responsive: true,
-        // maintainAspectRatio: false,
-        legend: {
-          display: false,
-        },
-        scales: {
-          y: {
-            grid: {
-              display: false,
-              drawTicks: false,
-              drawBorder: false,
-            },
-            ticks: {
-              padding: 35,
-            },
-            max: 350,
-            min: 50,
-          },
-          x: {
-            grid: {
-              drawBorder: false,
-              color: "rgba(143, 146, 161, .1)",
-              drawTicks: false,
-              zeroLineColor: "rgba(143, 146, 161, .1)",
-            },
-            ticks: {
-              padding: 20,
-            },
-          },
-        },
-      },
-    });
-    // =========== chart three end
+                    <div class="col-4">
+                        <div class="form-check sidebar-setting card-radio">
+                            <input class="form-check-input" type="radio" name="data-layout-mode" id="data-layout-detached" value="detached">
+                            <label class="form-check-label p-0 avatar-xl w-100" for="data-layout-detached">
+                                <span class="d-flex h-100 flex-column">
+                                    <span class="bg-light d-flex p-1 align-items-center border-bottom ">
+                                        <span class="d-block p-1 bg-dark-subtle rounded me-1"></span>
+                                        <span class="d-block border border-3 border-secondary border-opacity-25 rounded ms-auto"></span>
+                                        <span class="d-block border border-3 border-secondary border-opacity-25 rounded ms-1"></span>
+                                        <span class="d-block border border-3 border-secondary border-opacity-25 rounded ms-1"></span>
+                                        <span class="d-block border border-3 border-secondary border-opacity-25 rounded ms-1"></span>
+                                    </span>
+                                    <span class="d-flex h-100 p-1 px-2">
+                                        <span class="flex-shrink-0">
+                                            <span class="bg-light d-flex h-100 flex-column p-1 px-2">
+                                                <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                                <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                                <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100"></span>
+                                            </span>
+                                        </span>
+                                    </span>
+                                    <span class="bg-light d-block p-1 mt-auto px-2"></span>
+                                </span>
 
-    // ================== chart four start
-    const ctx4 = document.getElementById("Chart4").getContext("2d");
-    const chart4 = new Chart(ctx4, {
-      type: "bar",
-      data: {
-        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-        datasets: [
-          {
-            label: "",
-            backgroundColor: "#365CF5",
-            borderColor: "transparent",
-            borderRadius: 20,
-            borderWidth: 5,
-            barThickness: 20,
-            maxBarThickness: 20,
-            data: [600, 700, 1000, 700, 650, 800],
-          },
-          {
-            label: "",
-            backgroundColor: "#d50100",
-            borderColor: "transparent",
-            borderRadius: 20,
-            borderWidth: 5,
-            barThickness: 20,
-            maxBarThickness: 20,
-            data: [690, 740, 720, 1120, 876, 900],
-          },
-        ],
-      },
-      options: {
-        plugins: {
-          tooltip: {
-            backgroundColor: "#F3F6F8",
-            titleColor: "#8F92A1",
-            titleFontSize: 12,
-            bodyColor: "#171717",
-            bodyFont: {
-              weight: "bold",
-              size: 16,
-            },
-            multiKeyBackground: "transparent",
-            displayColors: false,
-            padding: {
-              x: 30,
-              y: 10,
-            },
-            bodyAlign: "center",
-            titleAlign: "center",
-            enabled: true,
-          },
-          legend: {
-            display: false,
-          },
-        },
-        layout: {
-          padding: {
-            top: 0,
-          },
-        },
-        responsive: true,
-        // maintainAspectRatio: false,
-        title: {
-          display: false,
-        },
-        scales: {
-          y: {
-            grid: {
-              display: false,
-              drawTicks: false,
-              drawBorder: false,
-            },
-            ticks: {
-              padding: 35,
-              max: 1200,
-              min: 0,
-            },
-          },
-          x: {
-            grid: {
-              display: false,
-              drawBorder: false,
-              color: "rgba(143, 146, 161, .1)",
-              zeroLineColor: "rgba(143, 146, 161, .1)",
-            },
-            ticks: {
-              padding: 20,
-            },
-          },
-        },
-      },
-    });
-      // =========== chart four end
-      
-    // =========== theme change
-    const lightThemeColors = {
-      darkBorder: "rgba(143, 146, 161, .1)",
-      darkColor: "#5A6A85",
-    };
+                            </label>
+                        </div>
+                        <h5 class="fs-14 text-center text-muted mt-2">Detached</h5>
+                    </div>
+                </div>
+            </div>
 
-    const darkThemeColors = {
-      darkBorder: "#2b2b42",
-      darkColor: "#838C9A",
-    };
+            <div class="p-3 border-bottom border-dashed">
+                <h5 class="mb-3 fs-16 fw-bold">Topbar Color</h5>
 
-    // Function to apply theme colors to the chart
-    function applyThemeColors(themeColors) {
-      chart1.options.scales.y.grid.color = themeColors.darkBorder;
-      chart1.options.scales.y.grid.borderColor = themeColors.darkBorder;
-      chart1.options.scales.x.ticks.color = themeColors.darkColor;
-      chart1.options.scales.y.ticks.color = themeColors.darkColor;
+                <div class="row">
+                    <div class="col-3">
+                        <div class="form-check card-radio">
+                            <input class="form-check-input" type="radio" name="data-topbar-color" id="topbar-color-light" value="light">
+                            <label class="form-check-label p-0 avatar-lg w-100 bg-light" for="topbar-color-light">
+                                <span class="d-flex align-items-center justify-content-center h-100">
+                                    <span class="p-2 d-inline-flex shadow rounded-circle bg-white"></span>
+                                </span>
+                            </label>
+                        </div>
+                        <h5 class="fs-14 text-center text-muted mt-2">Light</h5>
+                    </div>
 
-      chart2.options.scales.y.grid.color = themeColors.darkBorder;
-      chart2.options.scales.y.grid.borderColor = themeColors.darkBorder;
-      chart2.options.scales.x.ticks.color = themeColors.darkColor;
-      chart2.options.scales.y.ticks.color = themeColors.darkColor;
+                    <div class="col-3">
+                        <div class="form-check card-radio">
+                            <input class="form-check-input" type="radio" name="data-topbar-color" id="topbar-color-dark" value="dark">
+                            <label class="form-check-label p-0 avatar-lg w-100 bg-light" for="topbar-color-dark">
+                                <span class="d-flex align-items-center justify-content-center h-100">
+                                    <span class="p-2 d-inline-flex shadow rounded-circle bg-dark"></span>
+                                </span>
+                            </label>
+                        </div>
+                        <h5 class="fs-14 text-center text-muted mt-2">Dark</h5>
+                    </div>
 
-      chart3.options.scales.y.grid.color = themeColors.darkBorder;
-      chart3.options.scales.y.grid.borderColor = themeColors.darkBorder;
-      chart3.options.scales.x.ticks.color = themeColors.darkColor;
-      chart3.options.scales.y.ticks.color = themeColors.darkColor;
+                    <div class="col-3">
+                        <div class="form-check card-radio">
+                            <input class="form-check-input" type="radio" name="data-topbar-color" id="topbar-color-brand" value="brand">
+                            <label class="form-check-label p-0 avatar-lg w-100 bg-light" for="topbar-color-brand">
+                                <span class="d-flex align-items-center justify-content-center h-100">
+                                    <span class="p-2 d-inline-flex shadow rounded-circle bg-primary"></span>
+                                </span>
+                            </label>
+                        </div>
+                        <h5 class="fs-14 text-center text-muted mt-2">Gradient</h5>
+                    </div>
+                </div>
+            </div>
 
-      chart4.options.scales.y.grid.color = themeColors.darkBorder;
-      chart4.options.scales.y.grid.borderColor = themeColors.darkBorder;
-      chart4.options.scales.x.ticks.color = themeColors.darkColor;
-      chart4.options.scales.y.ticks.color = themeColors.darkColor;
+            <div class="p-3 border-bottom border-dashed">
+                <h5 class="mb-3 fs-16 fw-bold">Menu Color</h5>
 
-      chart1.update();
-      chart2.update();
-      chart3.update();
-      chart4.update();
-    }
+                <div class="row">
+                    <div class="col-3">
+                        <div class="form-check sidebar-setting card-radio">
+                            <input class="form-check-input" type="radio" name="data-menu-color" id="sidenav-color-light" value="light">
+                            <label class="form-check-label p-0 avatar-lg w-100 bg-light" for="sidenav-color-light">
+                                <span class="d-flex align-items-center justify-content-center h-100">
+                                    <span class="p-2 d-inline-flex shadow rounded-circle bg-white"></span>
+                                </span>
+                            </label>
+                        </div>
+                        <h5 class="fs-14 text-center text-muted mt-2">Light</h5>
+                    </div>
 
-    const darkThemeButton = document.querySelector('.darkThemeButton')
-    const lightThemeButton = document.querySelector('.lightThemeButton')
+                    <div class="col-3" style="--ct-dark-rgb: 64,73,84;">
+                        <div class="form-check sidebar-setting card-radio">
+                            <input class="form-check-input" type="radio" name="data-menu-color" id="sidenav-color-dark" value="dark">
+                            <label class="form-check-label p-0 avatar-lg w-100 bg-light" for="sidenav-color-dark">
+                                <span class="d-flex align-items-center justify-content-center h-100">
+                                    <span class="p-2 d-inline-flex shadow rounded-circle bg-dark"></span>
+                                </span>
+                            </label>
+                        </div>
+                        <h5 class="fs-14 text-center text-muted mt-2">Dark</h5>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-check sidebar-setting card-radio">
+                            <input class="form-check-input" type="radio" name="data-menu-color" id="sidenav-color-brand" value="brand">
+                            <label class="form-check-label p-0 avatar-lg w-100 bg-light" for="sidenav-color-brand">
+                                <span class="d-flex align-items-center justify-content-center h-100">
+                                    <span class="p-2 d-inline-flex shadow rounded-circle bg-primary"></span>
+                                </span>
+                            </label>
+                        </div>
+                        <h5 class="fs-14 text-center text-muted mt-2">Brand</h5>
+                    </div>
+                </div>
+            </div>
 
-    // Check if the user has a saved theme preference
-    const savedTheme = localStorage.getItem('theme')
+            <div class="p-3 .border-bottom .border-dashed">
+                <h5 class="mb-3 fs-16 fw-bold">Sidebar Size</h5>
 
-    // Check the saved theme preference and apply appropriate colors
-    if (savedTheme === 'dark') {
-      applyThemeColors(darkThemeColors);
-    } else {
-      applyThemeColors(lightThemeColors);
-    }
+                <div class="row">
+                    <div class="col-4">
+                        <div class="form-check sidebar-setting card-radio">
+                            <input class="form-check-input" type="radio" name="data-sidenav-size" id="sidenav-size-default" value="default">
+                            <label class="form-check-label p-0 avatar-xl w-100" for="sidenav-size-default">
+                                <span class="d-flex h-100">
+                                    <span class="flex-shrink-0">
+                                        <span class="bg-light d-flex h-100 border-end  flex-column p-1 px-2">
+                                            <span class="d-block p-1 bg-dark-subtle rounded mb-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                        </span>
+                                    </span>
+                                    <span class="flex-grow-1">
+                                        <span class="d-flex h-100 flex-column">
+                                            <span class="bg-light d-block p-1"></span>
+                                        </span>
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+                        <h5 class="fs-14 text-center text-muted mt-2">Default</h5>
+                    </div>
 
-    // Event listeners for theme buttons
-    darkThemeButton.addEventListener('click', () => {
-      applyThemeColors(darkThemeColors);
-    });      
+                    <div class="col-4">
+                        <div class="form-check sidebar-setting card-radio">
+                            <input class="form-check-input" type="radio" name="data-sidenav-size" id="sidenav-size-compact" value="compact">
+                            <label class="form-check-label p-0 avatar-xl w-100" for="sidenav-size-compact">
+                                <span class="d-flex h-100">
+                                    <span class="flex-shrink-0">
+                                        <span class="bg-light d-flex h-100 border-end  flex-column p-1">
+                                            <span class="d-block p-1 bg-dark-subtle rounded mb-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                        </span>
+                                    </span>
+                                    <span class="flex-grow-1">
+                                        <span class="d-flex h-100 flex-column">
+                                            <span class="bg-light d-block p-1"></span>
+                                        </span>
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+                        <h5 class="fs-14 text-center text-muted mt-2">Compact</h5>
+                    </div>
 
-    lightThemeButton.addEventListener('click', () => {
-      applyThemeColors(lightThemeColors);
-    });
-  </script>
-</body>
+                    <div class="col-4">
+                        <div class="form-check sidebar-setting card-radio">
+                            <input class="form-check-input" type="radio" name="data-sidenav-size" id="sidenav-size-small" value="condensed">
+                            <label class="form-check-label p-0 avatar-xl w-100" for="sidenav-size-small">
+                                <span class="d-flex h-100">
+                                    <span class="flex-shrink-0">
+                                        <span class="bg-light d-flex h-100 border-end flex-column" style="padding: 2px;">
+                                            <span class="d-block p-1 bg-dark-subtle rounded mb-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                        </span>
+                                    </span>
+                                    <span class="flex-grow-1">
+                                        <span class="d-flex h-100 flex-column">
+                                            <span class="bg-light d-block p-1"></span>
+                                        </span>
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+                        <h5 class="fs-14 text-center text-muted mt-2">Condensed</h5>
+                    </div>
 
+                    <div class="col-4">
+                        <div class="form-check sidebar-setting card-radio">
+                            <input class="form-check-input" type="radio" name="data-sidenav-size" id="sidenav-size-small-hover" value="sm-hover">
+                            <label class="form-check-label p-0 avatar-xl w-100" for="sidenav-size-small-hover">
+                                <span class="d-flex h-100">
+                                    <span class="flex-shrink-0">
+                                        <span class="bg-light d-flex h-100 border-end flex-column" style="padding: 2px;">
+                                            <span class="d-block p-1 bg-dark-subtle rounded mb-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                            <span class="d-block border border-3 border-secondary border-opacity-25 rounded w-100 mb-1"></span>
+                                        </span>
+                                    </span>
+                                    <span class="flex-grow-1">
+                                        <span class="d-flex h-100 flex-column">
+                                            <span class="bg-light d-block p-1"></span>
+                                        </span>
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+                        <h5 class="fs-14 text-center text-muted mt-2">Hover View</h5>
+                    </div>
 
-<!-- Mirrored from demo.plainadmin.com/ by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 28 Sep 2025 14:39:53 GMT -->
+                    <div class="col-4">
+                        <div class="form-check sidebar-setting card-radio">
+                            <input class="form-check-input" type="radio" name="data-sidenav-size" id="sidenav-size-full" value="full">
+                            <label class="form-check-label p-0 avatar-xl w-100" for="sidenav-size-full">
+                                <span class="d-flex h-100">
+                                    <span class="flex-shrink-0">
+                                        <span class="d-flex h-100 flex-column">
+                                            <span class="d-block p-1 bg-dark-subtle mb-1"></span>
+                                        </span>
+                                    </span>
+                                    <span class="flex-grow-1">
+                                        <span class="d-flex h-100 flex-column">
+                                            <span class="bg-light d-block p-1"></span>
+                                        </span>
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+                        <h5 class="fs-14 text-center text-muted mt-2">Full Layout</h5>
+                    </div>
+
+                    <div class="col-4">
+                        <div class="form-check sidebar-setting card-radio">
+                            <input class="form-check-input" type="radio" name="data-sidenav-size" id="sidenav-size-fullscreen" value="fullscreen">
+                            <label class="form-check-label p-0 avatar-xl w-100" for="sidenav-size-fullscreen">
+                                <span class="d-flex h-100">
+                                    <span class="flex-grow-1">
+                                        <span class="d-flex h-100 flex-column">
+                                            <span class="bg-light d-block p-1"></span>
+                                        </span>
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+                        <h5 class="fs-14 text-center text-muted mt-2">Hidden</h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-3 border-bottom border-dashed d-none">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="fs-16 fw-bold mb-0">Container Width</h5>
+
+                    <div class="btn-group radio" role="group">
+                        <input type="radio" class="btn-check" name="data-container-position" id="container-width-fixed" value="fixed">
+                        <label class="btn btn-sm btn-soft-primary w-sm" for="container-width-fixed">Full</label>
+
+                        <input type="radio" class="btn-check" name="data-container-position" id="container-width-scrollable" value="scrollable">
+                        <label class="btn btn-sm btn-soft-primary w-sm ms-0" for="container-width-scrollable">Boxed</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-3 border-bottom border-dashed d-none">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="fs-16 fw-bold mb-0">Layout Position</h5>
+
+                    <div class="btn-group radio" role="group">
+                        <input type="radio" class="btn-check" name="data-layout-position" id="layout-position-fixed" value="fixed">
+                        <label class="btn btn-sm btn-soft-primary w-sm" for="layout-position-fixed">Fixed</label>
+
+                        <input type="radio" class="btn-check" name="data-layout-position" id="layout-position-scrollable" value="scrollable">
+                        <label class="btn btn-sm btn-soft-primary w-sm ms-0" for="layout-position-scrollable">Scrollable</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 px-3 py-2 offcanvas-header border-top border-dashed">
+            <button type="button" class="btn w-50 btn-soft-danger" id="reset-layout">Reset</button>
+            <button type="button" class="btn w-50 btn-soft-info">Buy Now</button>
+        </div>
+
+    </div>
+
+    <!-- Vendor js -->
+    <script src="{{ asset('assets/js/vendor.min.js') }}"></script>
+
+    <!-- App js -->
+    <script src="{{ asset('assets/js/app.js') }}"></script>
+
+    <!-- Apex Chart js -->
+    <script src="{{ asset('assets/vendor/apexcharts/apexcharts.min.js') }}"></script>
+
+    <!-- Projects Analytics Dashboard App js -->
+    <script src="{{ asset('assets/js/pages/dashboard-sales.js') }}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    
+    <!-- jQuery UI (for drag/drop sorting) -->
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+    <!-- gridjs js -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
+
+    <script>
+        $(function() {
+            $('#dateRangeFilter').daterangepicker({
+                opens: 'left',
+                autoUpdateInput: false,
+                locale: {
+                    cancelLabel: 'Clear',
+                    format: 'MM/DD/YYYY'
+                },
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'Last 90 Days': [moment().subtract(89, 'days'), moment()],
+                    'All': [moment().subtract(10, 'years'), moment()]
+                },
+                showCustomRangeLabel: true, // Ensure "Custom Range" appears
+            }, function(start, end, label) {
+                // This callback runs when a range is selected
+            });
+
+            $('#dateRangeFilter').val('');
+            $('#dateRangeFilter').on('click', function() {
+                const picker = $(this).data('daterangepicker');
+                picker.show();
+                picker.container.find('.ranges li').removeClass('active');
+                picker.showCalendars();
+            });
+
+            $('#dateRangeFilter').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+                $('#clearDate').removeClass('d-none');
+            });
+
+            $('#dateRangeFilter').on('cancel.daterangepicker', function() {
+                $(this).val('');
+                $('#clearDate').addClass('d-none');
+            });
+
+            $('#clearDate').on('click', function() {
+                $('#dateRangeFilter').val('');
+                $(this).addClass('d-none');
+            });
+        });
+
+    </script>
+
+    <!-- ✅ jQuery UI Sortable -->
+    <script>
+        $(function() {
+            $(".column-list-draggable").sortable({
+                axis: "y",
+                opacity: 0.8,
+                cursor: "grabbing",
+                placeholder: "ui-state-highlight"
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('table tbody tr').on('click', function(e) {
+                if ($(e.target).is('button, i, a')) return;
+                $(' tbody tr').removeClass('table-row-selected');
+                $(this).addClass('table-row-selected');
+            });
+
+            $('table tbody input[type="checkbox"]').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
+
+        $(function () {
+            $('.dropdown').on('show.bs.dropdown', function () {
+                $('body').append($(this).find('.dropdown-menu').detach());
+            });
+
+            $('.dropdown').on('hidden.bs.dropdown', function () {
+                $(this).append($('.dropdown-menu').detach());
+            });
+        });
+    </script>
+
+    @yield('scripts')
+  </body>
 </html>

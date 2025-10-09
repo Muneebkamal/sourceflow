@@ -1,72 +1,103 @@
-<aside class="sidebar-nav-wrapper">
-  <div class="navbar-logo">
-    <a href="index.html" class="d-flex align-items-center">
-      <img src="{{ asset('assets/images/logo/logo-default.png') }}" style="width:48px; height:48px; object-fit:contain;" alt="logo" />
-      <span class="ms-2 fw-bold fs-5" style="color:#333;">Source Flow</span>
-    </a>
-  </div>
-  <nav class="sidebar-nav">
-    <ul>
-      <li class="nav-item">
-        <a href="{{ route('dashboard') }}">
-          <span class="icon"><i class="bi bi-speedometer2"></i></span>
-          <span class="text">Dashboard</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="#">
-          <span class="icon"><i class="bi bi-bar-chart-line"></i></span>
-          <span class="text">Smart Data</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="#">
-          <span class="icon"><i class="bi bi-bag-check"></i></span>
-          <span class="text">Buy List</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="#">
-          <span class="icon"><i class="bi bi-receipt-cutoff"></i></span>
-          <span class="text">Orders</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="#">
-          <span class="icon"><i class="bi bi-truck"></i></span>
-          <span class="text">Shipping</span>
+<div class="sidenav-menu">
+  <!-- Brand Logo -->
+  <a href="#" class="logo">
+      <span class="logo-light">
+          <span class="logo-lg">
+            <img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="logo">
+            <span class="text-logo text-white">Sourceflow</span>
+          </span>
+          <span class="logo-sm"><img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="small logo"></span>
+      </span>
+
+      <span class="logo-dark">
+          <span class="logo-lg">
+            <img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="dark logo">
+            <span class="text-logo">Sourceflow</span>
+          </span>
+          <span class="logo-sm"><img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="small logo"></span>
+      </span>
+  </a>
+
+  <!-- Sidebar Hover Menu Toggle Button -->
+  <button class="button-sm-hover">
+      <i class="ti ti-circle align-middle"></i>
+  </button>
+
+  <!-- Full Sidebar Menu Close Button -->
+  <button class="button-close-fullsidebar">
+      <i class="ti ti-x align-middle"></i>
+  </button>
+
+  <div data-simplebar>
+    <!--- Sidenav Menu -->
+    <ul class="side-nav">
+      <li class="side-nav-item">
+        <a href="{{ route('dashboard') }}" class="side-nav-link">
+          <span class="menu-icon"><i class="ti ti-dashboard"></i></span>
+          <span class="menu-text">Dashboard</span>
         </a>
       </li>
 
-      <span class="divider">Lead Source<hr /></span>
-
-      <li class="nav-item">
-        <a href="#">
-          <span class="icon"><i class="bi bi-people"></i></span>
-          <span class="text">My Leads</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="#">
-          <span class="icon"><i class="bi bi-lightbulb"></i></span>
-          <span class="text">OA Cheddar</span>
+      <li class="side-nav-item">
+        <a href="{{ route('smart.data') }}" class="side-nav-link">
+          <span class="menu-icon"><i class="ti ti-chart-line"></i></span>
+          <span class="menu-text">Smart Data</span>
         </a>
       </li>
 
-      <span class="divider mt-5"><hr /></span>
-
-      <li class="nav-item">
-        <a href="#">
-          <span class="icon"><i class="bi bi-question-circle"></i></span>
-          <span class="text">Help Center</span>
+      <li class="side-nav-item">
+        <a href="{{ route('buylists.index') }}" class="side-nav-link">
+          <span class="menu-icon"><i class="ti ti-shopping-bag"></i></span>
+          <span class="menu-text">Buy List</span>
         </a>
       </li>
-      <li class="nav-item">
-        <a href="#">
-          <span class="icon"><i class="bi bi-gear"></i></span>
-          <span class="text">Settings</span>
+
+      <li class="side-nav-item">
+        <a href="{{ route('orders.index') }}" class="side-nav-link">
+          <span class="menu-icon"><i class="ti ti-clipboard-list"></i></span>
+          <span class="menu-text">Orders</span>
+        </a>
+      </li>
+
+      <li class="side-nav-item">
+        <a href="{{ route('shipping.index') }}" class="side-nav-link">
+          <span class="menu-icon"><i class="ti ti-truck-delivery"></i></span>
+          <span class="menu-text">Shipping</span>
+        </a>
+      </li>
+
+      <li class="side-nav-title mt-3">Lead Sources</li>
+
+      <li class="side-nav-item">
+        <a href="{{ route('leads.index') }}" class="side-nav-link">
+          <span class="menu-icon"><i class="ti ti-users"></i></span>
+          <span class="menu-text">My Leads</span>
+        </a>
+      </li>
+
+      <li class="side-nav-item">
+        <a href="{{ route('oac.leads.index') }}" class="side-nav-link">
+          <span class="menu-icon"><i class="ti ti-bulb"></i></span>
+          <span class="menu-text">OA Cheddar</span>
+        </a>
+      </li>
+
+      <span class="divider mt-4"><hr /></span>
+
+      <li class="side-nav-item">
+        <a href="#" class="side-nav-link">
+          <span class="menu-icon"><i class="ti ti-help-circle"></i></span>
+          <span class="menu-text">Help Center</span>
+        </a>
+      </li>
+
+      <li class="side-nav-item">
+        <a href="{{ route('setting.index') }}" class="side-nav-link">
+          <span class="menu-icon"><i class="ti ti-settings"></i></span>
+          <span class="menu-text">Settings</span>
         </a>
       </li>
     </ul>
-  </nav>
-</aside>
+    <div class="clearfix"></div>
+  </div>
+</div>
