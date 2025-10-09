@@ -1,7 +1,15 @@
 <?php
 
+use App\Http\Controllers\BuylistController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LeadController;
+use App\Http\Controllers\LeadsController;
+use App\Http\Controllers\OACLeadController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ShippingController;
+use App\Http\Controllers\SmartDataController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -27,5 +35,25 @@ Route::middleware(['auth'])->group(function () {
     //dashboard route
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
 
+    //Smart Data route
+    Route::get('/smart-data', [SmartDataController::class, 'index'])->name('smart.data');
+
+    // Buylists route
+    Route::get('/buylists', [BuylistController::class, 'index'])->name('buylists.index');
+
+    // Orders routes
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+
+    // Shipping routes
+    Route::get('/shipping-batches', [ShippingController::class, 'index'])->name('shipping.index');
+
+    // Leads routes
+    Route::get('/team-leads', [LeadController::class, 'index'])->name('leads.index');
+
+    // OAC routes
+    Route::get('/oacleads', [OACLeadController::class, 'index'])->name('oac.leads.index');
+
+    // Settings routes
+    Route::get('/user/profile', [SettingController::class, 'index'])->name('setting.index');
 });
 

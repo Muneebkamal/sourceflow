@@ -1,25 +1,16 @@
 <footer class="footer">
-      <div class="container-fluid">
+    <div class="page-container">
         <div class="row">
-          <div class="col-md-6 order-last order-md-first">
-            <div class="copyright text-center text-md-start">
-              <p class="text-sm">
-                Designed and Developed by
-                <a href="https://plainadmin.com/" rel="nofollow" target="_blank">
-                  PlainAdmin
-                </a>
-              </p>
+            <div class="col-md-6 text-center text-md-start">
+                <script>document.write(new Date().getFullYear())</script> © SourceFlow
             </div>
-          </div>
-          <!-- end col-->
-          <div class="col-md-6">
-            <div class="terms d-flex justify-content-center justify-content-md-end">
-              <a href="#0" class="text-sm">Term & Conditions</a>
-              <a href="#0" class="text-sm ml-15">Privacy & Policy</a>
-            </div>
-          </div>
+            {{-- <div class="col-md-6">
+                <div class="text-md-end footer-links d-none d-md-block">
+                    <a href="javascript: void(0);">About</a>
+                    <a href="javascript: void(0);">Support</a>
+                    <a href="javascript: void(0);">Contact Us</a>
+                </div>
+            </div> --}}
         </div>
-        <!-- end row -->
-      </div>
-      <!-- end container -->
-    </footer>
+    </div>
+</footer>

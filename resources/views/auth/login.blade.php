@@ -7,80 +7,95 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Login | Source Flow</title>
-  <link rel="shortcut icon" href="{{ asset('assets/images/logo/logo-default.png') }}" type="image/x-icon" />
+  <link rel="shortcut icon" href="{{ asset('assets/images/logo/default-logo.png') }}" type="image/x-icon" />
 
-  <!-- Bootstrap -->
-  <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
+  <!-- Theme Config Js -->
+  <script src="{{ asset('assets/js/config.js') }}"></script>
 
-  <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      overflow: hidden; /* 🚫 no scroll */
-    }
+  <!-- Vendor css -->
+  <link href="{{ asset('assets/css/vendor.min.css') }}" rel="stylesheet" type="text/css" />
 
-    body {
-      background-color: #0d6efd; /* Bootstrap blue */
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+  <!-- App css -->
+  <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css" id="app-style" />
 
-    .login-card {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-      padding: 2rem;
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
-    }
-
-    .login-card img {
-      max-width: 120px;
-      margin-bottom: 1rem;
-    }
-  </style>
+  <!-- Icons css -->
+  <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
 </head>
 
 <body>
-  <div class="login-card">
-    <!-- Logo -->
-    <img src="{{ asset('assets/images/logo/logo-default.png') }}" alt="Source Flow Logo">
+  <div class="auth-bg d-flex min-vh-100 justify-content-center align-items-center">
+    <div class="row g-0 justify-content-center w-100 m-xxl-5 px-xxl-4 m-3">
+        <div class="col-xl-4 col-lg-5 col-md-6">
+            <div class="card overflow-hidden text-center h-100 p-xxl-4 p-3 mb-0">
+                <a href="#" class="auth-brand mb-3 d-flex align-items-center justify-content-center">
+                    <img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="dark logo" height="40" class="logo-dark">
+                    <img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="logo light" height="40" class="logo-light">
+                    <span class="fw-bold fs-3 text-dark">Source Flow</span>
+                </a>
 
-    <!-- Title -->
-    <h4 class="mb-3 text-primary">Sign in to your account</h4>
+                <form method="POST" action="{{ route('login') }}" class="text-start mb-3">
+                  @csrf
 
-    <!-- Form -->
-    <form action="{{ route('login') }}" method="POST">
-      @csrf
+                  <div class="mb-3">
+                      <label class="form-label" for="email">Email</label>
+                      <input 
+                          type="email" 
+                          id="email" 
+                          name="email" 
+                          class="form-control @error('email') is-invalid @enderror" 
+                          placeholder="Enter your email"
+                          value="{{ old('email') }}"
+                          required 
+                          autofocus
+                      >
+                      @error('email')
+                          <span class="invalid-feedback">{{ $message }}</span>
+                      @enderror
+                  </div>
 
-      <!-- Email -->
-      <div class="mb-3 text-start">
-        <label for="email" class="form-label">Email</label>
-        <input type="email" name="email" id="email" class="form-control" placeholder="Email" required />
-      </div>
+                  <div class="mb-3">
+                      <label class="form-label" for="password">Password</label>
+                      <input 
+                          type="password" 
+                          id="password" 
+                          name="password" 
+                          class="form-control @error('password') is-invalid @enderror" 
+                          placeholder="Enter your password"
+                          required
+                      >
+                      @error('password')
+                          <span class="invalid-feedback">{{ $message }}</span>
+                      @enderror
+                  </div>
 
-      <!-- Password -->
-      <div class="mb-3 text-start">
-        <label for="password" class="form-label">Password</label>
-        <input type="password" name="password" id="password" class="form-control" placeholder="Password" required />
-      </div>
+                  <div class="d-flex justify-content-between mb-3">
+                      <div class="form-check">
+                          <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                          <label class="form-check-label" for="remember">Remember me</label>
+                      </div>
 
-      <!-- Options -->
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" name="remember" id="checkbox-remember" />
-          <label class="form-check-label" for="checkbox-remember">Remember me</label>
+                      <a href="{{ route('password.request') }}" class="text-muted border-bottom border-dashed">
+                          Forgot Password?
+                      </a>
+                  </div>
+
+                  <div class="d-grid">
+                      <button class="btn btn-primary" type="submit">Login</button>
+                  </div>
+                </form>
+
+                <p class="mt-auto mb-0">
+                    <script>document.write(new Date().getFullYear())</script> © SourceFlow
+                </p>
+            </div>
         </div>
-        <a href="{{ route('password.request') }}" class="small">Forgot Password?</a>
-      </div>
-
-      <!-- Submit -->
-      <button type="submit" class="btn btn-primary w-100">Login</button>
-    </form>
+    </div>
   </div>
 
-  <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
+  <!-- Vendor js -->
+  <script src="{{ asset('assets/js/vendor.min.js') }}"></script>
+
+  <!-- App js -->
+  <script src="{{ asset('assets/js/app.js') }}"></script>
 </body>
 </html>
