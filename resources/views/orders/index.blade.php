@@ -30,30 +30,41 @@
 
     <div class="row align-items-end mb-3">
         <div class="col-md-7">
-            <div class="d-flex align-items-center gap-1">
-                <div class="d-flex gap-1">
+            <div class="d-flex align-items-center w-100 gap-1">
+                <div class="d-flex w-100 gap-1">
                     <div class="input-group">
                         <span class="input-group-text">
                             <i class="ti ti-search"></i>
                         </span>
-                        <input type="text" class="form-control" placeholder="Search...">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search...">
                     </div>
-                    <select class="form-select w-50">
-                        <option value="all">All</option>
-                        <option value="partially received">Partially Received</option>
-                        <option value="received in full">Received in Full</option>
-                        <option value="ordered">Ordered</option>
-                        <option value="draft">Draft</option>
-                        <option value="closed">Closed</option>
-                        <option value="canceled">Canceled</option>
-                        <option value="reconcile">Reconcile</option>
-                        <option value="breakage">Breakage</option>
-                        </select>
+                    <select id="statusFilter" class="form-select status-select w-50">
+                        <option value="all" class="bg-white text-dark">All</option>
+                        <option value="partially received" class="bg-white text-dark">Partially Received</option>
+                        <option value="received in full" class="bg-white text-dark">Received in Full</option>
+                        <option value="ordered" class="bg-white text-dark">Ordered</option>
+                        <option value="draft" class="bg-white text-dark">Draft</option>
+                        <option value="closed" class="bg-white text-dark">Closed</option>
+                        <option value="canceled" class="bg-white text-dark">Canceled</option>
+                        <option value="reconcile" class="bg-white text-dark">Reconcile</option>
+                        <option value="breakage" class="bg-white text-dark">Breakage</option>
+                    </select>
+                    <div class="input-group position-relative">
+                        <span class="input-group-text">
+                            <i class="ti ti-calendar"></i>
+                        </span>
+                        <!-- Input opens the calendar -->
+                        <input type="text" id="dateRangeFilter" class="form-control pe-3 rounded-end" placeholder="Date Range">
+                        <!-- Clear (X) icon -->
+                        <button type="button" id="clearDate" class="btn position-absolute end-0 top-50 translate-middle-y me-1 p-0 border-0 bg-transparent d-none">
+                            <i class="ti ti-x text-muted"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Filter + Reset Buttons -->
                 <div class="d-flex">
-                    <button class="btn btn-soft-danger">Reset</button>
+                    <button id="resetFilters" class="btn btn-danger">Reset</button>
                 </div>
             </div>
         </div>
@@ -296,142 +307,15 @@
                                     <th><input type="checkbox" class="form-check-input"></th>
                                     <th>Order Date</th>
                                     <th>Order #</th>
-                                    <th>Image</th>
-                                    <th>Product</th>
-                                    <th>Status</th>
                                     <th>Supplier</th>
                                     <th>Order Total</th>
-                                    <th>Quantity</th>
-                                    <th>Category</th>
-                                    <th>Note</th>
+                                    <th>Order Status</th>
+                                    <th>O-R-L-E-F</th>
+                                    <th>Order Note</th>
+                                    <th>Events</th>
                                     <th class="sticky-col text-center">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <!-- Row 1 -->
-                                <tr class="small">
-                                    <td><input type="checkbox" class="form-check-input"></td>
-                                    <td>2025/09/20</td>
-                                    <td>B09XYZ123</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" width="50" alt=""></td>
-                                    <td>Wireless Headphones</td>
-                                    <td><span class="badge bg-primary">Hot</span> <span class="badge bg-success">New</span></td>
-                                    <td>Supplier A</td>
-                                    <td>$789</td>
-                                    <td>12,345</td>
-                                    <td>Electronics</td>
-                                    <td>Good margin</td>
-                                    <td class="text-center sticky-col">
-                                    <div class="d-flex justify-content-center gap-1">
-                                        <button class="btn btn-sm btn-success"><i class="ti ti-currency-dollar"></i></button>
-                                        <button class="btn btn-sm btn-light"><i class="ti ti-external-link"></i></button>
-                                        <div class="dropdown">
-                                        <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                            <i class="ti ti-dots-vertical"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy</a></li>
-                                            <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                            <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
-                                        </ul>
-                                        </div>
-                                    </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Row 2 -->
-                                <tr class="small">
-                                    <td><input type="checkbox" class="form-check-input"></td>
-                                    <td>2025/09/18</td>
-                                    <td>B07ABC456</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" width="50" alt=""></td>
-                                    <td>Vacuum Cleaner</td>
-                                    <td><span class="badge bg-info">Trending</span></td>
-                                    <td>Supplier B</td>
-                                    <td>$599</td>
-                                    <td>8,765</td>
-                                    <td>Home Appliances</td>
-                                    <td>High Demand</td>
-                                    <td class="text-center sticky-col">
-                                    <div class="d-flex justify-content-center gap-1">
-                                        <button class="btn btn-sm btn-success"><i class="ti ti-currency-dollar"></i></button>
-                                        <button class="btn btn-sm btn-light"><i class="ti ti-external-link"></i></button>
-                                        <div class="dropdown">
-                                        <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                            <i class="ti ti-dots-vertical"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy</a></li>
-                                            <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                            <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
-                                        </ul>
-                                        </div>
-                                    </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Row 3 -->
-                                <tr class="small">
-                                    <td><input type="checkbox" class="form-check-input"></td>
-                                    <td>2025/09/10</td>
-                                    <td>B08LMN789</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" width="50" alt=""></td>
-                                    <td>Football Shoes</td>
-                                    <td><span class="badge bg-warning">Seasonal</span></td>
-                                    <td>Supplier C</td>
-                                    <td>$249</td>
-                                    <td>6,540</td>
-                                    <td>Sports</td>
-                                    <td>Good performance</td>
-                                    <td class="text-center sticky-col">
-                                    <div class="d-flex justify-content-center gap-1">
-                                        <button class="btn btn-sm btn-success"><i class="ti ti-currency-dollar"></i></button>
-                                        <button class="btn btn-sm btn-light"><i class="ti ti-external-link"></i></button>
-                                        <div class="dropdown">
-                                        <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                            <i class="ti ti-dots-vertical"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy</a></li>
-                                            <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                            <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
-                                        </ul>
-                                        </div>
-                                    </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Row 4 -->
-                                <tr class="small">
-                                    <td><input type="checkbox" class="form-check-input"></td>
-                                    <td>2025/09/05</td>
-                                    <td>B06PQR321</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" width="50" alt=""></td>
-                                    <td>Smart Watch</td>
-                                    <td><span class="badge bg-secondary">Limited</span></td>
-                                    <td>Supplier D</td>
-                                    <td>$399</td>
-                                    <td>4,230</td>
-                                    <td>Wearables</td>
-                                    <td>Battery efficient</td>
-                                    <td class="text-center sticky-col">
-                                    <div class="d-flex justify-content-center gap-1">
-                                        <button class="btn btn-sm btn-success"><i class="ti ti-currency-dollar"></i></button>
-                                        <button class="btn btn-sm btn-light"><i class="ti ti-external-link"></i></button>
-                                        <div class="dropdown">
-                                        <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                            <i class="ti ti-dots-vertical"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy</a></li>
-                                            <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                            <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
-                                        </ul>
-                                        </div>
-                                    </div>
-                                    </td>
-                                </tr>
-                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -444,20 +328,138 @@
 @section('scripts')
 <script>
     $(document).ready(function() {
-        $('#orders-table').DataTable({
+        var table = $('#orders-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '{{ route("orders.data") }}',
+                data: function(d) {
+                    d.search = $('#searchInput').val();
+                    d.status = $('#statusFilter').val();
+                    d.dateRange = $('#dateRangeFilter').val();
+                }
+            },
             scrollY: '40vh',
-            searching: false,
-            lengthChange: false,
-            ordering: false,
             scrollX: true,
             scrollCollapse: true,
             paging: true,
+            searching: false,
+            lengthChange: false,
+            ordering: false,
+            columns: [
+                { data: 'checkbox', orderable: false, searchable: false },
+                { data: 'date', name: 'date' },
+                { data: 'order_id', name: 'order_id' },
+                { data: 'source', name: 'source' },
+                { data: 'total', name: 'total' },
+                { data: 'status', name: 'status' },
+                { data: 'order_item_count', name: 'order_item_count' },
+                { data: 'note', name: 'note' },
+                { data: 'event', name: 'event' },
+                { data: 'actions', orderable: false, searchable: false }
+            ]
         });
+
+        // Reload table when search or status changes
+        $('#searchInput, #statusFilter').on('change keyup', function() {
+            table.ajax.reload();
+        });
+
+        // Reload table when date range applied
+        $('#dateRangeFilter').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+            $('#clearDate').removeClass('d-none');
+            table.ajax.reload(); // 🔹 Reload table here
+        });
+
+        // Clear date filter
+        $('#dateRangeFilter').on('cancel.daterangepicker', function() {
+            $(this).val('');
+            $('#clearDate').addClass('d-none');
+            table.ajax.reload(); // 🔹 Reload table here
+        });
+
+        $('#clearDate').on('click', function() {
+            $('#dateRangeFilter').val('');
+            $(this).addClass('d-none');
+            table.ajax.reload(); // 🔹 Reload table here
+        });
+
+        // Reset all filters
+        // $('#resetFilters').on('click', function() {
+        //     $('#searchInput').val('');
+        //     $('#statusFilter').val('all');
+        //     $('#dateRangeFilter').val('');
+        //     $('#clearDate').addClass('d-none');
+        //     table.ajax.reload();
+        // });
+        $('#resetFilters').on('click', function() {
+            var $btn = $(this);
+            
+            // Add spinner and disable button
+            $btn.prop('disabled', true);
+            $btn.html('<span class="spinner-grow spinner-grow-sm me-1" role="status" aria-hidden="true"></span>Reset');
+
+            // Clear filters
+            $('#searchInput').val('');
+            $('#statusFilter').val('all');
+            $('#dateRangeFilter').val('');
+            $('#clearDate').addClass('d-none');
+
+            // Reload DataTable
+            table.ajax.reload(function() {
+                // Re-enable button after table has fully loaded
+                $btn.prop('disabled', false);
+                $btn.html('Reset');
+            });
+        });
+
     });
 
     $(document).on('click', '#viewToggle .btn', function() {
         $('#viewToggle .btn').removeClass('btn-primary').addClass('btn-soft-primary');
         $(this).removeClass('btn-soft-primary').addClass('btn-primary');
+    });
+
+    $(document).ready(function () {
+        function updateSelectColor($select) {
+            let status = $select.val();
+
+            if (status === 'all') {
+                $select.removeClass().addClass('form-select status-select w-50');
+                return;
+            }
+
+            let colors = {
+                'partially received': 'warning',
+                'received in full': 'success',
+                'ordered': 'primary',
+                'draft': 'secondary',
+                'closed': 'info',
+                'canceled': 'danger',
+                'reconcile': 'dark',
+                'breakage': 'light'
+            };
+
+            // Remove old Bootstrap color classes
+            $.each(colors, function (key, color) {
+                $select.removeClass('bg-soft-' + color + ' text-' + color);
+            });
+
+            // Add new color class
+            let newColor = colors[status] || 'secondary';
+            $select.addClass('bg-soft-' + newColor + ' text-' + newColor);
+        }
+
+        // Run on change
+        $(document).on('change', '.status-select', function () {
+            updateSelectColor($(this));
+        });
+
+        // ✅ Run once on page load for all selects
+        $('.status-select').each(function () {
+            updateSelectColor($(this));
+        });
     });
 
 </script>

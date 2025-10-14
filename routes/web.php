@@ -43,6 +43,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Orders routes
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/data', [OrderController::class, 'getData'])->name('orders.data');
+    Route::get('/order/{id}', [OrderController::class, 'show'])->name('order.show');
+    Route::get('/order/{order}/items', [OrderController::class, 'getOrderItems'])->name('order.items');
 
     // Shipping routes
     Route::get('/shipping-batches', [ShippingController::class, 'index'])->name('shipping.index');

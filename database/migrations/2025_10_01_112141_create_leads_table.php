@@ -13,38 +13,30 @@ return new class extends Migration
     {
         Schema::create('leads', function (Blueprint $table) {
             $table->id();
-            $table->date('publish_date')->nullable();
-            $table->text('image')->nullable();
-            $table->string('type')->default('normal');
-            $table->longText('tags')->nullable();
-            $table->longText('product_title')->nullable();
-
-            $table->string('asin')->nullable()->index();
+            $table->integer('source_id')->nullable();
+            $table->boolean('bundle')->default(0);
+            $table->date('date')->nullable();
+            $table->string('name')->nullable();
+            $table->string('asin')->nullable();
+            $table->longText('url')->nullable();
             $table->string('supplier')->nullable();
-            $table->string('brand')->nullable();
-
-            $table->decimal('cost', 10, 2)->default(0);
-            $table->decimal('sale_price', 10, 2)->default(0);
-            $table->decimal('net_profit', 10, 2)->default(0);
-            $table->decimal('roi', 5, 2)->default(0); // percentage ROI
-
-            $table->integer('bsr_90_d_avg')->nullable();
+            $table->double('cost')->default(0);
+            $table->double('sell_price')->default(0);
+            $table->double('net_profit')->default(0);
+            $table->string('roi')->nullable();
+            $table->string('bsr')->nullable();
             $table->string('category')->nullable();
-
-            $table->boolean('promo')->default(false);
-            $table->string('coupon_code')->nullable();
-
-            $table->text('lead_note')->nullable();
-            $table->integer('new_offers')->nullable();
-            $table->decimal('rating', 3, 2)->nullable(); // e.g. 4.75
-
-            $table->integer('bsr_current')->nullable();
-            $table->string('lead_source')->nullable();
-
-            $table->text('variations')->nullable();
+            $table->string('promo')->nullable();
+            $table->text('notes')->nullable();
+            $table->string('currency')->nullable();
+            $table->string('coupon')->nullable();
+            $table->boolean('is_hazmat')->default(0);
+            $table->boolean('is_disputed')->default(0);
+            $table->text('tags')->nullable();
+            $table->boolean('is_rejected')->default(0);
+            $table->text('reason')->nullable();
             $table->integer('created_by')->nullable();
-            $table->integer('updated_by')->nullable();
-            $table->string('created_from')->default('system');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
