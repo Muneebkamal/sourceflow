@@ -36,4 +36,22 @@ class Lead extends Model
         'created_from',
     ];
 
+    public function source()
+    {
+        return $this->belongsTo(Source::class, 'source_id');
+    }
+    public function getLeadTagsAttribute(){
+        $tagsss = explode(',', $this->tags); // Get tag IDs as an array
+        $tags = Tag::whereIn( 'id', $tagsss)->get();
+        return $tags;
+    }
+    public function getBundlesAttribute(){
+        $bundles = Item::where('lead_id',$this->id)->get();
+        return $bundles;
+    }
+    public function createdBy()
+    {
+        return $this->hasOne(User::class,'id','created_by');
+    }
+
 }

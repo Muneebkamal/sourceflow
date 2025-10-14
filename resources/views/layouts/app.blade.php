@@ -648,7 +648,6 @@
                 $(this).addClass('d-none');
             });
         });
-
     </script>
 
     <!-- ✅ jQuery UI Sortable -->
