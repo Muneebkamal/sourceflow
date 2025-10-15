@@ -14,7 +14,7 @@
                         <div class="row g-2 mb-0 align-items-center">
                             <div class="col-auto">
                                 <a class="" href="#" target="_blank">
-                                    <p class="text-success m-0">🎉 To Add Leads to a Buy List, Use the SourceFlow Extension!</p>
+                                    <p class="text-success m-0">🎉 To Add Leads to a Buy List, Use the SF Extension!</p>
                                 </a>
                             </div>
                             <div class="col-auto">

@@ -46,6 +46,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/orders/data', [OrderController::class, 'getData'])->name('orders.data');
     Route::get('/order/{id}', [OrderController::class, 'show'])->name('order.show');
     Route::get('/order/{order}/items', [OrderController::class, 'getOrderItems'])->name('order.items');
+    Route::get('buy-cost-calculator/{order}', [OrderController::class, 'buyCostCalculator'])->name('buy.cost.calculator');
+    Route::post('/orders/update/{id}', [OrderController::class, 'update'])->name('orders.update');
+    Route::post('/orders/{id}/update-info', [OrderController::class, 'updateInfo'])->name('orders.updateInfo');
 
     // Shipping routes
     Route::get('/shipping-batches', [ShippingController::class, 'index'])->name('shipping.index');

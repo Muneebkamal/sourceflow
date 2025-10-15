@@ -14,7 +14,7 @@
             <span class="logo-light">
                 <span class="logo-lg">
                     <img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="logo">
-                    <span class="text-logo text-white">Sourceflow</span>
+                    <span class="text-logo text-white">SF</span>
                 </span>
                 <span class="logo-sm"><img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="small logo"></span>
             </span>
@@ -22,7 +22,7 @@
             <span class="logo-dark">
                 <span class="logo-lg">
                     <img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="dark logo">
-                    <span class="text-logo">Sourceflow</span>
+                    <span class="text-logo">SF</span>
                 </span>
                 <span class="logo-sm"><img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="small logo"></span>
             </span>

@@ -3,18 +3,20 @@
   <a href="#" class="logo">
       <span class="logo-light">
           <span class="logo-lg">
-            <img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="logo">
-            <span class="text-logo text-white">Sourceflow</span>
+            {{-- <img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="logo"> --}}
+            <span class="text-logo fs-3 fw-bolder text-white">SF</span>
           </span>
-          <span class="logo-sm"><img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="small logo"></span>
+          <span class="logo-sm text-logo text-white">SF</span>
+          {{-- <span class="logo-sm"><img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="small logo"></span> --}}
       </span>
 
       <span class="logo-dark">
           <span class="logo-lg">
-            <img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="dark logo">
-            <span class="text-logo">Sourceflow</span>
+            {{-- <img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="dark logo"> --}}
+            <span class="text-logo fs-3 fw-bolder">SF</span>
           </span>
-          <span class="logo-sm"><img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="small logo"></span>
+          <span class="logo-sm text-logo text-white">SF</span>
+          {{-- <span class="logo-sm"><img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="small logo"></span> --}}
       </span>
   </a>
 

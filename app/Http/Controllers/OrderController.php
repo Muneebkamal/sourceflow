@@ -136,6 +136,12 @@ class OrderController extends Controller
             ->make(true);
     }
 
+    public function buyCostCalculator($id)
+    {
+        $order = Order::where('id', $id)->with('LineItems')->first();
+        return view('orders.buy-cost-calculator', compact('order'));
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -243,7 +249,9 @@ class OrderController extends Controller
                 return '
                     <div class="d-flex justify-content-center gap-1">
                         <a href="#" class="btn btn-sm btn-light"><i class="ti ti-eye"></i></a>
-                        <a href="#" class="btn btn-sm btn-light"><i class="ti ti-plus"></i></a>
+                        <a href="#" class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#createEventModal">
+                            <i class="ti ti-plus"></i>
+                        </a>
                         <div class="dropdown">
                             <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body">
                                 <i class="ti ti-dots-vertical"></i>
@@ -299,7 +307,33 @@ class OrderController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $order = Order::findOrFail($id);
+        $order->order_id = $request->order_id;
+        $order->date = Carbon::parse($request->date)->format('Y-m-d H:i:s');
+        $order->status = $request->status;
+        $order->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Order updated successfully!',
+        ]);
+    }
+
+    public function updateInfo(Request $request, $orderId)
+    {
+        $order = Order::findOrFail($orderId);
+
+        $order->update([
+            'source' => $request->source,
+            'email' => $request->email,
+            'destination' => $request->destination,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Order info updated successfully!',
+            'data' => $order
+        ]);
     }
 
     /**

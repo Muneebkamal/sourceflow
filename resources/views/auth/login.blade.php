@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Login | Source Flow</title>
+  <title>Login | SF</title>
   <link rel="shortcut icon" href="{{ asset('assets/images/logo/default-logo.png') }}" type="image/x-icon" />
 
   <!-- Theme Config Js -->
@@ -28,9 +28,9 @@
         <div class="col-xl-4 col-lg-5 col-md-6">
             <div class="card overflow-hidden text-center h-100 p-xxl-4 p-3 mb-0">
                 <a href="#" class="auth-brand mb-3 d-flex align-items-center justify-content-center">
-                    <img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="dark logo" height="40" class="logo-dark">
-                    <img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="logo light" height="40" class="logo-light">
-                    <span class="fw-bold fs-3 text-dark">Source Flow</span>
+                    {{-- <img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="dark logo" height="40" class="logo-dark">
+                    <img src="{{ asset('assets/images/logo/default-logo.png') }}" alt="logo light" height="40" class="logo-light"> --}}
+                    <span class="fw-bold fs-3 text-dark">SF</span>
                 </a>
 
                 <form method="POST" action="{{ route('login') }}" class="text-start mb-3">
@@ -85,7 +85,7 @@
                 </form>
 
                 <p class="mt-auto mb-0">
-                    <script>document.write(new Date().getFullYear())</script> © SourceFlow
+                    <script>document.write(new Date().getFullYear())</script> © SF
                 </p>
             </div>
         </div>

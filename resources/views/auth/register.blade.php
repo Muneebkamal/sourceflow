@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sign Up | Source Flow</title>
+  <title>Sign Up | SF</title>
   <link rel="shortcut icon" href="{{ asset('assets/images/logo/logo-default.png') }}" type="image/x-icon" />
 
   <!-- CSS -->
