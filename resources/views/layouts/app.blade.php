@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="{{ asset('assets/images/logo/default-logo.png') }}" type="image/x-icon" />
-    <title>@yield('title') - Source Flow  </title>
+    <title>@yield('title') - SF  </title>
 
     <!-- Theme Config Js -->
     <script src="{{ asset('assets/js/config.js') }}"></script>
@@ -32,6 +32,10 @@
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.bootstrap5.min.css" rel="stylesheet">
+
+    <!-- ✅ Toastr CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+
 
     <style>
         .daterangepicker td.active,
@@ -685,6 +689,23 @@
                 $(this).append($('.dropdown-menu').detach());
             });
         });
+    </script>
+
+    <!-- ✅ Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        // ✅ Toastr Global Config
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-center",
+            "timeOut": "3000",
+            "extendedTimeOut": "1000",
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
     </script>
 
     @yield('scripts')

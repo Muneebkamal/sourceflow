@@ -142,7 +142,7 @@
                                     <div class="card h-100">
                                         <div class="card-header d-flex justify-content-between align-items-center border-bottom">
                                             <h5 class="mb-0">Order Totals</h5>
-                                            <a href="#" class="text-decoration-none">
+                                            <a href="{{ route('buy.cost.calculator', $order->id) }}" class="text-decoration-none">
                                                 <i class="ti ti-calculator"></i> Edit
                                             </a>
                                         </div>
@@ -560,48 +560,11 @@
 
     @include('modals.order.order-detail.attachment-modal')
     @include('modals.order.order-detail.lineitems-edit-modal')
+    @include('modals.order.order-detail.create-event-modal')
 @endsection
 
 @section('scripts')
 <script>
-    // $(document).ready(function() {
-    //     let table = $('#order-items-table').DataTable({
-    //         processing: true,
-    //         serverSide: true,
-    //         ajax: '{{ route('order.items', $order->id) }}',
-    //         scrollY: '40vh',
-    //         scrollX: true,
-    //         scrollCollapse: true,
-    //         paging: true,
-    //         searching: false,
-    //         lengthChange: false,
-    //         ordering: false,
-    //         columns: [
-    //             { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false },
-    //             { data: 'image', name: 'image' },
-    //             { data: 'name', name: 'name' },
-    //             { data: 'variation_details', name: 'variation_details' },
-    //             { data: 'asin', name: 'asin' },
-    //             { data: 'msku', name: 'msku' },
-    //             { data: 'qty', name: 'qty' },
-    //             { data: 'cost', name: 'cost' },
-    //             { data: 'sku_total', name: 'sku_total' },
-    //             { data: 'orlef', name: 'orlef' },
-    //             { data: 'product_note', name: 'product_note' },
-    //             { data: 'buyer_note', name: 'buyer_note' },
-    //             { data: 'actions', name: 'actions', orderable: false, searchable: false },
-    //         ]
-    //     });
-
-    //     table.on('xhr.dt', function(e, settings, json, xhr) {
-    //         if (json && json.recordsTotal !== undefined) {
-    //             $('#items-count').text(json.recordsTotal);
-    //         } else {
-    //             $('#items-count').text(0);
-    //         }
-    //     });
-    // });
-
     $(document).ready(function() {
         let table = $('#order-items-table').DataTable({
             processing: true,
@@ -741,40 +704,85 @@
         });
     });
 
+    // order_id date and status update
     $(document).ready(function() {
+        // Enable inline editing
         $('#edit-order').on('click', function() {
             var orderId = $('#order-id').text().trim();
             var orderDate = $('#order-date').text().trim();
 
+            // Convert "mm/dd/yy" → "yyyy-mm-dd"
             var parts = orderDate.split('/');
             var month = parts[0].padStart(2, '0');
             var day = parts[1].padStart(2, '0');
-            var year = '20' + parts[2]; // assuming 2-digit year
+            var year = '20' + parts[2]; // two-digit year to four-digit
             var formattedDate = `${year}-${month}-${day}`;
 
+            // Replace display with editable inputs
             $('#order-info').html(`
                 <h4 class="fs-18 fw-semibold m-0" style="white-space: nowrap;">
-                    Order # <input type="text" id="edit-order-id" class="form-control d-inline-block" value="${orderId}">
+                    Order # <input type="text" id="edit-order-id" class="form-control d-inline-block w-auto ms-1" value="${orderId}">
                 </h4>
                 <p class="m-0 mt-2" style="white-space: nowrap;">
-                    Order Date: <input type="date" id="edit-order-date" class="form-control d-inline-block" value="${formattedDate}">
+                    Order Date: <input type="date" id="edit-order-date" class="form-control d-inline-block w-auto ms-1" value="${formattedDate}">
                 </p>
             `);
+
             $(this).hide();
+            // $('#save-order-form').prop('disabled', false);
         });
-    });
 
-    $(document).ready(function() {
-        // initially disabled
-        $('#save-order-form').prop('disabled', true);
-
-        // enable button on input or select change
+        // Enable save button if any field changes
         $('#order-form').on('input change', 'input, select, textarea', function() {
             $('#save-order-form').prop('disabled', false);
         });
+
+        // Handle Save button click
+        $('#save-order-form').on('click', function(e) {
+            e.preventDefault();
+
+            // If user has edited inline
+            let orderId = $('#edit-order-id').length ? $('#edit-order-id').val().trim() : $('#order-id').text().trim();
+            let orderDate = $('#edit-order-date').length ? $('#edit-order-date').val().trim() : $('#order-date').text().trim();
+            let status = $('select[name="status"]').val();
+
+            $.ajax({
+                url: "{{ route('orders.update', $order->id) }}",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    order_id: orderId,
+                    date: orderDate,
+                    status: status
+                },
+                success: function(response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+
+                        // Revert editable fields to static view
+                        let displayDate = new Date(orderDate).toLocaleDateString('en-US', {
+                            month: '2-digit',
+                            day: '2-digit',
+                            year: '2-digit'
+                        });
+
+                        $('#order-info').html(`
+                            <h4 class="fs-18 fw-semibold m-0">Order #<span id="order-id">${orderId}</span></h4>
+                            <p class="m-0">Order Date: <span id="order-date">${displayDate}</span></p>
+                        `);
+
+                        $('#edit-order').show();
+                        $('#save-order-form').prop('disabled', true);
+                    }
+                },
+                error: function(xhr) {
+                    toastr.error('Error updating order');
+                }
+            });
+        });
     });
 
-
+    // order detail info update
     $(document).ready(function() {
         let editing = false;
 
@@ -783,33 +791,81 @@
             editing = !editing;
 
             if (editing) {
-                $('#edit-icon-order-info').removeClass('ti-pencil').addClass('ti-check'); // check icon
-                $('#edit-text-order-info').hide(); // hide text
+                // Switch to edit mode
+                $('#edit-icon-order-info').removeClass('ti-pencil').addClass('ti-check');
+                $('#edit-text-order-info').hide();
 
-                // convert spans to inputs
+                // Convert text spans to editable inputs
                 const sourceText = $('#source-field').text().trim();
                 const emailText = $('#email-field').text().trim();
                 const destinationText = $('#destination-field').text().trim();
 
-                $('#source-field').html(`<input type="text" class="form-control" value="${sourceText}">`);
-                $('#email-field').html(`<input type="email" class="form-control" value="${emailText}">`);
-                $('#destination-field').html(`<input type="text" class="form-control" value="${destinationText}">`);
+                $('#source-field').html(`<input id="source-field-input" type="text" class="form-control" value="${sourceText}">`);
+                $('#email-field').html(`<input id="email-field-input" type="email" class="form-control" value="${emailText}">`);
+                $('#destination-field').html(`<input id="destination-field-input" type="text" class="form-control" value="${destinationText}">`);
 
             } else {
-                $('#edit-icon-order-info').removeClass('ti-check').addClass('ti-pencil'); // pencil icon
-                $('#edit-text-order-info').show(); // show text
+                // Switch back from edit mode (save changes)
+                $('#edit-icon-order-info').removeClass('ti-check').addClass('ti-pencil');
+                $('#edit-text-order-info').show();
 
-                // revert inputs back to text
-                const sourceVal = $('#source-field input').val();
-                const emailVal = $('#email-field input').val();
-                const destinationVal = $('#destination-field input').val();
+                // Get input values
+                const sourceVal = $('#source-field-input').val();
+                const emailVal = $('#email-field-input').val();
+                const destinationVal = $('#destination-field-input').val();
 
-                $('#source-field').html(sourceVal);
-                $('#email-field').html(emailVal);
-                $('#destination-field').html(destinationVal);
+                // Send AJAX request to update the order info
+                $.ajax({
+                    url: "{{ route('orders.updateInfo', $order->id) }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        source: sourceVal,
+                        email: emailVal,
+                        destination: destinationVal
+                    },
+                    beforeSend: function() {
+                        // Optional: show loader or disable edit button
+                        $('#edit-order-info').addClass('disabled');
+                    },
+                    success: function(response) {
+                        $('#edit-order-info').removeClass('disabled');
+
+                        if (response.success) {
+                            toastr.success(response.message);
+
+                            // ✅ Update the text display
+                            let finalSource = sourceVal.trim();
+                            let sourceUrl = finalSource;
+
+                            // Ensure link has http/https prefix
+                            if (sourceUrl && !/^https?:\/\//i.test(sourceUrl)) {
+                                sourceUrl = 'https://' + sourceUrl;
+                            }
+
+                            // Rebuild the clickable link with icon
+                            $('#source-field').html(`
+                                <a href="${sourceUrl}" target="_blank" class="text-primary text-decoration-none">
+                                    ${finalSource}
+                                    <i class="ti ti-external-link text-primary fs-5 align-middle"></i>
+                                </a>
+                            `);
+                            $('#email-field').html(emailVal);
+                            $('#destination-field').html(destinationVal);
+                        } else {
+                            toastr.error(response.message || 'Failed to update order info.');
+                        }
+                    },
+                    error: function(xhr) {
+                        $('#edit-order-info').removeClass('disabled');
+                        toastr.error('Failed to update order info.');
+                        console.error(xhr.responseText);
+                    }
+                });
             }
         });
     });
+
 
     $(document).ready(function() {
         let editingPayment = false;
