@@ -44,13 +44,13 @@
                         <span class="input-group-text">
                             <i class="ti ti-search"></i>
                         </span>
-                        <input type="text" class="form-control" placeholder="Search...">
+                        <input id="searchInput" type="text" class="form-control" placeholder="Search...">
                     </div>
                 </div>
 
                 <!-- Filter + Reset Buttons -->
                 <div class="d-flex gap-1">
-                    <button class="btn btn-soft-danger">Reset</button>
+                    <button id="reset-btn" class="btn btn-danger">Reset</button>
                     <button class="btn btn-soft-primary">View Ordered Leads</button>
                 </div>
             </div>
@@ -74,43 +74,23 @@
 
                             <div class="card-body p-2">
                                 <div class="column-list">
-                                    <!-- Default Buy List -->
-                                    <div class="d-flex justify-content-between align-items-center my-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-335">
-                                            <label class="form-check-label mb-0" for="col-335">Default Buy List</label>
+                                    <!-- Buy Lists -->
+                                    @foreach ($buylist as $list)
+                                        <div class="d-flex justify-content-between align-items-center my-2 column-item position-relative">
+                                            <div class="d-flex align-items-center">
+                                                <input class="form-check-input me-2 buylist-filter" type="checkbox" value="{{ $list->id }}" id="list-{{ $list->id }}" checked>
+                                                <label class="form-check-label mb-0" for="list-{{ $list->id }}">{{ $list->name }}</label>
+                                            </div>
+                                            <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y">
+                                                <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
+                                            </div>
                                         </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y">
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Kamal Buy List -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-335">
-                                            <label class="form-check-label mb-0" for="col-335">Kamal</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y">
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Replenishments Buy List -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-335">
-                                            <label class="form-check-label mb-0" for="col-335">Replenishments</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y">
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
+                                    @endforeach
                                 </div>
                             </div>
                             <div class="card-footer">
                                 <div class="d-flex justify-content-end">
-                                    <button class="btn btn-soft-primary">Create Buylist <i class="ti ti-plus"></i></button>
+                                    <button class="btn btn-soft-primary" data-bs-toggle="modal" data-bs-target="#createBuylistModal">Create Buylist <i class="ti ti-plus"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -415,7 +395,7 @@
                             </thead>
                             <tbody>
                                 <!-- Row 1 -->
-                                <tr class="small">
+                                {{-- <tr class="small">
                                     <td><input type="checkbox" class="form-check-input"></td>
                                     <td>2025/09/20</td>
                                     <td>B09XYZ123</td>
@@ -447,263 +427,7 @@
                                             </div>
                                         </div>
                                     </td>
-                                </tr>
-
-                                <!-- Row 2 -->
-                                <tr class="small">
-                                    <td><input type="checkbox" class="form-check-input"></td>
-                                    <td>2025/09/18</td>
-                                    <td>B07ABC456</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" width="50" alt=""></td>
-                                    <td>Vacuum Cleaner</td>
-                                    <td><span class="badge bg-info">Trending</span></td>
-                                    <td>Supplier B</td>
-                                    <td>$789</td>
-                                    <td>8,765</td>
-                                    <td>Popular Choice</td>
-                                    <td>High Demand</td>
-                                    <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <button class="btn btn-sm btn-success"><i class="ti ti-currency-dollar"></i></button>
-                                            <button class="btn btn-sm btn-light"><i class="ti ti-external-link"></i></button>
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                    <i class="ti ti-dots-vertical"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Row 3 -->
-                                <tr class="small">
-                                    <td><input type="checkbox" class="form-check-input"></td>
-                                    <td>2025/09/10</td>
-                                    <td>B08LMN789</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" width="50" alt=""></td>
-                                    <td>Football Shoes</td>
-                                    <td><span class="badge bg-warning">Seasonal</span></td>
-                                    <td>Supplier C</td>
-                                    <td>$789</td>
-                                    <td>6,540</td>
-                                    <td>Best for players</td>
-                                    <td>Good performance</td>
-                                    <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <button class="btn btn-sm btn-success"><i class="ti ti-currency-dollar"></i></button>
-                                            <button class="btn btn-sm btn-light"><i class="ti ti-external-link"></i></button>
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                    <i class="ti ti-dots-vertical"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Row 4 -->
-                                <tr class="small">
-                                    <td><input type="checkbox" class="form-check-input"></td>
-                                    <td>2025/09/20</td>
-                                    <td>B09XYZ123</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" width="50" alt=""></td>
-                                    <td>Wireless Headphones</td>
-                                    <td><span class="badge bg-primary">Hot</span> <span class="badge bg-success">New</span></td>
-                                    <td>Supplier A</td>
-                                    <td>$789</td>
-                                    <td>12,345</td>
-                                    <td>Fast Selling</td>
-                                    <td>Good margin</td>
-                                    <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <button class="btn btn-sm btn-success">
-                                                <i class="ti ti-currency-dollar"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-light">
-                                                <i class="ti ti-external-link"></i>
-                                            </button>
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                    <i class="ti ti-dots-vertical"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Row 5 -->
-                                <tr class="small">
-                                    <td><input type="checkbox" class="form-check-input"></td>
-                                    <td>2025/09/18</td>
-                                    <td>B07ABC456</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" width="50" alt=""></td>
-                                    <td>Vacuum Cleaner</td>
-                                    <td><span class="badge bg-info">Trending</span></td>
-                                    <td>Supplier B</td>
-                                    <td>$789</td>
-                                    <td>8,765</td>
-                                    <td>Popular Choice</td>
-                                    <td>High Demand</td>
-                                    <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <button class="btn btn-sm btn-success"><i class="ti ti-currency-dollar"></i></button>
-                                            <button class="btn btn-sm btn-light"><i class="ti ti-external-link"></i></button>
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                    <i class="ti ti-dots-vertical"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Row 6 -->
-                                <tr class="small">
-                                    <td><input type="checkbox" class="form-check-input"></td>
-                                    <td>2025/09/10</td>
-                                    <td>B08LMN789</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" width="50" alt=""></td>
-                                    <td>Football Shoes</td>
-                                    <td><span class="badge bg-warning">Seasonal</span></td>
-                                    <td>Supplier C</td>
-                                    <td>$789</td>
-                                    <td>6,540</td>
-                                    <td>Best for players</td>
-                                    <td>Good performance</td>
-                                    <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <button class="btn btn-sm btn-success"><i class="ti ti-currency-dollar"></i></button>
-                                            <button class="btn btn-sm btn-light"><i class="ti ti-external-link"></i></button>
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                    <i class="ti ti-dots-vertical"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Row 7 -->
-                                <tr class="small">
-                                    <td><input type="checkbox" class="form-check-input"></td>
-                                    <td>2025/09/20</td>
-                                    <td>B09XYZ123</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" width="50" alt=""></td>
-                                    <td>Wireless Headphones</td>
-                                    <td><span class="badge bg-primary">Hot</span> <span class="badge bg-success">New</span></td>
-                                    <td>Supplier A</td>
-                                    <td>$789</td>
-                                    <td>12,345</td>
-                                    <td>Fast Selling</td>
-                                    <td>Good margin</td>
-                                    <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <button class="btn btn-sm btn-success">
-                                                <i class="ti ti-currency-dollar"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-light">
-                                                <i class="ti ti-external-link"></i>
-                                            </button>
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                    <i class="ti ti-dots-vertical"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Row 8 -->
-                                <tr class="small">
-                                    <td><input type="checkbox" class="form-check-input"></td>
-                                    <td>2025/09/18</td>
-                                    <td>B07ABC456</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" width="50" alt=""></td>
-                                    <td>Vacuum Cleaner</td>
-                                    <td><span class="badge bg-info">Trending</span></td>
-                                    <td>Supplier B</td>
-                                    <td>$789</td>
-                                    <td>8,765</td>
-                                    <td>Popular Choice</td>
-                                    <td>High Demand</td>
-                                    <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <button class="btn btn-sm btn-success"><i class="ti ti-currency-dollar"></i></button>
-                                            <button class="btn btn-sm btn-light"><i class="ti ti-external-link"></i></button>
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                    <i class="ti ti-dots-vertical"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Row 9 -->
-                                <tr class="small">
-                                    <td><input type="checkbox" class="form-check-input"></td>
-                                    <td>2025/09/10</td>
-                                    <td>B08LMN789</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" width="50" alt=""></td>
-                                    <td>Football Shoes</td>
-                                    <td><span class="badge bg-warning">Seasonal</span></td>
-                                    <td>Supplier C</td>
-                                    <td>$789</td>
-                                    <td>6,540</td>
-                                    <td>Best for players</td>
-                                    <td>Good performance</td>
-                                    <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <button class="btn btn-sm btn-success"><i class="ti ti-currency-dollar"></i></button>
-                                            <button class="btn btn-sm btn-light"><i class="ti ti-external-link"></i></button>
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                    <i class="ti ti-dots-vertical"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
+                                </tr> --}}
                             </tbody>
                         </table>
                     </div>
@@ -717,15 +441,80 @@
     
 @section('scripts')
     <script>
+        // $(document).ready(function() {
+        //     $('#buylist-table').DataTable({
+        //         scrollY: '40vh',
+        //         searching: false,
+        //         lengthChange: false,
+        //         ordering: false,
+        //         scrollX: true,
+        //         scrollCollapse: true,
+        //         paging: true,
+        //     });
+        // });
+
         $(document).ready(function() {
-            $('#buylist-table').DataTable({
+            let table = $('#buylist-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('buylist.data') }}",
+                    data: function (d) {
+                        d.buylist_ids = $('.buylist-filter:checked').map(function() {
+                            return $(this).val();
+                        }).get(); // send selected buylist IDs to backend
+                        d.search = $('#searchInput').val(); // optional search input
+                    }
+                },
+                drawCallback: function () {
+                    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                    tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
+                },
                 scrollY: '40vh',
-                searching: false,
-                lengthChange: false,
-                ordering: false,
                 scrollX: true,
-                scrollCollapse: true,
                 paging: true,
+                searching: false,
+                ordering: true,
+                lengthChange: false,
+                columns: [
+                    { data: null, orderable: false, render: function(){ return '<input type="checkbox" class="form-check-input">'; } },
+                    { data: 'created_at' },
+                    { data: 'asin' },
+                    { data: 'image', orderable: false, searchable: false },
+                    { data: 'name' },
+                    { data: 'variations' },
+                    { data: 'supplier' },
+                    { data: 'bsr' },
+                    { data: 'cost' },
+                    { data: 'order_note' },
+                    { data: 'product_buyer_notes' },
+                    { data: 'actions', orderable: false, searchable: false },
+                ]
+            });
+
+            // 🔹 When Buy List checkboxes change, reload the table
+            $(document).on('change', '.buylist-filter', function() {
+                table.ajax.reload();
+            });
+
+            // 🔹 Optional: Search + Reset buttons
+            $('#searchInput').on('keyup', function() {
+                table.ajax.reload();
+            });
+
+            $('#reset-btn').on('click', function() {
+                var $btn = $(this);
+                $btn.prop('disabled', true);
+                $btn.html('<span class="spinner-grow spinner-grow-sm me-1" role="status" aria-hidden="true"></span>Reset');
+
+                $('#searchInput').val('');
+                // $('.buylist-filter').prop('checked', false);
+
+                table.ajax.reload(function() {
+                    // Re-enable button after table has fully loaded
+                    $btn.prop('disabled', false);
+                    $btn.html('Reset');
+                });
             });
         });
     </script>
