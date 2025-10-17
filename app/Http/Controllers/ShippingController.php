@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Shipping;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class ShippingController extends Controller
 {
@@ -12,6 +14,70 @@ class ShippingController extends Controller
     public function index()
     {
         return view('shipping.index');
+    }
+
+    public function getData(Request $request)
+    {
+        $query = Shipping::select(['id', 'name', 'status', 'date', 'market_place', 'items', 'tracking_number', 'notes']);
+
+        // 🔹 Apply search filter
+        if ($request->filled('search_value')) {
+            $search = $request->search_value;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                ->orWhere('market_place', 'like', "%{$search}%")
+                ->orWhere('tracking_number', 'like', "%{$search}%")
+                ->orWhere('notes', 'like', "%{$search}%");
+            });
+        }
+
+        // 🔹 Apply status filter
+        if ($request->status && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        // 🔹 Apply date range filter
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('date', [$request->start_date, $request->end_date]);
+        }
+
+        return DataTables::of($query)
+            ->addColumn('checkbox', function ($row) {
+                return '<input type="checkbox" class="form-check-input row-checkbox" value="' . $row->id . '">';
+            })
+            ->editColumn('status', function ($row) {
+                $statuses = [
+                    'open' => 'Open',
+                    'in_transit' => 'In Transit',
+                    'closed' => 'Closed'
+                ];
+
+                $html = '<select class="form-select form-select-sm shipping-status" data-id="'.$row->id.'">';
+                foreach ($statuses as $key => $label) {
+                    $selected = ($row->status === $key) ? 'selected' : '';
+                    $html .= '<option class="bg-white text-black" value="'.$key.'" '.$selected.'>'.$label.'</option>';
+                }
+                $html .= '</select>';
+
+                return $html;
+            })
+            ->addColumn('actions', function ($row) {
+                return '
+                    <div class="d-flex justify-content-center gap-1">
+                        <a href="#" class="btn btn-sm btn-light"><i class="ti ti-eye"></i></a>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body">
+                                <i class="ti ti-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#">Edit</a></li>
+                                <li><a class="dropdown-item text-danger" href="#">Delete</a></li>
+                            </ul>
+                        </div>
+                    </div>';
+            })
+            ->rawColumns(['checkbox', 'status', 'actions'])
+            ->make(true);
     }
 
     /**

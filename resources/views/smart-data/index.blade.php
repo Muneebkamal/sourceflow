@@ -4,8 +4,18 @@
 
 @section('styles')
 <style>
-    
+.text-truncate-multiline {
+    /* width: 200px; */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    cursor: pointer;
+}
 </style>
+
 @endsection
 
 @section('content')
@@ -48,15 +58,15 @@
     <div class="row align-items-end mb-3">
         <div class="col-md-6">
             <div class="d-flex align-items-center gap-2">
-                <div class="d-flex">
+                <div class="d-flex w-100">
                     <div class="input-group">
                         <span class="input-group-text">
                             <i class="ti ti-search"></i>
                         </span>
-                        <input type="text" class="form-control" placeholder="Search..." style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search..." style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
                     </div>
-                    <select class="form-select w-25" style="border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: none;">
-                        <option>All</option>
+                    <select id="searchType" class="form-select w-25" style="border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: none;">
+                        <option value="all">All</option>
                         <option value="name">Name</option>
                         <option value="asin">ASIN</option>
                         <option value="source_url">Source</option>
@@ -66,7 +76,8 @@
                 <!-- Filter + Reset Buttons -->
                 <div class="d-flex gap-1">
                     <div class="btn-group drop-down">
-                        <button type="button" class="btn btn-soft-primary dropdown-toggle drop-arrow-none" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="true">
+                        <button type="button" class="btn btn-soft-primary dropdown-toggle drop-arrow-none"
+                                data-bs-auto-close="false" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="ti ti-adjustments-horizontal"></i> Filters
                         </button>
                         <div class="dropdown-menu dropdown-menu-lg p-0 shadow">
@@ -74,151 +85,121 @@
                                 <div class="card-body p-2">
                                     <label for="">Date Range</label>
                                     <div class="input-group position-relative">
-                                        <span class="input-group-text">
-                                            <i class="ti ti-calendar"></i>
-                                        </span>
-                                        <!-- Input opens the calendar -->
+                                        <span class="input-group-text"><i class="ti ti-calendar"></i></span>
                                         <input type="text" id="dateRangeFilter" class="form-control pe-3 rounded-end" placeholder="Date Range">
-                                        <!-- Clear (X) icon -->
                                         <button type="button" id="clearDate" class="btn position-absolute end-0 top-50 translate-middle-y me-1 p-0 border-0 bg-transparent d-none">
                                             <i class="ti ti-x text-muted"></i>
                                         </button>
                                     </div>
 
                                     <div class="accordion" id="filterAccordion">
-
                                         <!-- Net Profit -->
                                         <div class="accordion-item border-0">
                                             <h2 class="accordion-header" id="headingNetProfit">
-                                            <button class="accordion-button collapsed p-2 d-flex align-items-center" type="button"
-                                                data-bs-toggle="collapse" data-bs-target="#collapseNetProfit" aria-expanded="false"
-                                                aria-controls="collapseNetProfit">
-                                                <input class="form-check-input me-2" type="checkbox" id="chkNetProfit">
-                                                <label class="form-check-label flex-grow-1" for="chkNetProfit">Net Profit</label>
-                                            </button>
+                                                <button class="accordion-button collapsed p-2 d-flex align-items-center" type="button"
+                                                    data-bs-toggle="collapse" data-bs-target="#collapseNetProfit">
+                                                    <input class="form-check-input me-2" type="checkbox" id="chkNetProfit">
+                                                    <label class="form-check-label flex-grow-1" for="chkNetProfit">Net Profit</label>
+                                                </button>
                                             </h2>
-                                            <div id="collapseNetProfit" class="accordion-collapse collapse"
-                                            aria-labelledby="headingNetProfit" data-bs-parent="#filterAccordion">
-                                            <div class="accordion-body py-2">
-                                                <div class="row g-2">
-                                                <div class="col">
-                                                    <input type="number" class="form-control" placeholder="Min">
+                                            <div id="collapseNetProfit" class="accordion-collapse collapse">
+                                                <div class="accordion-body py-2">
+                                                    <div class="row g-2">
+                                                        <div class="col"><input type="number" id="net_profit_min" class="form-control" placeholder="Min"></div>
+                                                        <div class="col"><input type="number" id="net_profit_max" class="form-control" placeholder="Max"></div>
+                                                    </div>
                                                 </div>
-                                                <div class="col">
-                                                    <input type="number" class="form-control" placeholder="Max">
-                                                </div>
-                                                </div>
-                                            </div>
                                             </div>
                                         </div>
 
                                         <!-- Selling Price -->
                                         <div class="accordion-item border-0">
                                             <h2 class="accordion-header" id="headingSellingPrice">
-                                            <button class="accordion-button collapsed p-2 d-flex align-items-center" type="button"
-                                                data-bs-toggle="collapse" data-bs-target="#collapseSellingPrice" aria-expanded="false"
-                                                aria-controls="collapseSellingPrice">
-                                                <input class="form-check-input me-2" type="checkbox" id="chkSellingPrice">
-                                                <label class="form-check-label flex-grow-1" for="chkSellingPrice">Selling Price</label>
-                                            </button>
+                                                <button class="accordion-button collapsed p-2 d-flex align-items-center" type="button"
+                                                    data-bs-toggle="collapse" data-bs-target="#collapseSellingPrice">
+                                                    <input class="form-check-input me-2" type="checkbox" id="chkSellingPrice">
+                                                    <label class="form-check-label flex-grow-1" for="chkSellingPrice">Selling Price</label>
+                                                </button>
                                             </h2>
-                                            <div id="collapseSellingPrice" class="accordion-collapse collapse"
-                                            aria-labelledby="headingSellingPrice" data-bs-parent="#filterAccordion">
-                                            <div class="accordion-body py-2">
-                                                <div class="row g-2">
-                                                <div class="col">
-                                                    <input type="number" class="form-control" placeholder="Min">
+                                            <div id="collapseSellingPrice" class="accordion-collapse collapse">
+                                                <div class="accordion-body py-2">
+                                                    <div class="row g-2">
+                                                        <div class="col"><input type="number" id="sell_price_min" class="form-control" placeholder="Min"></div>
+                                                        <div class="col"><input type="number" id="sell_price_max" class="form-control" placeholder="Max"></div>
+                                                    </div>
                                                 </div>
-                                                <div class="col">
-                                                    <input type="number" class="form-control" placeholder="Max">
-                                                </div>
-                                                </div>
-                                            </div>
                                             </div>
                                         </div>
 
                                         <!-- 90 Day Average -->
                                         <div class="accordion-item border-0">
-                                            <h2 class="accordion-header" id="headingNinetyDay">
-                                            <button class="accordion-button collapsed p-2 d-flex align-items-center" type="button"
-                                                data-bs-toggle="collapse" data-bs-target="#collapseNinetyDay" aria-expanded="false"
-                                                aria-controls="collapseNinetyDay">
-                                                <input class="form-check-input me-2" type="checkbox" id="chkNinetyDay">
-                                                <label class="form-check-label flex-grow-1" for="chkNinetyDay">90 Day Average</label>
-                                            </button>
+                                            <h2 class="accordion-header" id="heading90DayAvg">
+                                                <button class="accordion-button collapsed p-2 d-flex align-items-center" type="button"
+                                                    data-bs-toggle="collapse" data-bs-target="#collapse90DayAvg">
+                                                    <input class="form-check-input me-2" type="checkbox" id="chk90DayAvg">
+                                                    <label class="form-check-label flex-grow-1" for="chk90DayAvg">90 Day Average</label>
+                                                </button>
                                             </h2>
-                                            <div id="collapseNinetyDay" class="accordion-collapse collapse"
-                                            aria-labelledby="headingNinetyDay" data-bs-parent="#filterAccordion">
-                                            <div class="accordion-body py-2">
-                                                <div class="row g-2">
-                                                <div class="col">
-                                                    <input type="number" class="form-control" placeholder="Min">
+                                            <div id="collapse90DayAvg" class="accordion-collapse collapse">
+                                                <div class="accordion-body py-2">
+                                                    <div class="row g-2">
+                                                        <div class="col"><input type="number" id="avg90_min" class="form-control" placeholder="Min"></div>
+                                                        <div class="col"><input type="number" id="avg90_max" class="form-control" placeholder="Max"></div>
+                                                    </div>
                                                 </div>
-                                                <div class="col">
-                                                    <input type="number" class="form-control" placeholder="Max">
-                                                </div>
-                                                </div>
-                                            </div>
                                             </div>
                                         </div>
 
-                                        <!-- ROI % -->
+                                        <!-- ROI -->
                                         <div class="accordion-item border-0">
                                             <h2 class="accordion-header" id="headingROI">
-                                            <button class="accordion-button collapsed p-2 d-flex align-items-center" type="button"
-                                                data-bs-toggle="collapse" data-bs-target="#collapseROI" aria-expanded="false"
-                                                aria-controls="collapseROI">
-                                                <input class="form-check-input me-2" type="checkbox" id="chkROI">
-                                                <label class="form-check-label flex-grow-1" for="chkROI">ROI %</label>
-                                            </button>
+                                                <button class="accordion-button collapsed p-2 d-flex align-items-center" type="button"
+                                                    data-bs-toggle="collapse" data-bs-target="#collapseROI">
+                                                    <input class="form-check-input me-2" type="checkbox" id="chkROI">
+                                                    <label class="form-check-label flex-grow-1" for="chkROI">ROI %</label>
+                                                </button>
                                             </h2>
-                                            <div id="collapseROI" class="accordion-collapse collapse"
-                                            aria-labelledby="headingROI" data-bs-parent="#filterAccordion">
-                                            <div class="accordion-body py-2">
-                                                <div class="row g-2">
-                                                <div class="col">
-                                                    <input type="number" class="form-control" placeholder="Min">
+                                            <div id="collapseROI" class="accordion-collapse collapse">
+                                                <div class="accordion-body py-2">
+                                                    <div class="row g-2">
+                                                        <div class="col"><input type="number" id="roi_min" class="form-control" placeholder="Min"></div>
+                                                        <div class="col"><input type="number" id="roi_max" class="form-control" placeholder="Max"></div>
+                                                    </div>
                                                 </div>
-                                                <div class="col">
-                                                    <input type="number" class="form-control" placeholder="Max">
-                                                </div>
-                                                </div>
-                                            </div>
                                             </div>
                                         </div>
-
                                     </div>
+
                                     <hr>
-                                    <div>
-                                        <div class="form-check m-2">
+                                    <div class="form-check m-2">
                                         <input class="form-check-input" type="checkbox" id="excludeHazmat">
                                         <label class="form-check-label" for="excludeHazmat">Exclude Hazmat</label>
-                                        </div>
-                                        <div class="form-check m-2">
+                                    </div>
+                                    <div class="form-check m-2">
                                         <input class="form-check-input" type="checkbox" id="excludeDisputed">
                                         <label class="form-check-label" for="excludeDisputed">Exclude Disputed</label>
-                                        </div>
                                     </div>
                                     <hr>
                                 </div>
                                 <div class="card-footer">
                                     <div class="d-flex justify-content-end">
-                                        <button class="btn btn-light me-1">Close</button>
-                                        <button class="btn btn-soft-primary">Apply</button>
+                                        <button type="button" class="btn btn-light me-1" id="btnCloseFilter">Close</button>
+                                        <button type="button" class="btn btn-soft-primary" id="btnApplyFilter">Apply</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <button class="btn btn-soft-danger">Reset</button>
+                    <button class="btn btn-danger" id="btnResetFilters">Reset</button>
                 </div>
+
             </div>
         </div>
 
         <div class="col-md-6">
             <div class="d-flex align-items-end justify-content-md-end gap-1 flex-wrap mt-2 mt-md-0">
-                <div class="form-control fw-bold d-inline-block" style="width:auto;">
-                    Total Results: 24,255
+                <div id="total-results" class="form-control fw-bold d-inline-block" style="width:auto;">
+                    Total Results: 0
                 </div>
 
 
@@ -840,260 +821,13 @@
                                     <th>Coupon Code</th>
                                     <th>Lead Note</th>
                                     <th>BSR Current</th>
-                                    <th class="sticky-col">Actions</th>
+                                    {{-- <th class="sticky-col">Actions</th> --}}
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <!-- Row 1 -->
-                                <tr class="small">
-                                    <td>
-                                        <input type="checkbox" class="form-check-input">
-                                    </td>
-                                    <td>2025/09/20</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" alt=""></td>
-                                    <td>Electronics</td>
-                                    <td><span class="badge bg-primary">Hot</span> <span class="badge bg-success">New</span></td>
-                                    <td>2025-09-25</td>
-                                    <td>Wireless Headphones</td>
-                                    <td>B09XYZ123</td>
-                                    <td>Supplier A</td>
-                                    <td>$25</td>
-                                    <td>$50</td>
-                                    <td>$20</td>
-                                    <td>80%</td>
-                                    <td>12,345</td>
-                                    <td>Headphones</td>
-                                    <td>Yes</td>
-                                    <td>CODE123</td>
-                                    <td>Fast Selling</td>
-                                    <td>11,500</td>
-                                    <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <!-- Dollar Button -->
-                                            <button class="btn btn-sm btn-success">
-                                            <i class="ti ti-currency-dollar"></i>
-                                            </button>
-
-                                            <!-- Open in New Button -->
-                                            <button class="btn btn-sm btn-light">
-                                            <i class="ti ti-external-link"></i>
-                                            </button>
-
-                                            <!-- Dropdown -->
-                                            <div class="dropdown">
-                                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-copy me-2"></i> Copy to Clipboard
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-edit me-2"></i> Edit Item Details
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item text-danger" href="#">
-                                                    <i class="ti ti-trash me-2"></i> Delete Lead
-                                                </a>
-                                                </li>
-                                            </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Row 2 -->
-                                <tr class="small">
-                                    <td>
-                                        <input type="checkbox" class="form-check-input">
-                                    </td>
-                                    <td>2025/09/18</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" alt=""></td>
-                                    <td>Home</td>
-                                    <td><span class="badge bg-info">Trending</span></td>
-                                    <td>2025-09-22</td>
-                                    <td>Vacuum Cleaner</td>
-                                    <td>B07ABC456</td>
-                                    <td>Supplier B</td>
-                                    <td>$80</td>
-                                    <td>$150</td>
-                                    <td>$50</td>
-                                    <td>62%</td>
-                                    <td>8,765</td>
-                                    <td>Appliances</td>
-                                    <td>No</td>
-                                    <td>-</td>
-                                    <td>Popular Choice</td>
-                                    <td>9,000</td>
-                                    <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <!-- Dollar Button -->
-                                            <button class="btn btn-sm btn-success">
-                                            <i class="ti ti-currency-dollar"></i>
-                                            </button>
-
-                                            <!-- Open in New Button -->
-                                            <button class="btn btn-sm btn-light">
-                                            <i class="ti ti-external-link"></i>
-                                            </button>
-
-                                            <!-- Dropdown -->
-                                            <div class="dropdown">
-                                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-copy me-2"></i> Copy to Clipboard
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-edit me-2"></i> Edit Item Details
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item text-danger" href="#">
-                                                    <i class="ti ti-trash me-2"></i> Delete Lead
-                                                </a>
-                                                </li>
-                                            </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Row 3 -->
-                                <tr class="small">
-                                    <td>
-                                        <input type="checkbox" class="form-check-input">
-                                    </td>
-                                    <td>2025/09/10</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" alt=""></td>
-                                    <td>Sports</td>
-                                    <td><span class="badge bg-warning">Seasonal</span></td>
-                                    <td>2025-09-15</td>
-                                    <td>Football Shoes</td>
-                                    <td>B08LMN789</td>
-                                    <td>Supplier C</td>
-                                    <td>$40</td>
-                                    <td>$90</td>
-                                    <td>$30</td>
-                                    <td>75%</td>
-                                    <td>6,540</td>
-                                    <td>Sports Gear</td>
-                                    <td>Yes</td>
-                                    <td>KICK10</td>
-                                    <td>Best for players</td>
-                                    <td>6,300</td>
-                                    <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <!-- Dollar Button -->
-                                            <button class="btn btn-sm btn-success">
-                                            <i class="ti ti-currency-dollar"></i>
-                                            </button>
-
-                                            <!-- Open in New Button -->
-                                            <button class="btn btn-sm btn-light">
-                                            <i class="ti ti-external-link"></i>
-                                            </button>
-
-                                            <!-- Dropdown -->
-                                            <div class="dropdown">
-                                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-copy me-2"></i> Copy to Clipboard
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-edit me-2"></i> Edit Item Details
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item text-danger" href="#">
-                                                    <i class="ti ti-trash me-2"></i> Delete Lead
-                                                </a>
-                                                </li>
-                                            </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Row 4 -->
-                                <tr class="small">
-                                    <td>
-                                        <input type="checkbox" class="form-check-input">
-                                    </td>
-                                    <td>2025/09/08</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" alt=""></td>
-                                    <td>Books</td>
-                                    <td><span class="badge bg-danger">Bestseller</span></td>
-                                    <td>2025-09-12</td>
-                                    <td>Self-Help Guide</td>
-                                    <td>B012XYZ456</td>
-                                    <td>Supplier D</td>
-                                    <td>$10</td>
-                                    <td>$30</td>
-                                    <td>$12</td>
-                                    <td>120%</td>
-                                    <td>3,210</td>
-                                    <td>Books</td>
-                                    <td>No</td>
-                                    <td>-</td>
-                                    <td>Good Reviews</td>
-                                    <td>3,000</td>
-                                    <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <!-- Dollar Button -->
-                                            <button class="btn btn-sm btn-success">
-                                            <i class="ti ti-currency-dollar"></i>
-                                            </button>
-
-                                            <!-- Open in New Button -->
-                                            <button class="btn btn-sm btn-light">
-                                            <i class="ti ti-external-link"></i>
-                                            </button>
-
-                                            <!-- Dropdown -->
-                                            <div class="dropdown">
-                                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-copy me-2"></i> Copy to Clipboard
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-edit me-2"></i> Edit Item Details
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item text-danger" href="#">
-                                                    <i class="ti ti-trash me-2"></i> Delete Lead
-                                                </a>
-                                                </li>
-                                            </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Row 5 -->
-                                <tr class="small">
+                                {{-- <tr class="small">
                                     <td>
                                         <input type="checkbox" class="form-check-input">
                                     </td>
@@ -1152,526 +886,221 @@
                                             </div>
                                         </div>
                                     </td>
-                                </tr>
-
-                                <!-- Row 6 -->
-                                <tr class="small">
-                                    <td>
-                                        <input type="checkbox" class="form-check-input">
-                                    </td>
-                                    <td>2025/09/20</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" alt=""></td>
-                                    <td>Electronics</td>
-                                    <td><span class="badge bg-primary">Hot</span> <span class="badge bg-success">New</span></td>
-                                    <td>2025-09-25</td>
-                                    <td>Wireless Headphones</td>
-                                    <td>B09XYZ123</td>
-                                    <td>Supplier A</td>
-                                    <td>$25</td>
-                                    <td>$50</td>
-                                    <td>$20</td>
-                                    <td>80%</td>
-                                    <td>12,345</td>
-                                    <td>Headphones</td>
-                                    <td>Yes</td>
-                                    <td>CODE123</td>
-                                    <td>Fast Selling</td>
-                                    <td>11,500</td>
-                                    <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <!-- Dollar Button -->
-                                            <button class="btn btn-sm btn-success">
-                                            <i class="ti ti-currency-dollar"></i>
-                                            </button>
-
-                                            <!-- Open in New Button -->
-                                            <button class="btn btn-sm btn-light">
-                                            <i class="ti ti-external-link"></i>
-                                            </button>
-
-                                            <!-- Dropdown -->
-                                            <div class="dropdown">
-                                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-copy me-2"></i> Copy to Clipboard
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-edit me-2"></i> Edit Item Details
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item text-danger" href="#">
-                                                    <i class="ti ti-trash me-2"></i> Delete Lead
-                                                </a>
-                                                </li>
-                                            </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Row 7 -->
-                                <tr class="small">
-                                    <td>
-                                        <input type="checkbox" class="form-check-input">
-                                    </td>
-                                    <td>2025/09/18</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" alt=""></td>
-                                    <td>Home</td>
-                                    <td><span class="badge bg-info">Trending</span></td>
-                                    <td>2025-09-22</td>
-                                    <td>Vacuum Cleaner</td>
-                                    <td>B07ABC456</td>
-                                    <td>Supplier B</td>
-                                    <td>$80</td>
-                                    <td>$150</td>
-                                    <td>$50</td>
-                                    <td>62%</td>
-                                    <td>8,765</td>
-                                    <td>Appliances</td>
-                                    <td>No</td>
-                                    <td>-</td>
-                                    <td>Popular Choice</td>
-                                    <td>9,000</td>
-                                    <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <!-- Dollar Button -->
-                                            <button class="btn btn-sm btn-success">
-                                            <i class="ti ti-currency-dollar"></i>
-                                            </button>
-
-                                            <!-- Open in New Button -->
-                                            <button class="btn btn-sm btn-light">
-                                            <i class="ti ti-external-link"></i>
-                                            </button>
-
-                                            <!-- Dropdown -->
-                                            <div class="dropdown">
-                                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-copy me-2"></i> Copy to Clipboard
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-edit me-2"></i> Edit Item Details
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item text-danger" href="#">
-                                                    <i class="ti ti-trash me-2"></i> Delete Lead
-                                                </a>
-                                                </li>
-                                            </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Row 8 -->
-                                <tr class="small">
-                                    <td>
-                                        <input type="checkbox" class="form-check-input">
-                                    </td>
-                                    <td>2025/09/10</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" alt=""></td>
-                                    <td>Sports</td>
-                                    <td><span class="badge bg-warning">Seasonal</span></td>
-                                    <td>2025-09-15</td>
-                                    <td>Football Shoes</td>
-                                    <td>B08LMN789</td>
-                                    <td>Supplier C</td>
-                                    <td>$40</td>
-                                    <td>$90</td>
-                                    <td>$30</td>
-                                    <td>75%</td>
-                                    <td>6,540</td>
-                                    <td>Sports Gear</td>
-                                    <td>Yes</td>
-                                    <td>KICK10</td>
-                                    <td>Best for players</td>
-                                    <td>6,300</td>
-                                    <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <!-- Dollar Button -->
-                                            <button class="btn btn-sm btn-success">
-                                            <i class="ti ti-currency-dollar"></i>
-                                            </button>
-
-                                            <!-- Open in New Button -->
-                                            <button class="btn btn-sm btn-light">
-                                            <i class="ti ti-external-link"></i>
-                                            </button>
-
-                                            <!-- Dropdown -->
-                                            <div class="dropdown">
-                                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-copy me-2"></i> Copy to Clipboard
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-edit me-2"></i> Edit Item Details
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item text-danger" href="#">
-                                                    <i class="ti ti-trash me-2"></i> Delete Lead
-                                                </a>
-                                                </li>
-                                            </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Row 9 -->
-                                <tr class="small">
-                                    <td>
-                                        <input type="checkbox" class="form-check-input">
-                                    </td>
-                                    <td>2025/09/08</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" alt=""></td>
-                                    <td>Books</td>
-                                    <td><span class="badge bg-danger">Bestseller</span></td>
-                                    <td>2025-09-12</td>
-                                    <td>Self-Help Guide</td>
-                                    <td>B012XYZ456</td>
-                                    <td>Supplier D</td>
-                                    <td>$10</td>
-                                    <td>$30</td>
-                                    <td>$12</td>
-                                    <td>120%</td>
-                                    <td>3,210</td>
-                                    <td>Books</td>
-                                    <td>No</td>
-                                    <td>-</td>
-                                    <td>Good Reviews</td>
-                                    <td>3,000</td>
-                                    <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <!-- Dollar Button -->
-                                            <button class="btn btn-sm btn-success">
-                                            <i class="ti ti-currency-dollar"></i>
-                                            </button>
-
-                                            <!-- Open in New Button -->
-                                            <button class="btn btn-sm btn-light">
-                                            <i class="ti ti-external-link"></i>
-                                            </button>
-
-                                            <!-- Dropdown -->
-                                            <div class="dropdown">
-                                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-copy me-2"></i> Copy to Clipboard
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-edit me-2"></i> Edit Item Details
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item text-danger" href="#">
-                                                    <i class="ti ti-trash me-2"></i> Delete Lead
-                                                </a>
-                                                </li>
-                                            </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Row 10 -->
-                                <tr class="small">
-                                    <td>
-                                        <input type="checkbox" class="form-check-input">
-                                    </td>
-                                    <td>2025/09/05</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" alt=""></td>
-                                    <td>Fashion</td>
-                                    <td><span class="badge bg-dark">Exclusive</span></td>
-                                    <td>2025-09-08</td>
-                                    <td>Leather Jacket</td>
-                                    <td>B01QWE852</td>
-                                    <td>Supplier E</td>
-                                    <td>$100</td>
-                                    <td>$250</td>
-                                    <td>$90</td>
-                                    <td>90%</td>
-                                    <td>5,000</td>
-                                    <td>Clothing</td>
-                                    <td>Yes</td>
-                                    <td>STYLE20</td>
-                                    <td>Limited Stock</td>
-                                    <td>4,800</td>
-                                    <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <!-- Dollar Button -->
-                                            <button class="btn btn-sm btn-success">
-                                            <i class="ti ti-currency-dollar"></i>
-                                            </button>
-
-                                            <!-- Open in New Button -->
-                                            <button class="btn btn-sm btn-light">
-                                            <i class="ti ti-external-link"></i>
-                                            </button>
-
-                                            <!-- Dropdown -->
-                                            <div class="dropdown">
-                                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-copy me-2"></i> Copy to Clipboard
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-edit me-2"></i> Edit Item Details
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item text-danger" href="#">
-                                                    <i class="ti ti-trash me-2"></i> Delete Lead
-                                                </a>
-                                                </li>
-                                            </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
+                                </tr> --}}
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <div id="cards-section" class="card d-none">
-                <div class="card-body">
-                    <div class="row g-3 align-items-start">
-                        <!-- Left Column (Image / Info) -->
-                        <div class="col-md-5">
-                            <!-- Top Action Row -->
-                            <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
-                                <div class="d-flex align-items-center gap-2">
-                                    <!-- Yellow Icons -->
-                                    <div class="d-flex align-items-center gap-2">
-                                    <i class="ti ti-trophy text-warning fs-3"></i>
-                                    <i class="ti ti-user-plus text-warning fs-3"></i>
+            <div id="cards-section" class="d-none">
+                <div class="cards-container">
+                    {{-- <div class="card">
+                        <div class="card-body">
+                            <div class="row g-3 align-items-start">
+                                <!-- Left Column (Image / Info) -->
+                                <div class="col-md-5">
+                                    <!-- Top Action Row -->
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <!-- Yellow Icons -->
+                                            <div class="d-flex align-items-center gap-2">
+                                            <i class="ti ti-trophy text-warning fs-3"></i>
+                                            <i class="ti ti-user-plus text-warning fs-3"></i>
+                                            </div>
+
+                                            <!-- Add Type Button -->
+                                            <button class="btn btn-sm btn-soft-primary d-flex align-items-center gap-1">
+                                            <span>Add Type</span>
+                                            <i class="ti ti-plus"></i>
+                                            </button>
+
+                                            <!-- Divider -->
+                                            <div class="vr mx-1"></div>
+
+                                            <!-- Last Updated -->
+                                            <small>
+                                            <b>Last Updated:</b> <span>10/03/25</span>
+                                            </small>
+                                        </div>
                                     </div>
 
-                                    <!-- Add Type Button -->
-                                    <button class="btn btn-sm btn-soft-primary d-flex align-items-center gap-1">
-                                    <span>Add Type</span>
-                                    <i class="ti ti-plus"></i>
-                                    </button>
-
-                                    <!-- Divider -->
-                                    <div class="vr mx-1"></div>
-
-                                    <!-- Last Updated -->
-                                    <small>
-                                    <b>Last Updated:</b> <span>10/03/25</span>
-                                    </small>
+                                    <div class="d-flex align-items-start gap-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                        </div>
+                                    <img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" 
+                                        alt="Product" class="img-fluid rounded" style="max-width:100px;">
+                                    <div>
+                                        <h5 class="fw-semibold mb-1">Zymöl Factory Original Spray Detailer™</h5>
+                                        <span class="badge bg-light text-primary border border-primary">No Good</span>
+                                        <a href="#" class="d-block text-decoration-none text-primary mt-1 small fw-semibold">Manage Tags</a>
+                                    </div>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div class="d-flex align-items-start gap-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" checked>
-                                </div>
-                            <img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" 
-                                alt="Product" class="img-fluid rounded" style="max-width:100px;">
-                            <div>
-                                <h5 class="fw-semibold mb-1">Zymöl Factory Original Spray Detailer™</h5>
-                                <span class="badge bg-light text-primary border border-primary">No Good</span>
-                                <a href="#" class="d-block text-decoration-none text-primary mt-1 small fw-semibold">Manage Tags</a>
-                            </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Right Column (Details / Info) -->
-                        <div class="col-md-7">
-                            <div class="d-flex justify-content-between align-items-start gap-3">
                                 
-                                <!-- Left Info -->
-                                <div class="flex-fill w-100">
-                                    <!-- ASIN -->
-                                    <div>
-                                        <small class="text-muted me-1">ASIN:</small>
-                                        <a href="#" class="text-primary text-decoration-none">B06XWC9249</a>
-                                        <i class="ti ti-copy text-secondary ms-1" role="button" title="Copy"></i>
-                                    </div>
+                                <!-- Right Column (Details / Info) -->
+                                <div class="col-md-7">
+                                    <div class="d-flex justify-content-between align-items-start gap-3">
+                                        
+                                        <!-- Left Info -->
+                                        <div class="flex-fill w-100">
+                                            <!-- ASIN -->
+                                            <div>
+                                                <small class="text-muted me-1">ASIN:</small>
+                                                <a href="#" class="text-primary text-decoration-none">B06XWC9249</a>
+                                                <i class="ti ti-copy text-secondary ms-1" role="button" title="Copy"></i>
+                                            </div>
 
-                                    <!-- Supplier -->
-                                    <div>
-                                        <small class="text-muted me-1">Supplier:</small>
-                                        <a href="#" class="text-primary text-decoration-none">zymol</a>
-                                    </div>
+                                            <!-- Supplier -->
+                                            <div>
+                                                <small class="text-muted me-1">Supplier:</small>
+                                                <a href="#" class="text-primary text-decoration-none">zymol</a>
+                                            </div>
 
-                                    <!-- Category -->
-                                    <div>
-                                        <small class="text-muted me-1">Category:</small>
-                                        <span>Automotive</span>
-                                    </div>
+                                            <!-- Category -->
+                                            <div>
+                                                <small class="text-muted me-1">Category:</small>
+                                                <span>Automotive</span>
+                                            </div>
 
-                                    <!-- Variation -->
-                                    <div>
-                                        <small class="text-muted me-1">Variation Details:</small>
-                                        <span>SIZE: 24 Ounce (Pack of 1)</span>
+                                            <!-- Variation -->
+                                            <div>
+                                                <small class="text-muted me-1">Variation Details:</small>
+                                                <span>SIZE: 24 Ounce (Pack of 1)</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Middle Pricing Info -->
+                                        <div class="flex-fill">
+                                            <div class="row">
+                                                <div class="col-4 mb-3">
+                                                    <small class="text-muted d-block">Cost</small>
+                                                    <div class="fw-semibold">$11.00</div>
+                                                </div>
+                                                <div class="col-4 mb-3">
+                                                    <small class="text-muted d-block">Sale Price</small>
+                                                    <div class="fw-semibold text-success">
+                                                        $31.95 <span class="text-decoration-line-through text-muted fs-6">$29.29</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4 mb-3">
+                                                    <small class="text-muted d-block">Net Profit</small>
+                                                    <div class="fw-semibold text-success">
+                                                        $10.77 <span class="text-decoration-line-through text-muted fs-6">$9.20</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4 mb-3">
+                                                    <small class="text-muted d-block">ROI</small>
+                                                    <div class="fw-semibold text-success">
+                                                        98.00% <span class="text-decoration-line-through text-muted fs-6">84.00%</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4 mb-3">
+                                                    <small class="text-muted d-block">BSR</small>
+                                                    <div class="fw-semibold">
+                                                        702,342 <span class="text-decoration-line-through text-muted fs-6">647,655</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4 mb-3">
+                                                    <small class="text-muted d-block">90d BSR Avg.</small>
+                                                    <div class="fw-semibold">
+                                                        493,988 <span class="text-decoration-line-through text-muted fs-6">385,326</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Buttons -->
+                                        <div class="d-flex flex-column align-items-end gap-2">
+                                            <!-- Dropdown Menu Button -->
+                                            <div class="dropdown">
+                                                <button class="btn btn-light p-2" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="ti ti-dots-vertical fs-5"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy to Clipboard</a></li>
+                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit Item Details</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete Lead</a></li>
+                                                </ul>
+                                            </div>
+
+                                            <!-- Open Links Button -->
+                                            <button class="btn btn-light p-2">
+                                                <i class="ti ti-external-link fs-5"></i>
+                                            </button>
+                                            
+                                            <!-- Add to Buy List Button -->
+                                            <button class="btn btn-soft-success p-2">
+                                                <i class="ti ti-cash fs-5"></i>
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Bottom Section -->
+                            <div class="row">
+                                <div class="col-md-4 border-end">
+                                    <h6 class="fw-semibold mb-2">Sourcing Info</h6>
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-muted">Promo Code:</small>
+                                        <div>50%off code: <strong>FIRSTORDER</strong></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-1">
+                                        <small class="text-muted">Coupon Code:</small>
+                                        <div>-</div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-1">
+                                        <small class="text-nowrap text-muted">Lead Note:</small>
+                                        <div class="text-end">Added 20 in cart est shipping $62 / $14.10 each</div>
                                     </div>
                                 </div>
 
-                                <!-- Middle Pricing Info -->
-                                <div class="flex-fill">
-                                    <div class="row">
-                                        <div class="col-4 mb-3">
-                                            <small class="text-muted d-block">Cost</small>
-                                            <div class="fw-semibold">$11.00</div>
-                                        </div>
-                                        <div class="col-4 mb-3">
-                                            <small class="text-muted d-block">Sale Price</small>
-                                            <div class="fw-semibold text-success">
-                                                $31.95 <span class="text-decoration-line-through text-muted fs-6">$29.29</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-4 mb-3">
-                                            <small class="text-muted d-block">Net Profit</small>
-                                            <div class="fw-semibold text-success">
-                                                $10.77 <span class="text-decoration-line-through text-muted fs-6">$9.20</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-4 mb-3">
-                                            <small class="text-muted d-block">ROI</small>
-                                            <div class="fw-semibold text-success">
-                                                98.00% <span class="text-decoration-line-through text-muted fs-6">84.00%</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-4 mb-3">
-                                            <small class="text-muted d-block">BSR</small>
-                                            <div class="fw-semibold">
-                                                702,342 <span class="text-decoration-line-through text-muted fs-6">647,655</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-4 mb-3">
-                                            <small class="text-muted d-block">90d BSR Avg.</small>
-                                            <div class="fw-semibold">
-                                                493,988 <span class="text-decoration-line-through text-muted fs-6">385,326</span>
-                                            </div>
-                                        </div>
+                                <div class="col-md-4 border-end">
+                                    <h6 class="fw-semibold mb-2">Lead Info</h6>
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-muted">Publish Date:</small>
+                                        <div>04/23/24</div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-1">
+                                        <small class="text-muted">Lead Source:</small>
+                                        <div>OAMANAGE</div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-1">
+                                        <small class="text-muted">UPC / GTIN:</small>
+                                        <div>724943672239</div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-1">
+                                        <small class="text-muted">Brand:</small>
+                                        <div>ZYMÖL</div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-1">
+                                        <small class="text-muted">New Offers:</small>
+                                        <div>2</div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-1">
+                                        <small class="text-muted"># of Reviews:</small>
+                                        <div>46</div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-1">
+                                        <small class="text-muted">Ratings:</small>
+                                        <div>4.8</div>
                                     </div>
                                 </div>
 
-                                <!-- Right Buttons -->
-                                <div class="d-flex flex-column align-items-end gap-2">
-                                    <!-- Dropdown Menu Button -->
-                                    <div class="dropdown">
-                                        <button class="btn btn-light p-2" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="ti ti-dots-vertical fs-5"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                            <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy to Clipboard</a></li>
-                                            <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit Item Details</a></li>
-                                            <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete Lead</a></li>
-                                        </ul>
-                                    </div>
-
-                                    <!-- Open Links Button -->
-                                    <button class="btn btn-light p-2">
-                                        <i class="ti ti-external-link fs-5"></i>
-                                    </button>
-                                    
-                                    <!-- Add to Buy List Button -->
-                                    <button class="btn btn-soft-success p-2">
-                                        <i class="ti ti-cash fs-5"></i>
-                                    </button>
+                                <div class="col-md-4">
+                                    <h6 class="fw-semibold mb-2">Order History</h6>
+                                    <div class="text-muted small" style="filter: blur(2px); cursor: not-allowed;">[Order data here]</div>
                                 </div>
-
                             </div>
                         </div>
-                    </div>
-
-                    <hr>
-
-                    <!-- Bottom Section -->
-                    <div class="row">
-                        <div class="col-md-4 border-end">
-                            <h6 class="fw-semibold mb-2">Sourcing Info</h6>
-                            <div class="d-flex justify-content-between">
-                                <small class="text-muted">Promo Code:</small>
-                                <div>50%off code: <strong>FIRSTORDER</strong></div>
-                            </div>
-                            <div class="d-flex justify-content-between mt-1">
-                                <small class="text-muted">Coupon Code:</small>
-                                <div>-</div>
-                            </div>
-                            <div class="d-flex justify-content-between mt-1">
-                                <small class="text-nowrap text-muted">Lead Note:</small>
-                                <div class="text-end">Added 20 in cart est shipping $62 / $14.10 each</div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4 border-end">
-                            <h6 class="fw-semibold mb-2">Lead Info</h6>
-                            <div class="d-flex justify-content-between">
-                                <small class="text-muted">Publish Date:</small>
-                                <div>04/23/24</div>
-                            </div>
-                            <div class="d-flex justify-content-between mt-1">
-                                <small class="text-muted">Lead Source:</small>
-                                <div>OAMANAGE</div>
-                            </div>
-                            <div class="d-flex justify-content-between mt-1">
-                                <small class="text-muted">UPC / GTIN:</small>
-                                <div>724943672239</div>
-                            </div>
-                            <div class="d-flex justify-content-between mt-1">
-                                <small class="text-muted">Brand:</small>
-                                <div>ZYMÖL</div>
-                            </div>
-                            <div class="d-flex justify-content-between mt-1">
-                                <small class="text-muted">New Offers:</small>
-                                <div>2</div>
-                            </div>
-                            <div class="d-flex justify-content-between mt-1">
-                                <small class="text-muted"># of Reviews:</small>
-                                <div>46</div>
-                            </div>
-                            <div class="d-flex justify-content-between mt-1">
-                                <small class="text-muted">Ratings:</small>
-                                <div>4.8</div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <h6 class="fw-semibold mb-2">Order History</h6>
-                            <div class="text-muted small" style="filter: blur(2px); cursor: not-allowed;">[Order data here]</div>
-                        </div>
-                    </div>
+                    </div> --}}
                 </div>
+                <div id="card-pagination" class="pb-3 px-3"></div>
             </div>
         </div>
     </div>
@@ -1719,16 +1148,373 @@
     </script>
 
     <script>
-        $(document).ready(function() {
-            $('#smart-data-table').DataTable({
+        // $(document).ready(function() {
+        //     $('#smart-data-table').DataTable({
+        //         scrollY: '40vh',
+        //         // fixedHeader: true,
+        //         searching: false,
+        //         lengthChange: false,
+        //         ordering: false,
+        //         scrollX: true,
+        //         scrollCollapse: true,
+        //         paging: true,
+        //     });
+        // });
+
+        $(document).ready(function () {
+            let table = $('#smart-data-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('get.smart.data') }}",
+                    data: function (d) {
+                        d.searchType = $('#searchType').val();
+                        d.dateRange = $('#dateRangeFilter').val();
+                        d.chkNetProfit = $('#chkNetProfit').is(':checked');
+                        d.net_profit_min = $('#net_profit_min').val();
+                        d.net_profit_max = $('#net_profit_max').val();
+                        d.chkSellingPrice = $('#chkSellingPrice').is(':checked');
+                        d.sell_price_min = $('#sell_price_min').val();
+                        d.sell_price_max = $('#sell_price_max').val();
+                        d.chk90DayAvg = $('#chk90DayAvg').is(':checked');
+                        d.avg90_min = $('#avg90_min').val();
+                        d.avg90_max = $('#avg90_max').val();
+                        d.chkROI = $('#chkROI').is(':checked');
+                        d.roi_min = $('#roi_min').val();
+                        d.roi_max = $('#roi_max').val();
+                        d.excludeHazmat = $('#excludeHazmat').is(':checked');
+                        d.excludeDisputed = $('#excludeDisputed').is(':checked');
+                    }
+                },
+                drawCallback: function (settings) {
+                    let json = settings.json;
+                    if (json && typeof json.recordsTotal !== 'undefined') {
+                        $('#total-results').text('Total Results: ' + json.recordsTotal.toLocaleString());
+                    }
+
+                    // 🔁 Re-render cards dynamically
+                    renderCards(json.data);
+
+                    renderCardPagination(settings);
+
+                    // Re-init tooltips
+                    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                    tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
+                },
                 scrollY: '40vh',
-                // fixedHeader: true,
-                searching: false,
-                lengthChange: false,
-                ordering: false,
                 scrollX: true,
-                scrollCollapse: true,
                 paging: true,
+                searching: false,
+                ordering: true,
+                lengthChange: false,
+                columns: [
+                    { data: 'checkbox' },
+                    { data: 'date' },
+                    { data: 'image' },
+                    { data: 'type' },
+                    { data: 'tags' },
+                    { data: 'updated_at' },
+                    { data: 'name' },
+                    { data: 'asin' },
+                    { data: 'supplier' },
+                    { data: 'cost' },
+                    { data: 'sell_price' },
+                    { data: 'net_profit' },
+                    { data: 'roi' },
+                    { data: 'bsr' },
+                    { data: 'category' },
+                    { data: 'promo' },
+                    { data: 'coupon' },
+                    { data: 'notes' },
+                    { data: 'bsr_current' },
+                    { data: 'actions' }
+                ],
+                columnDefs: [
+                    { orderable: false, targets: [0, 2, 4, 19] }
+                ]
+            });
+
+            function renderCards(data) {
+                const $cardsSection = $('#cards-section .cards-container');
+                $cardsSection.empty(); // clear previous cards
+
+                if (!data || data.length === 0) {
+                    $cardsSection.html('<div class="text-center py-4 text-muted">No records found.</div>');
+                    return;
+                }
+
+                data.forEach(item => {
+                    let card = `
+                    <div class="card">
+                        <div class="mb-3 card-body">
+                            <div class="row g-3 align-items-start">
+                                <!-- Left Column (Image / Info) -->
+                                <div class="col-md-5">
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <i class="ti ti-trophy text-warning fs-3"></i>
+                                                <i class="ti ti-user-plus text-warning fs-3"></i>
+                                            </div>
+                                            <button class="btn btn-sm btn-soft-primary d-flex align-items-center gap-1">
+                                                <span>Add Type</span>
+                                                <i class="ti ti-plus"></i>
+                                            </button>
+                                            <div class="vr mx-1"></div>
+                                            <small><b>Last Updated:</b> <span>${item.updated_at ?? '-'}</span></small>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-items-start gap-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox">
+                                        </div>
+                                        <img src=""
+                                            alt="Product" class="img-fluid rounded" style="max-width:100px;">
+                                        <div>
+                                            <h5 class="fw-semibold mb-1">${item.name ?? '-'}</h5>
+                                            <span class="badge bg-light text-primary border border-primary">${item.type ?? ''}</span>
+                                            <a href="#" class="d-block text-decoration-none text-primary mt-1 small fw-semibold">Manage Tags</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Right Column -->
+                                <div class="col-md-7">
+                                    <div class="d-flex justify-content-between align-items-start gap-3">
+                                        <div class="flex-fill w-100">
+                                            <div><small class="text-muted me-1">ASIN:</small> <a href="#" class="text-primary">${item.asin ?? '-'}</a></div>
+                                            <div><small class="text-muted me-1">Supplier:</small> <a href="#" class="text-primary">${item.supplier ?? '-'}</a></div>
+                                            <div><small class="text-muted me-1">Category:</small> <span>${item.category ?? '-'}</span></div>
+                                            <div><small class="text-muted me-1">Variation Details:</small> <span>${item.variation ?? '-'}</span></div>
+                                        </div>
+
+                                        <div class="flex-fill">
+                                            <div class="row">
+                                                <div class="col-4 mb-3"><small class="text-muted d-block">Cost</small><div class="fw-semibold">${item.cost ?? '0.00'}</div></div>
+                                                <div class="col-4 mb-3"><small class="text-muted d-block">Sale Price</small><div class="fw-semibold text-success">${item.sell_price ?? '0.00'}</div></div>
+                                                <div class="col-4 mb-3"><small class="text-muted d-block">Net Profit</small><div class="fw-semibold text-success">${item.net_profit ?? '0.00'}</div></div>
+                                                <div class="col-4 mb-3"><small class="text-muted d-block">ROI</small><div class="fw-semibold text-success">${item.roi ?? '0'}%</div></div>
+                                                <div class="col-4 mb-3"><small class="text-muted d-block">BSR</small><div class="fw-semibold">${item.bsr ?? '-'}</div></div>
+                                                <div class="col-4 mb-3"><small class="text-muted d-block">90d BSR Avg.</small><div class="fw-semibold">${item.bsr_current ?? '-'}</div></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-column align-items-end gap-2">
+                                            <div class="dropdown">
+                                                <button class="btn btn-light p-2" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="ti ti-dots-vertical fs-5"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy to Clipboard</a></li>
+                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit Item Details</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete Lead</a></li>
+                                                </ul>
+                                            </div>
+                                            <button class="btn btn-light p-2"><i class="ti ti-external-link fs-5"></i></button>
+                                            <button class="btn btn-soft-success p-2"><i class="ti ti-cash fs-5"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-4 border-end">
+                                    <h6 class="fw-semibold mb-2">Sourcing Info</h6>
+                                    <div class="d-flex justify-content-between"><small class="text-muted">Promo Code:</small><div>${item.promo ?? '-'}</div></div>
+                                    <div class="d-flex justify-content-between mt-1"><small class="text-muted">Coupon Code:</small><div>${item.coupon ?? '-'}</div></div>
+                                    <div class="d-flex justify-content-between mt-1"><small class="text-muted text-nowrap">Lead Note:</small><div>${item.notes ?? '-'}</div></div>
+                                </div>
+
+                                <div class="col-md-4 border-end">
+                                    <h6 class="fw-semibold mb-2">Lead Info</h6>
+                                    <div class="d-flex justify-content-between"><small class="text-muted">Publish Date:</small><div>${item.date ?? '-'}</div></div>
+                                    <div class="d-flex justify-content-between mt-1"><small class="text-muted">Lead Source:</small><div>${item.source ?? '-'}</div></div>
+                                    <div class="d-flex justify-content-between mt-1"><small class="text-muted">Brand:</small><div>${item.brand ?? '-'}</div></div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <h6 class="fw-semibold mb-2">Order History</h6>
+                                    <div class="text-muted small" style="filter: blur(2px); cursor: not-allowed;">[Order data here]</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                    $cardsSection.append(card);
+                });
+            }
+
+            function renderCardPagination(settings) {
+                const api = new $.fn.dataTable.Api(settings);
+                const pageInfo = api.page.info();
+                const $pagination = $('#card-pagination');
+                $pagination.empty();
+
+                if (pageInfo.pages <= 1) return; // no pagination if single page
+
+                const maxPagesToShow = 3;
+                let startPage = Math.max(0, pageInfo.page - Math.floor(maxPagesToShow / 2));
+                let endPage = startPage + maxPagesToShow;
+
+                if (endPage > pageInfo.pages) {
+                    endPage = pageInfo.pages;
+                    startPage = Math.max(0, endPage - maxPagesToShow);
+                }
+
+                let html = `
+                    <div class="d-flex flex-wrap justify-content-between align-items-center">
+                        <!-- Left side: Info -->
+                        <div class="text-muted small mb-2 mb-md-0">
+                            Showing ${pageInfo.start + 1} to ${pageInfo.end} of ${pageInfo.recordsTotal.toLocaleString()} entries
+                        </div>
+
+                        <!-- Right side: Pagination -->
+                        <div class="pagination-container">
+                            <ul class="pagination mb-0">
+                                <li class="paginate_button page-item previous ${pageInfo.page === 0 ? 'disabled' : ''}">
+                                    <a href="#" class="page-link" data-page="${pageInfo.page - 1}">Previous</a>
+                                </li>
+                `;
+
+                // Show first page and ellipsis if needed
+                if (startPage > 0) {
+                    html += `
+                        <li class="paginate_button page-item">
+                            <a href="#" class="page-link" data-page="0">1</a>
+                        </li>
+                    `;
+                    if (startPage > 1) {
+                        html += `
+                            <li class="paginate_button page-item disabled">
+                                <a class="page-link" tabindex="-1">…</a>
+                            </li>
+                        `;
+                    }
+                }
+
+                // Main visible page numbers
+                for (let i = startPage; i < endPage; i++) {
+                    html += `
+                        <li class="paginate_button page-item ${pageInfo.page === i ? 'active' : ''}">
+                            <a href="#" class="page-link" data-page="${i}">${i + 1}</a>
+                        </li>
+                    `;
+                }
+
+                // Show ellipsis and last page if needed
+                if (endPage < pageInfo.pages - 1) {
+                    html += `
+                        <li class="paginate_button page-item disabled">
+                            <a class="page-link" tabindex="-1">…</a>
+                        </li>
+                    `;
+                }
+
+                if (endPage < pageInfo.pages) {
+                    html += `
+                        <li class="paginate_button page-item">
+                            <a href="#" class="page-link" data-page="${pageInfo.pages - 1}">${pageInfo.pages}</a>
+                        </li>
+                    `;
+                }
+
+                // Next Button
+                html += `
+                                <li class="paginate_button page-item next ${pageInfo.page + 1 >= pageInfo.pages ? 'disabled' : ''}">
+                                    <a href="#" class="page-link" data-page="${pageInfo.page + 1}">Next</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+
+                $pagination.html(html);
+
+                // Handle click events
+                $pagination.find('a.page-link').off('click').on('click', function (e) {
+                    e.preventDefault();
+                    const page = $(this).data('page');
+                    if (page >= 0 && page < pageInfo.pages) {
+                        table.page(page).draw('page');
+                    }
+                });
+            }
+
+
+            // 🔍 Auto search on typing
+            $('#searchInput').on('keyup', function () {
+                let searchValue = $(this).val();
+                let searchType = $('#searchType').val();
+                table.ajax.url("{{ route('get.smart.data') }}?searchValue=" + searchValue + "&searchType=" + searchType).load();
+            });
+
+            // 🔄 Change search type
+            $('#searchType').on('change', function () {
+                table.ajax.reload();
+            });
+
+            // 📅 Date Range Picker logic
+            $('#dateRangeFilter').on('apply.daterangepicker', function (ev, picker) {
+                $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+                $('#clearDate').removeClass('d-none');
+            });
+
+            $('#dateRangeFilter').on('cancel.daterangepicker', function () {
+                $(this).val('');
+                $('#clearDate').addClass('d-none');
+            });
+
+            $('#clearDate').on('click', function () {
+                $('#dateRangeFilter').val('');
+                $(this).addClass('d-none');
+            });
+
+            // 🧭 Apply Filter
+            $('#btnApplyFilter').on('click', function () {
+                table.ajax.reload();
+
+                // ✅ Close dropdown properly
+                let dropdownMenu = $(this).closest('.dropdown-menu');
+                let dropdownToggle = dropdownMenu.prev('.dropdown-toggle');
+                let dropdownInstance = bootstrap.Dropdown.getInstance(dropdownToggle[0]);
+                if (dropdownInstance) dropdownInstance.hide();
+            });
+
+            // ❌ Close Filter
+            $('#btnCloseFilter').on('click', function () {
+                let dropdownMenu = $(this).closest('.dropdown-menu');
+                let dropdownToggle = dropdownMenu.prev('.dropdown-toggle');
+                let dropdownInstance = bootstrap.Dropdown.getInstance(dropdownToggle[0]);
+                if (dropdownInstance) dropdownInstance.hide();
+            });
+
+            // 🔄 Reset Filters
+            $('#btnResetFilters').on('click', function () {
+                var $btn = $(this);
+            
+                // Add spinner and disable button
+                $btn.prop('disabled', true);
+                $btn.html('<span class="spinner-grow spinner-grow-sm me-1" role="status" aria-hidden="true"></span>Reset');
+
+                $('#searchInput').val('');
+                $('#searchType').val('all');
+                $('#filterAccordion input[type="number"]').val('');
+                $('#filterAccordion input[type="checkbox"]').prop('checked', false);
+                $('#excludeHazmat').prop('checked', false);
+                $('#excludeDisputed').prop('checked', false);
+                $('#dateRangeFilter').val('');
+                $('#clearDate').addClass('d-none');
+
+                // Reload DataTable
+                table.ajax.reload(function() {
+                    // Re-enable button after table has fully loaded
+                    $btn.prop('disabled', false);
+                    $btn.html('Reset');
+                });
+
+                // table.ajax.reload();
             });
         });
     </script>

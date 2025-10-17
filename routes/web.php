@@ -37,9 +37,12 @@ Route::middleware(['auth'])->group(function () {
 
     //Smart Data route
     Route::get('/smart-data', [SmartDataController::class, 'index'])->name('smart.data');
+    Route::get('/get-smart-data', [SmartDataController::class, 'getSmartData'])->name('get.smart.data');
+
 
     // Buylists route
     Route::get('/buylists', [BuylistController::class, 'index'])->name('buylists.index');
+    Route::get('/buylist/data', [BuyListController::class, 'getData'])->name('buylist.data');
 
     // Orders routes
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
@@ -52,6 +55,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Shipping routes
     Route::get('/shipping-batches', [ShippingController::class, 'index'])->name('shipping.index');
+    Route::get('/shipping-data', [ShippingController::class, 'getData'])->name('shipping.data');
 
     // Leads routes
     Route::get('/team-leads', [LeadController::class, 'index'])->name('leads.index');

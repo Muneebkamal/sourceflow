@@ -385,14 +385,6 @@
             table.ajax.reload(); // 🔹 Reload table here
         });
 
-        // Reset all filters
-        // $('#resetFilters').on('click', function() {
-        //     $('#searchInput').val('');
-        //     $('#statusFilter').val('all');
-        //     $('#dateRangeFilter').val('');
-        //     $('#clearDate').addClass('d-none');
-        //     table.ajax.reload();
-        // });
         $('#resetFilters').on('click', function() {
             var $btn = $(this);
             
