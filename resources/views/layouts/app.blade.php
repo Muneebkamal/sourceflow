@@ -157,6 +157,17 @@
         .table > :not(caption) > .table-row-selected > * {
             border-bottom-width: 0px !important;
         }
+
+        .text-truncate-multiline {
+            /* width: 200px; */
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal;
+            cursor: pointer;
+        }
     </style>
     @yield('styles')
 </head>
@@ -667,17 +678,29 @@
     </script>
 
     <script>
+        // $(document).ready(function() {
+        //     $('table tbody tr').on('click', function(e) {
+        //         if ($(e.target).is('button, i, a')) return;
+        //         $(' tbody tr').removeClass('table-row-selected');
+        //         $(this).addClass('table-row-selected');
+        //     });
+
+        //     $('table tbody input[type="checkbox"]').on('click', function(e) {
+        //         e.preventDefault();
+        //         e.stopPropagation();
+        //     });
+        // });
         $(document).ready(function() {
-            $('table tbody tr').on('click', function(e) {
-                if ($(e.target).is('button, i, a')) return;
-                $(' tbody tr').removeClass('table-row-selected');
+            $(document).on('click', 'table tbody tr', function(e) {
+                if ($(e.target).is('button, i, a, input')) return;
+                $(this).closest('table').find('tbody tr').removeClass('table-row-selected');
                 $(this).addClass('table-row-selected');
             });
 
-            $('table tbody input[type="checkbox"]').on('click', function(e) {
-                e.preventDefault();
+            $(document).on('click', 'table tbody input[type="checkbox"]', function(e) {
                 e.stopPropagation();
             });
+
         });
 
         $(function () {

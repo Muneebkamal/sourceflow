@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Shipping;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -37,8 +38,11 @@ class ShippingController extends Controller
         }
 
         // 🔹 Apply date range filter
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('date', [$request->start_date, $request->end_date]);
+        if ($request->filled('dateRange')) {
+            [$start, $end] = explode(' - ', $request->dateRange);
+            $startDate = Carbon::createFromFormat('m/d/Y', trim($start))->startOfDay();
+            $endDate = Carbon::createFromFormat('m/d/Y', trim($end))->endOfDay();
+            $query->whereBetween('date', [$startDate, $endDate]);
         }
 
         return DataTables::of($query)

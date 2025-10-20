@@ -7,7 +7,7 @@
         <div class="col-md-12">
             <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column">
                 <div class="flex-grow-1">
-                    <h4 class="fs-18 fw-semibold m-0">Buy Lists</h4>
+                    <h4 class="fs-18 fw-semibold m-0 text-danger">Buy Lists (Rejected)</h4>
                 </div>
                 <div class="mt-3 mt-sm-0">
                     <form action="javascript:void(0);">
@@ -58,8 +58,8 @@
 
         <div class="col-md-5">
             <div class="d-flex align-items-end justify-content-md-end gap-1 mt-2 mt-md-0">
-                <a href="{{ route('buylists.rejected') }}" class="btn btn-soft-primary">
-                    Rejected List <i class="ti ti-ban fs-4"></i>
+                <a href="{{ route('buylists.index') }}" class="btn btn-soft-danger">
+                    Back to Buy List <i class="ti ti-ban fs-4"></i>
                 </a>
 
                 <div class="btn-group drop-down">
@@ -374,13 +374,15 @@
     <div class="row">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-body p-0">
+                <div class="card-body border border-4 border-danger p-0">
                     <div class="table-responsive">
-                        <table id="buylist-table" class="table align-middle w-100 mb-0 table-hover">
+                        <table id="rejected-buylist-table" class="table align-middle w-100 mb-0 table-hover">
                             <thead class="table-light">
                                 <tr class="text-nowrap small">
                                     <th><input type="checkbox" class="form-check-input"></th>
-                                    <th>Date Added</th>
+                                    <th>Rejected at</th>
+                                    <th>Rejected By</th>
+                                    <th>Rejected Reason</th>
                                     <th>Asin</th>
                                     <th>Image</th>
                                     <th>Product Title</th>
@@ -407,29 +409,17 @@
     
 @section('scripts')
     <script>
-        // $(document).ready(function() {
-        //     $('#buylist-table').DataTable({
-        //         scrollY: '40vh',
-        //         searching: false,
-        //         lengthChange: false,
-        //         ordering: false,
-        //         scrollX: true,
-        //         scrollCollapse: true,
-        //         paging: true,
-        //     });
-        // });
-
         $(document).ready(function() {
-            let table = $('#buylist-table').DataTable({
+            let table = $('#rejected-buylist-table').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('buylist.data') }}",
+                    url: "{{ route('buylist.data.rejected') }}",
                     data: function (d) {
                         d.buylist_ids = $('.buylist-filter:checked').map(function() {
                             return $(this).val();
-                        }).get(); // send selected buylist IDs to backend
-                        d.search = $('#searchInput').val(); // optional search input
+                        }).get();
+                        d.search = $('#searchInput').val();
                     }
                 },
                 drawCallback: function () {
@@ -445,6 +435,8 @@
                 columns: [
                     { data: null, orderable: false, render: function(){ return '<input type="checkbox" class="form-check-input">'; } },
                     { data: 'created_at' },
+                    { data: 'created_by' },
+                    { data: 'rejection_reason' },
                     { data: 'asin' },
                     { data: 'image', orderable: false, searchable: false },
                     { data: 'name' },

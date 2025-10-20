@@ -136,6 +136,126 @@ class OrderController extends Controller
             ->make(true);
     }
 
+    public function ordersItems()
+    {
+        return view('orders.orders-items');
+    }
+
+    public function getDataOrdersItems(Request $request)
+    {
+        // ✅ Start query using join
+        $lineItems = LineItem::query()
+            ->where('line_items.is_buylist', 0)
+            ->join('orders', 'orders.id', '=', 'line_items.order_id')
+            ->select([
+                'line_items.*',
+                'orders.date as order_date',
+                'orders.order_id as order_id',
+                'orders.status as status',
+            ]);
+
+        // ✅ Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $lineItems->where(function($query) use ($search) {
+                $query->where('orders.order_id', 'like', "%{$search}%")
+                    ->orWhere('line_items.name', 'like', "%{$search}%");
+            });
+        }
+
+        // ✅ Status filter
+        if ($request->filled('status') && $request->status != 'all') {
+            $lineItems->where('orders.status', $request->status);
+        }
+
+        // ✅ Date range filter (from orders table)
+        if ($request->filled('dateRange')) {
+            $dates = explode(' - ', $request->dateRange);
+            if (count($dates) === 2) {
+                $start = \Carbon\Carbon::parse($dates[0])->startOfDay();
+                $end = \Carbon\Carbon::parse($dates[1])->endOfDay();
+                $lineItems->whereBetween('orders.date', [$start, $end]);
+            }
+        }
+
+        // ✅ DataTables
+        return DataTables::of($lineItems)
+            ->addColumn('checkbox', fn() => '<input type="checkbox" class="form-check-input">')
+            ->editColumn('date', fn($row) => $row->order_date ? \Carbon\Carbon::parse($row->order_date)->format('m/d/y') : '-')
+            ->editColumn('source', function ($row) {
+                if (!$row->source) return '-';
+                $source = preg_match('/^https?:\/\//', $row->source) ? $row->source : 'https://' . $row->source;
+                return '<a href="' . e($source) . '" target="_blank" class="text-decoration-none">' . e($row->source) . '</a>';
+            })
+            ->editColumn('name', function ($b) {
+                $fullName = e($b->name);
+                return "<div class='text-truncate-multiline' data-bs-toggle='tooltip' title='{$fullName}'>{$fullName}</div>";
+            })
+            ->editColumn('status', function ($row) {
+                $statuses = [
+                    'partially received' => 'warning',
+                    'received in full'   => 'success',
+                    'ordered'            => 'primary',
+                    'draft'              => 'secondary',
+                    'closed'             => 'info',
+                    'canceled'           => 'danger',
+                    'reconcile'          => 'dark',
+                    'breakage'           => 'light',
+                ];
+
+                $color = $statuses[$row->status] ?? 'secondary';
+
+                return '<span class="p-1 fs-5 badge bg-soft-' . $color . ' text-' . $color . '">'
+                        . ucfirst($row->status) .
+                    '</span>';
+            })
+            ->editColumn('order_item_count', function ($row) {
+                $badges = [
+                    'ordered'  => $row->total_units_purchased,
+                    'received' => $row->total_units_received,
+                    'shipped'  => $row->total_units_shipped,
+                    'errors'   => $row->unit_errors,
+                ];
+
+                $colors = [
+                    'ordered'  => 'bg-light text-dark',
+                    'received' => 'bg-info',
+                    'shipped'  => 'bg-success',
+                    'errors'   => 'bg-danger',
+                ];
+
+                $html = '';
+                foreach ($badges as $key => $val) {
+                    $html .= $val != 0
+                        ? '<span class="badge ' . $colors[$key] . ' me-3" data-bs-toggle="tooltip" title="' . ucfirst($key) . '">' . $val . '</span>'
+                        : '<span class="me-3" data-bs-toggle="tooltip" title="' . ucfirst($key) . '">-</span>';
+                }
+
+                return '<div class="d-flex justify-content-center align-items-center" style="cursor: pointer;">' . $html . '</div>';
+            })
+            ->addColumn('event', fn() => '-')
+            ->addColumn('image', fn($row) => '<img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" width="60">')
+            ->addColumn('actions', function ($row) {
+                $showUrl = route('order.show', $row->id);
+                return '
+                    <div class="d-flex justify-content-center gap-1">
+                        <a href="' . $showUrl . '" class="btn btn-sm btn-light"><i class="ti ti-eye"></i></a>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body">
+                                <i class="ti ti-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
+                                <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
+                            </ul>
+                        </div>
+                    </div>';
+            })
+            ->rawColumns(['checkbox', 'name', 'status', 'source', 'order_item_count', 'image', 'actions'])
+            ->make(true);
+    }
+
     public function buyCostCalculator($id)
     {
         $order = Order::where('id', $id)->with('LineItems')->first();
@@ -334,6 +454,27 @@ class OrderController extends Controller
             'message' => 'Order info updated successfully!',
             'data' => $order
         ]);
+    }
+
+    public function updatePayment(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+        $order->card_used = $request->card_used;
+        $order->total = $request->total;
+        $order->cash_back_source = $request->cash_back_source;
+        $order->cash_back_percentage = $request->cash_back_percentage;
+        $order->save();
+
+        return response()->json(['success' => true, 'message' => 'Payment details updated successfully.']);
+    }
+
+    public function updateNote(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+        $order->note = $request->note;
+        $order->save();
+
+        return response()->json(['success' => true, 'message' => 'Order note updated successfully.']);
     }
 
     /**

@@ -866,7 +866,7 @@
         });
     });
 
-
+    // payment details update
     $(document).ready(function() {
         let editingPayment = false;
 
@@ -875,65 +875,156 @@
             editingPayment = !editingPayment;
 
             if (editingPayment) {
-                // toggle icon and text
+                // Switch to edit mode
                 $('#edit-icon-payment-info').removeClass('ti-pencil').addClass('ti-check');
                 $('#edit-text-payment-info').hide();
 
-                // convert spans to inputs
-                const cardUsedText = $('#card-used-field').text().trim();
-                const amountChargedText = $('#amount-charged-field').text().replace('$','').trim();
-                const cashBackSourceText = $('#cash-back-source-field').text().trim();
-                const cashBackPercentageText = $('#cash-back-percentage-field').text().replace('%','').trim();
+                // Convert spans to inputs
+                const cardUsed = $('#card-used-field').text().trim();
+                const amountCharged = $('#amount-charged-field').text().replace('$', '').trim();
+                const cashBackSource = $('#cash-back-source-field').text().trim();
+                const cashBackPercentage = $('#cash-back-percentage-field').text().replace('%', '').trim();
 
-                $('#card-used-field').html(`<input type="text" class="form-control" value="${cardUsedText}">`);
-                $('#amount-charged-field').html(`<input type="number" class="form-control" value="${amountChargedText}">`);
-                $('#cash-back-source-field').html(`<input type="text" class="form-control" value="${cashBackSourceText}">`);
-                $('#cash-back-percentage-field').html(`<input type="number" step="0.01" class="form-control" value="${cashBackPercentageText}">`);
+                $('#card-used-field').html(`<input id="card-used-input" type="text" class="form-control form-control-sm" value="${cardUsed}">`);
+                $('#amount-charged-field').html(`<input id="amount-charged-input" type="number" step="0.01" class="form-control form-control-sm" value="${amountCharged}">`);
+                $('#cash-back-source-field').html(`<input id="cash-back-source-input" type="text" class="form-control form-control-sm" value="${cashBackSource}">`);
+                $('#cash-back-percentage-field').html(`<input id="cash-back-percentage-input" type="number" step="0.01" class="form-control form-control-sm" value="${cashBackPercentage}">`);
+
             } else {
-                // toggle icon and text
+                // Switch back to display mode
                 $('#edit-icon-payment-info').removeClass('ti-check').addClass('ti-pencil');
                 $('#edit-text-payment-info').show();
 
-                // revert inputs back to text
-                const cardUsedVal = $('#card-used-field input').val();
-                const amountChargedVal = $('#amount-charged-field input').val();
-                const cashBackSourceVal = $('#cash-back-source-field input').val();
-                const cashBackPercentageVal = $('#cash-back-percentage-field input').val();
+                // Collect updated values
+                const cardUsedVal = $('#card-used-input').val();
+                const amountChargedVal = $('#amount-charged-input').val();
+                const cashBackSourceVal = $('#cash-back-source-input').val();
+                const cashBackPercentageVal = $('#cash-back-percentage-input').val();
 
-                $('#card-used-field').text(cardUsedVal);
-                $('#amount-charged-field').text('$' + parseFloat(amountChargedVal).toFixed(2));
-                $('#cash-back-source-field').text(cashBackSourceVal);
-                $('#cash-back-percentage-field').text(parseFloat(cashBackPercentageVal).toFixed(2) + '%');
+                // Send AJAX update request
+                $.ajax({
+                    url: "{{ route('orders.updatePayment', $order->id) }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        card_used: cardUsedVal,
+                        total: amountChargedVal,
+                        cash_back_source: cashBackSourceVal,
+                        cash_back_percentage: cashBackPercentageVal
+                    },
+                    beforeSend: function() {
+                        $('#edit-payment-info').addClass('disabled');
+                    },
+                    success: function(response) {
+                        $('#edit-payment-info').removeClass('disabled');
+
+                        if (response.success) {
+                            toastr.success(response.message);
+
+                            // Update the visible fields
+                            $('#card-used-field').text(cardUsedVal);
+                            $('#amount-charged-field').text(`$${parseFloat(amountChargedVal).toFixed(2)}`);
+                            $('#cash-back-source-field').text(cashBackSourceVal);
+                            $('#cash-back-percentage-field').text(`${parseFloat(cashBackPercentageVal).toFixed(2)}%`);
+                        } else {
+                            toastr.error(response.message || 'Failed to update payment info.');
+                        }
+                    },
+                    error: function(xhr) {
+                        $('#edit-payment-info').removeClass('disabled');
+                        toastr.error('Failed to update payment info.');
+                        console.error(xhr.responseText);
+                    }
+                });
             }
         });
     });
 
+    // $(document).ready(function() {
+    //     $('.note-card').on('click', function() {
+    //         // Hide the text div and show textarea
+    //         $(this).find('.note-text').hide();
+    //         $(this).find('textarea').show().focus();
+
+    //         // Show check icon
+    //         $(this).closest('.card').find('.check-icon').show();
+    //     });
+
+    //     // Optional: hide textarea and show text again on check icon click
+    //     $('.check-icon').on('click', function(e) {
+    //         e.preventDefault();
+    //         var card = $(this).closest('.card');
+    //         var textarea = card.find('textarea');
+    //         var noteText = card.find('.note-text');
+
+    //         // Update the text div with textarea value
+    //         noteText.text(textarea.val());
+
+    //         // Hide textarea, show text
+    //         textarea.hide();
+    //         noteText.show();
+
+    //         // Hide check icon again
+    //         $(this).hide();
+    //     });
+    // });
     $(document).ready(function() {
+        // Click to edit note
         $('.note-card').on('click', function() {
-            // Hide the text div and show textarea
-            $(this).find('.note-text').hide();
-            $(this).find('textarea').show().focus();
+            const card = $(this).closest('.card');
+
+            // Hide note text and show textarea
+            card.find('.note-text').hide();
+            card.find('textarea').show().focus();
 
             // Show check icon
-            $(this).closest('.card').find('.check-icon').show();
+            card.find('.check-icon').show();
         });
 
-        // Optional: hide textarea and show text again on check icon click
+        // Click to save note
         $('.check-icon').on('click', function(e) {
             e.preventDefault();
-            var card = $(this).closest('.card');
-            var textarea = card.find('textarea');
-            var noteText = card.find('.note-text');
 
-            // Update the text div with textarea value
-            noteText.text(textarea.val());
+            const card = $(this).closest('.card');
+            const textarea = card.find('textarea');
+            const noteText = card.find('.note-text');
+            const noteValue = textarea.val();
 
-            // Hide textarea, show text
-            textarea.hide();
-            noteText.show();
+            // Optional: disable icon while saving
+            const icon = $(this).find('i');
+            icon.removeClass('ti-check').addClass('ti-loader ti-spin');
 
-            // Hide check icon again
-            $(this).hide();
+            // Send AJAX update request
+            $.ajax({
+                url: "{{ route('orders.updateNote', $order->id) }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    note: noteValue
+                },
+                success: function(response) {
+                    icon.removeClass('ti-loader ti-spin').addClass('ti-check');
+
+                    if (response.success) {
+                        toastr.success(response.message);
+
+                        // Update visible note text
+                        noteText.text(noteValue);
+                    } else {
+                        toastr.error(response.message || 'Failed to update note.');
+                    }
+
+                    // Hide textarea and check icon
+                    textarea.hide();
+                    noteText.show();
+                    card.find('.check-icon').hide();
+                },
+                error: function(xhr) {
+                    icon.removeClass('ti-loader ti-spin').addClass('ti-check');
+                    toastr.error('Failed to update note.');
+                    console.error(xhr.responseText);
+                }
+            });
         });
     });
 

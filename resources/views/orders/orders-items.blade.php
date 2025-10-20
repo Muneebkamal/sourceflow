@@ -7,17 +7,15 @@
         <div class="col-md-12">
             <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column">
                 <div class="flex-grow-1">
-                    <h4 class="fs-18 fw-semibold m-0">Orders</h4>
+                    <h4 class="fs-18 fw-semibold m-0">Ordered Items</h4>
                 </div>
                 <div class="mt-3 mt-sm-0">
                     <form action="javascript:void(0);">
                         <div class="row g-2 mb-0 align-items-center">
                             <div class="col-auto">
                                 <button class="btn btn-soft-primary">
+                                    <i class="ti ti-download"></i>
                                     Export
-                                </button>
-                                <button class="btn btn-primary">
-                                    Create Order
                                 </button>
                             </div>
                         </div>
@@ -76,7 +74,6 @@
                         class="btn {{ request()->routeIs('orders.index') ? 'btn-primary' : 'btn-soft-primary' }}">
                         Orders View
                     </a>
-
                     <a href="{{ route('orders.items') }}" 
                         class="btn {{ request()->routeIs('orders.items') ? 'btn-primary' : 'btn-soft-primary' }}">
                         Items View
@@ -308,18 +305,23 @@
             <div class="card">
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table id="orders-table" class="table align-middle w-100 mb-0 table-hover">
+                        <table id="order-items-table" class="table align-middle w-100 mb-0 table-hover">
                             <thead class="table-light">
                                 <tr class="text-nowrap small">
                                     <th><input type="checkbox" class="form-check-input"></th>
                                     <th>Order Date</th>
                                     <th>Order #</th>
-                                    <th>Supplier</th>
+                                    <th>Product Title</th>
+                                    <th>Cost per Unit</th>
+                                    <th>SKU Total Cost</th>
                                     <th>Order Total</th>
                                     <th>Order Status</th>
                                     <th>O-R-L-E-F</th>
                                     <th>Order Note</th>
-                                    <th>Events</th>
+                                    <th>Item Events</th>
+                                    {{-- <th>Product Note</th>
+                                    <th>Parent Order Note</th> --}}
+                                    <th>Image</th>
                                     <th class="sticky-col text-center">Actions</th>
                                 </tr>
                             </thead>
@@ -335,16 +337,20 @@
 @section('scripts')
 <script>
     $(document).ready(function() {
-        var table = $('#orders-table').DataTable({
+        var table = $('#order-items-table').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
-                url: '{{ route("orders.data") }}',
+                url: '{{ route("data.orders.items") }}',
                 data: function(d) {
                     d.search = $('#searchInput').val();
                     d.status = $('#statusFilter').val();
                     d.dateRange = $('#dateRangeFilter').val();
                 }
+            },
+            drawCallback: function () {
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
             },
             scrollY: '40vh',
             scrollX: true,
@@ -357,12 +363,17 @@
                 { data: 'checkbox', orderable: false, searchable: false },
                 { data: 'date', name: 'date' },
                 { data: 'order_id', name: 'order_id' },
-                { data: 'source', name: 'source' },
-                { data: 'total', name: 'total' },
+                { data: 'name', name: 'name' },
+                { data: 'buy_cost', name: 'buy_cost' },
+                { data: 'sku_total', name: 'sku_total' },
+                { data: 'sku_total', name: 'sku_total' },
                 { data: 'status', name: 'status' },
                 { data: 'order_item_count', name: 'order_item_count' },
-                { data: 'note', name: 'note' },
+                { data: 'order_note', name: 'order_note' },
                 { data: 'event', name: 'event' },
+                // { data: 'total', name: 'total' },
+                // { data: 'note', name: 'note' },
+                { data: 'image', name: 'image' },
                 { data: 'actions', orderable: false, searchable: false }
             ]
         });
@@ -407,54 +418,12 @@
 
             // Reload DataTable
             table.ajax.reload(function() {
+                // Re-enable button after table has fully loaded
                 $btn.prop('disabled', false);
                 $btn.html('Reset');
             });
         });
 
     });
-
-
-    $(document).ready(function () {
-        function updateSelectColor($select) {
-            let status = $select.val();
-
-            if (status === 'all') {
-                $select.removeClass().addClass('form-select status-select w-50');
-                return;
-            }
-
-            let colors = {
-                'partially received': 'warning',
-                'received in full': 'success',
-                'ordered': 'primary',
-                'draft': 'secondary',
-                'closed': 'info',
-                'canceled': 'danger',
-                'reconcile': 'dark',
-                'breakage': 'light'
-            };
-
-            // Remove old Bootstrap color classes
-            $.each(colors, function (key, color) {
-                $select.removeClass('bg-soft-' + color + ' text-' + color);
-            });
-
-            // Add new color class
-            let newColor = colors[status] || 'secondary';
-            $select.addClass('bg-soft-' + newColor + ' text-' + newColor);
-        }
-
-        // Run on change
-        $(document).on('change', '.status-select', function () {
-            updateSelectColor($(this));
-        });
-
-        // ✅ Run once on page load for all selects
-        $('.status-select').each(function () {
-            updateSelectColor($(this));
-        });
-    });
-
 </script>
 @endsection

@@ -4,8 +4,8 @@
 
 @section('styles')
 <style>
-.text-truncate-multiline {
-    /* width: 200px; */
+/* .text-truncate-multiline {
+    width: 200px;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -13,7 +13,7 @@
     text-overflow: ellipsis;
     white-space: normal;
     cursor: pointer;
-}
+} */
 </style>
 
 @endsection
@@ -30,14 +30,14 @@
                         <div class="row g-2 mb-0 align-items-center">
                             <div class="col-auto">
                                 <div class="border p-1 rounded d-flex align-items-center gap-1">
-                                    <!-- Button 1: Show Cards -->
-                                    <button id="show-cards" class="btn btn-light btn-sm">
-                                        <i class="ti ti-menu-2 fs-4"></i>
-                                    </button>
-
-                                    <!-- Button 2: Show Table -->
+                                    <!-- Button 1: Show Table -->
                                     <button id="show-table" class="btn btn-primary btn-sm">
                                         <i class="ti ti-table fs-4"></i>
+                                    </button>
+
+                                    <!-- Button 2: Show Cards -->
+                                    <button id="show-cards" class="btn btn-light btn-sm">
+                                        <i class="ti ti-menu-2 fs-4"></i>
                                     </button>
                                 </div>
 
@@ -221,238 +221,30 @@
                                 <div class="column-list">
 
                                     <!-- All -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
+                                    <div class="d-flex align-items-center mb-2 column-item position-relative">
                                         <div class="d-flex align-items-center">
                                             <input class="form-check-input me-2" type="checkbox" id="col-all">
                                             <label class="form-check-label mb-0" for="col-all">All</label>
                                         </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
                                     </div>
-
-                                    <!-- Added to Buy List -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-335">
-                                            <label class="form-check-label mb-0" for="col-335">Added to Buy List</label>
+                                    
+                                    @foreach ($tags as $tag)
+                                        <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
+                                            <div class="d-flex align-items-center">
+                                                <input class="form-check-input me-2" type="checkbox" id="col-335">
+                                                <label class="form-check-label mb-0" for="col-335">{{ $tag->name }}</label>
+                                            </div>
+                                            <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
+                                                <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
+                                                <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
+                                            </div>
                                         </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- ANN -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-348">
-                                            <label class="form-check-label mb-0" for="col-348">ANN</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- AY ADDED -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-343">
-                                            <label class="form-check-label mb-0" for="col-343">AY ADDED</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Duplicate -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-336">
-                                            <label class="form-check-label mb-0" for="col-336">Duplicate</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Followup -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-346">
-                                            <label class="form-check-label mb-0" for="col-346">Followup</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Gated -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-339">
-                                            <label class="form-check-label mb-0" for="col-339">Gated</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Glass -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-341">
-                                            <label class="form-check-label mb-0" for="col-341">Glass</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Good Kamal -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-344">
-                                            <label class="form-check-label mb-0" for="col-344">Good Kamal</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Hazmat -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-337">
-                                            <label class="form-check-label mb-0" for="col-337">Hazmat</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Heavy Item -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-342">
-                                            <label class="form-check-label mb-0" for="col-342">Heavy Item</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- IP -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-338">
-                                            <label class="form-check-label mb-0" for="col-338">IP</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Later -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-333">
-                                            <label class="form-check-label mb-0" for="col-333">Later</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Low Sales - Many Sellers -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-340">
-                                            <label class="form-check-label mb-0" for="col-340">Low Sales - Many Sellers</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- No Good -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-331">
-                                            <label class="form-check-label mb-0" for="col-331">No Good</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Not Approved And not Allow -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-334">
-                                            <label class="form-check-label mb-0" for="col-334">Not Approved And not Allow</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Not Match -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-347">
-                                            <label class="form-check-label mb-0" for="col-347">Not Match</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- OOS -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-332">
-                                            <label class="form-check-label mb-0" for="col-332">OOS</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Shoes -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
-                                        <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-345">
-                                            <label class="form-check-label mb-0" for="col-345">Shoes</label>
-                                        </div>
-                                        <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                            <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
-                                        </div>
-                                    </div>
-
+                                    @endforeach
                                 </div>
                             </div>
                             <div class="card-footer">
                                 <div class="d-flex">
-                                    <button class="btn btn-soft-primary me-2">Create Tag</button>
+                                    <button class="btn btn-soft-primary me-2" data-bs-toggle="modal" data-bs-target="#tagModal">Create Tag</button>
                                     <button class="btn btn-light me-1">Close</button>
                                     <button class="btn btn-primary">Apply</button>
                                 </div>
@@ -1105,6 +897,7 @@
         </div>
     </div>
 
+    @include('modals.smart-data.tag-modal')
 @endsection
 
 @section('scripts')
@@ -1162,6 +955,13 @@
         // });
 
         $(document).ready(function () {
+            function initTooltips() {
+                $('[data-bs-tooltip="tooltip"]').each(function() {
+                    new bootstrap.Tooltip(this);
+                });
+            }
+            initTooltips();
+
             let table = $('#smart-data-table').DataTable({
                 processing: true,
                 serverSide: true,
@@ -1194,6 +994,7 @@
 
                     // 🔁 Re-render cards dynamically
                     renderCards(json.data);
+                    initTooltips();
 
                     renderCardPagination(settings);
 

@@ -28,9 +28,9 @@
     </div>
 
     <div class="row align-items-end mb-3">
-        <div class="col-md-8">
-            <div class="d-flex align-items-center gap-1">
-                <div class="d-flex gap-1">
+        <div class="col-md-7">
+            <div class="d-flex align-items-center w-100 gap-1">
+                <div class="d-flex gap-1 w-100">
                     <div class="input-group">
                         <span class="input-group-text">
                             <i class="ti ti-search"></i>
@@ -64,7 +64,7 @@
             </div>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-5">
             <div class="d-flex align-items-end justify-content-end">
                 <div class="btn-group">
                     <button type="button" class="btn btn-soft-primary dropdown-toggle drop-arrow-none" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="true">
@@ -181,17 +181,16 @@
 @section('scripts')
 <script>
     $(document).ready(function() {
-        let table = $('#shipping-table').DataTable({
+        var table = $('#shipping-table').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
                 url: "{{ route('shipping.data') }}",
-                // data: function (d) {
-                //     d.search_value = $('#input-search').val();
-                //     d.status = $('#status-search').val();
-                //     d.start_date = startDate;
-                //     d.end_date = endDate;
-                // }
+                data: function (d) {
+                    d.search_value = $('#input-search').val() || '';
+                    d.status = $('#status-search').val() || '';
+                    d.dateRange = $('#dateRangeFilter').val(); // 👈 same as your orders code
+                }
             },
             scrollY: '40vh',
             scrollX: true,
@@ -211,64 +210,54 @@
                 { data: 'notes' },
                 { data: 'actions', orderable: false, searchable: false }
             ],
-            // createdRow: function(row) {
-            //     $(row).addClass('text-nowrap small');
-            // }
+            createdRow: function(row) {
+                $(row).addClass('text-nowrap small');
+            }
         });
 
-        // 🔹 Variables for date range
-        // let startDate = null;
-        // let endDate = null;
+        // 🔹 Reload when search or status changes
+        $('#input-search, #status-search').on('change keyup', function() {
+            table.ajax.reload();
+        });
 
-        // // 🔹 Text search
-        // $('#input-search').on('keyup', function() {
-        //     table.ajax.reload();
-        // });
+        // 🔹 Date Range applied
+        $('#dateRangeFilter').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+            $('#clearDate').removeClass('d-none');
+            table.ajax.reload(); // reload with new range
+        });
 
-        // // 🔹 Status filter
-        // $('#status-search').on('change', function() {
-        //     table.ajax.reload();
-        // });
+        // 🔹 Date Range cancelled
+        $('#dateRangeFilter').on('cancel.daterangepicker', function() {
+            $(this).val('');
+            $('#clearDate').addClass('d-none');
+            table.ajax.reload();
+        });
 
-        // // 🔹 Date range picker (using flatpickr or daterangepicker)
-        // $('#dateRangeFilter').daterangepicker({
-        //     opens: 'right',
-        //     autoUpdateInput: false,
-        // }, function(start, end) {
-        //     startDate = start.format('YYYY-MM-DD');
-        //     endDate = end.format('YYYY-MM-DD');
-        //     $('#dateRangeFilter').val(start.format('MM/DD/YYYY') + ' - ' + end.format('MM/DD/YYYY'));
-        //     $('#clearDate').removeClass('d-none');
-        //     table.ajax.reload();
-        // });
+        // 🔹 Clear date filter
+        $('#clearDate').on('click', function() {
+            $('#dateRangeFilter').val('');
+            $(this).addClass('d-none');
+            table.ajax.reload();
+        });
 
-        // // 🔹 Clear date
-        // $('#clearDate').on('click', function() {
-        //     startDate = null;
-        //     endDate = null;
-        //     $('#dateRangeFilter').val('');
-        //     $(this).addClass('d-none');
-        //     table.ajax.reload();
-        // });
+        // 🔹 Reset all filters
+        $('.btn-danger').on('click', function() {
+            var $btn = $(this);
+            $btn.prop('disabled', true);
+            $btn.html('<span class="spinner-grow spinner-grow-sm me-1" role="status" aria-hidden="true"></span>Reset');
 
-        // // 🔹 Reset all
-        // $('.btn-danger').on('click', function() {
-        //     var $btn = $(this);
-        //     $btn.prop('disabled', true);
-        //     $btn.html('<span class="spinner-grow spinner-grow-sm me-1" role="status" aria-hidden="true"></span>Reset');
+            // clear all inputs
+            $('#input-search').val('');
+            $('#status-search').val('all');
+            $('#dateRangeFilter').val('');
+            $('#clearDate').addClass('d-none');
 
-        //     $('#input-search').val('');
-        //     $('#status-search').val('all');
-        //     $('#dateRangeFilter').val('');
-        //     $('#clearDate').addClass('d-none');
-        //     startDate = null;
-        //     endDate = null;
-        //     table.ajax.reload(function() {
-        //         // Re-enable button after table has fully loaded
-        //         $btn.prop('disabled', false);
-        //         $btn.html('Reset');
-        //     });
-        // });
+            table.ajax.reload(function() {
+                $btn.prop('disabled', false);
+                $btn.html('Reset');
+            });
+        });
     });
 </script>
 @endsection
