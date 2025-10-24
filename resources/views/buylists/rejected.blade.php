@@ -18,14 +18,11 @@
                                 </a>
                             </div>
                             <div class="col-auto">
-                                <button class="btn btn-soft-primary">
+                                {{-- <button class="btn btn-soft-primary">
                                     Export
-                                </button>
+                                </button> --}}
                                 <button type="button" class="btn btn-soft-primary" data-bs-toggle="modal" data-bs-target="#createBuylistModal">
                                 New Buy List
-                                </button>
-                                <button class="btn btn-primary" disabled>
-                                    Create Order
                                 </button>
                             </div>
                         </div>
@@ -82,7 +79,7 @@
                                                 <label class="form-check-label mb-0" for="list-{{ $list->id }}">{{ $list->name }}</label>
                                             </div>
                                             <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y">
-                                                <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
+                                                <button class="btn btn-sm btn-outline-danger delete-buylist" data-id="{{ $list->id }}"><i class="ti ti-trash"></i></button>
                                             </div>
                                         </div>
                                     @endforeach
@@ -372,6 +369,18 @@
     </div>
 
     <div class="row">
+        <div id="select-count-section" class="col-md-12 d-flex mb-2 align-items-center d-none">
+            <div class="dropdown">
+                <button class="btn btn-sm btn-light" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="true">
+                    <i class="ti ti-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item bulkMoveBtn" href="#">Move to Buylist</a></li>
+                    <li><a class="dropdown-item text-danger bulkDelBtn" href="#">Delete</a></li>
+                </ul>
+            </div>
+            <span class="fw-bold ms-3">Selected: <span id="selectedCount">0</span></span>
+        </div>
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body border border-4 border-danger p-0">
@@ -379,7 +388,7 @@
                         <table id="rejected-buylist-table" class="table align-middle w-100 mb-0 table-hover">
                             <thead class="table-light">
                                 <tr class="text-nowrap small">
-                                    <th><input type="checkbox" class="form-check-input"></th>
+                                    <th><input type="checkbox" id="selectAll" class="form-check-input"></th>
                                     <th>Rejected at</th>
                                     <th>Rejected By</th>
                                     <th>Rejected Reason</th>
@@ -392,7 +401,8 @@
                                     <th>BSR 90D Avg</th>
                                     <th>Product Note</th>
                                     <th>Buyer Note</th>
-                                    <th class="sticky-col">Actions</th>
+                                    {{-- <th class="sticky-col">Actions</th> --}}
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -405,6 +415,8 @@
     </div>
 
     @include('modals.buylists.create-buylist-modal')
+    @include('modals.buylists.move-other-buylist-modal')
+    @include('modals.order.order-detail.lineitems-edit-modal')
 @endsection
     
 @section('scripts')
@@ -433,7 +445,13 @@
                 ordering: true,
                 lengthChange: false,
                 columns: [
-                    { data: null, orderable: false, render: function(){ return '<input type="checkbox" class="form-check-input">'; } },
+                    {
+                        data: 'id',
+                        orderable: false,
+                        render: function(data, type, row) {
+                            return `<input type="checkbox" class="form-check-input buylist-checkbox" data-id="${row.id}">`;
+                        }
+                    },
                     { data: 'created_at' },
                     { data: 'created_by' },
                     { data: 'rejection_reason' },
@@ -472,6 +490,469 @@
                     // Re-enable button after table has fully loaded
                     $btn.prop('disabled', false);
                     $btn.html('Reset');
+                });
+            });
+        });
+
+        // Open edit modal from Buylist DataTable
+        $(document).ready(function () {
+            let editItemId = null;
+
+            // 🟦 Handle Edit Button Click
+            $(document).on('click', '.edit-smart-item', function (e) {
+                e.preventDefault();
+
+                const modal = $('#editItemsModal');
+                const data = $(this).data();
+                editItemId = data.id; // store item ID
+
+                // 🧾 Optional summary fields
+                let formattedDate = '-';
+                if (data.date) {
+                    const dateObj = new Date(data.date);
+                    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    const day = String(dateObj.getDate()).padStart(2, '0');
+                    const year = dateObj.getFullYear();
+                    formattedDate = `${month}/${day}/${year}`;
+                }
+
+                modal.find('#smart-date').text(formattedDate);
+                modal.find('#smart-supplier').text(data.supplier ?? '-');
+                modal.find('#smart-buy-cost').text(data.cost ? `$${parseFloat(data.cost).toFixed(2)}` : '$0');
+                modal.find('#smart-net-cost').text(data.selling_price ? `$${parseFloat(data.selling_price).toFixed(2)}` : '$0');
+                modal.find('#smart-roi').text(data.roi ? `${data.roi}%` : '0%');
+                modal.find('#smart-bsr').text(data.bsr ?? '-');
+
+                if (data.source_url) {
+                    modal.find('#supplier-link').attr('href', data.source_url).show();
+                } else {
+                    modal.find('#supplier-link').attr('href', '#').hide();
+                }
+
+                // 📝 Fill form fields
+                modal.find('#editItemsModalLabel').text(data.name ?? '-');
+                modal.find('#name').val(data.name ?? '');
+                modal.find('#asin').val(data.asin ?? '');
+                modal.find('#category').val(data.category ?? '');
+                modal.find('#unitsPurchased').val(data.unit_purchased ?? '');
+                modal.find('#costPerUnit').val(data.cost ?? '');
+                modal.find('#sellingPrice').val(data.selling_price ?? '');
+                modal.find('#netProfit').val(data.net_profit ?? '');
+                modal.find('#roi').val(data.roi ?? '');
+                modal.find('#bsr_ninety').val(data.bsr ?? '');
+                modal.find('#msku').val(data.msku ?? '');
+                modal.find('#listPrice').val(data.list_price ?? '');
+                modal.find('#minPrice').val(data.min ?? '');
+                modal.find('#maxPrice').val(data.max ?? '');
+                modal.find('#supplier').val(data.supplier ?? '');
+                modal.find('#source_url').val(data.source_url ?? '');
+                modal.find('#brand').val(data.brand ?? '');
+                modal.find('#variation').val(data.variation ?? '');
+                modal.find('#promo').val(data.promo ?? '');
+                modal.find('#coupon_code').val(data.coupon ?? '');
+                modal.find('#product_note').val(data.product_notes ?? '');
+                modal.find('#buyerNote').val(data.buyer_notes ?? '');
+
+                // 🪟 Show modal
+                modal.modal('show');
+            });
+
+            // 🟩 Handle AJAX Form Submit
+            $('#edit-items-form').on('submit', function (e) {
+                e.preventDefault();
+
+                if (!editItemId) {
+                    toastr.error('No item selected for editing.');
+                    return;
+                }
+
+                const formData = $(this).serializeArray();
+                formData.push({ name: 'id', value: editItemId });
+
+                $.ajax({
+                    url: '{{ route("orders.updateItem") }}', // <-- Your update route
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            $('#editItemsModal').modal('hide');
+                            toastr.success(response.message);
+                            $('#rejected-buylist-table').DataTable().ajax.reload(null, false);
+                        } else {
+                            toastr.error(response.message || 'Failed to update item.');
+                        }
+                    },
+                    error: function (xhr) {
+                        console.error(xhr.responseText);
+                        toastr.error('Server error occurred.');
+                    }
+                });
+            });
+        });
+
+        $(document).ready(function () {
+            let selectedItemIds = [];
+
+            // ✅ Single reject click
+            $(document).on('click', '.reject-item', function (e) {
+                e.preventDefault();
+                selectedItemIds = [$(this).data('id')];
+                $('#rejectItemModal').modal('show');
+            });
+
+            // ✅ Bulk reject click
+            $(document).on('click', '.rejectItemsBtn', function (e) {
+                e.preventDefault();
+
+                selectedItemIds = $('#rejected-buylist-table tbody input.buylist-checkbox:checked')
+                    .map(function () { return $(this).data('id'); }).get();
+
+                if (selectedItemIds.length === 0) {
+                    toastr.error('Please select at least one item to reject.');
+                    return;
+                }
+
+                $('.dropdown-menu').removeClass('show');
+                $('#rejectItemModal').modal('show');
+            });
+
+            // ✅ Toggle custom reason input
+            $(document).on('change', '#select-rejection-reason', function () {
+                if ($(this).val() === 'Custom') {
+                    $('#customReasonContainer').removeClass('d-none');
+                } else {
+                    $('#customReasonContainer').addClass('d-none');
+                }
+            });
+
+            // ✅ Save reject reason (single or bulk)
+            $('#rejectItemSave').on('click', function () {
+                const selectedReason = $('#select-rejection-reason').val();
+                const customReason = $('#customReason').val();
+                const finalReason = selectedReason === 'Custom' ? customReason : selectedReason;
+
+                if (!finalReason) {
+                    toastr.error('Please select or enter a reason.');
+                    return;
+                }
+
+                if (selectedItemIds.length === 0) {
+                    toastr.error('No items selected.');
+                    return;
+                }
+
+                $.ajax({
+                    url: '{{ route("orders.rejectItemsBulk") }}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        ids: selectedItemIds,
+                        reason: finalReason
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#rejectItemModal').modal('hide');
+                            toastr.success('Items rejected successfully.');
+                            $('#rejected-buylist-table').DataTable().ajax.reload();
+                        } else {
+                            toastr.error('Failed to reject items.');
+                        }
+                    },
+                    error: function () {
+                        toastr.error('Server error.');
+                    }
+                });
+            });
+
+            // ✅ Select all checkboxes
+            $(document).on('change', '#selectAll', function () {
+                const checked = $(this).is(':checked');
+                $('#rejected-buylist-table tbody input.buylist-checkbox').prop('checked', checked);
+                updateSelectionUI();
+            });
+
+            // ✅ Handle single checkbox
+            $(document).on('change', '#rejected-buylist-table tbody input.buylist-checkbox', function () {
+                const allChecked =
+                    $('#rejected-buylist-table tbody input.buylist-checkbox').length ===
+                    $('#rejected-buylist-table tbody input.buylist-checkbox:checked').length;
+
+                $('#selectAll').prop('checked', allChecked);
+                updateSelectionUI();
+            });
+
+            // ✅ Update selection count and button
+            function updateSelectionUI() {
+                const count = $('#rejected-buylist-table tbody input.buylist-checkbox:checked').length;
+                $('#selectedCount').text(count);
+
+                if (count > 0) {
+                    $('#select-count-section').removeClass('d-none');
+                } else {
+                    $('#select-count-section').addClass('d-none');
+                }
+            }
+
+            // ✅ Reset when DataTable reloads
+            $('#rejected-buylist-table').on('draw.dt', function () {
+                $('#selectAll').prop('checked', false);
+                updateSelectionUI();
+            });
+
+            // ✅ SINGLE DELETE
+            $(document).on('click', '.delete-buylist-item', function (e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This item will be permanently deleted!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: `/buylist/${id}`,
+                            type: 'DELETE',
+                            data: { _token: '{{ csrf_token() }}' },
+                            success: function (response) {
+                                if (response.success) {
+                                    Swal.fire('Deleted!', response.message || 'Item deleted.', 'success');
+                                    $('#rejected-buylist-table').DataTable().ajax.reload();
+                                } else {
+                                    Swal.fire('Failed!', response.message || 'Could not delete the item.', 'error');
+                                }
+                            },
+                            error: function () {
+                                Swal.fire('Error', 'Server error. Please try again later.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+
+            // ✅ BULK DELETE
+            $(document).on('click', '.bulkDelBtn', function (e) {
+                e.preventDefault();
+
+                let ids = $('#rejected-buylist-table tbody input.buylist-checkbox:checked')
+                    .map(function () { return $(this).data('id'); }).get();
+
+                if (ids.length === 0) {
+                    toastr.error('Please select at least one item to delete.');
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: `You are about to delete ${ids.length} item(s).`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete all!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '{{ route("buylist.bulkDelete") }}', // ✅ create this route
+                            method: 'POST',
+                            data: { _token: '{{ csrf_token() }}', ids: ids },
+                            success: function (response) {
+                                if (response.success) {
+                                    Swal.fire('Deleted!', response.message || 'Items deleted successfully.', 'success');
+                                    $('#rejected-buylist-table').DataTable().ajax.reload();
+                                    updateSelectionUI();
+                                } else {
+                                    Swal.fire('Failed!', response.message || 'Failed to delete items.', 'error');
+                                }
+                            },
+                            error: function () {
+                                Swal.fire('Error', 'Server error. Please try again later.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+
+        // ✅ Single duplicate click
+        $(document).on('click', '.duplicate-item', function (e) {
+            e.preventDefault();
+            const id = $(this).data('id');
+
+            Swal.fire({
+                title: 'Duplicate this item?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, duplicate it!',
+                cancelButtonText: 'Cancel',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/buylist/${id}/duplicate`,
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                toastr.success(response.message);
+                                $('#rejected-buylist-table').DataTable().ajax.reload();
+                            } else {
+                                toastr.error(response.message || 'Duplication failed.');
+                            }
+                        },
+                        error: function () {
+                            toastr.error('Server error.');
+                        }
+                    });
+                }
+            });
+        });
+
+        $(document).ready(function () {
+
+            $(document).on('click', '.move-item', function (e) {
+                e.preventDefault();
+
+                let itemId = $(this).data('id');
+
+                $('#selectedItemIds').val(itemId);
+                $('#moveItemCount').text('(1)');
+                $('#moveToBuylistModal').modal('show');
+            });
+
+            // Bulk move click
+            $(document).on('click', '.bulkMoveBtn', function (e) {
+                e.preventDefault();
+
+                let selectedIds = $('#rejected-buylist-table tbody input[type="checkbox"]:checked')
+                    .map(function () { return $(this).data('id'); }).get();
+
+                if (selectedIds.length === 0) {
+                    Swal.fire('No Items Selected', 'Please select at least one item to move.', 'warning');
+                    return;
+                }
+
+                $('#selectedItemIds').val(selectedIds.join(','));
+                $('#moveItemCount').text(`(${selectedIds.length})`);
+                $('#moveToBuylistModal').modal('show');
+            });
+
+            // Submit form
+            $('#moveToBuylistForm').submit(function (e) {
+                e.preventDefault();
+
+                let buylistId = $('#targetBuylist').val();
+                let itemIds = $('#selectedItemIds').val();
+
+                if (!buylistId) {
+                    Swal.fire('Required', 'Please select a target buylist.', 'error');
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('buylist.moveItems') }}",
+                    type: "POST",
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        buylist_id: buylistId,
+                        item_ids: itemIds
+                    },
+                    success: function (res) {
+                        if (res.success) {
+                            Swal.fire('Moved!', res.message, 'success');
+                            $('#moveToBuylistModal').modal('hide');
+                            $('#rejected-buylist-table').DataTable().ajax.reload();
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Something went wrong.', 'error');
+                    }
+                });
+            });
+        });
+
+        $(document).ready(function () {
+            $('#createBuylistBtn').on('click', function () {
+                let name = $('#buylist_name').val().trim();
+
+                if (!name) {
+                    Swal.fire('Required', 'Please enter a buylist name.', 'warning');
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('buylist.store') }}",
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        name: name
+                    },
+                    success: function (res) {
+                        if (res.success) {
+                            Swal.fire('Created!', res.message, 'success');
+                            $('#createBuylistModal').modal('hide');
+                            $('#buylist_name').val('');
+
+                            // Append new buylist to dropdown instantly
+                            $('.column-list').append(`
+                                <div class="d-flex justify-content-between align-items-center my-2 column-item position-relative">
+                                    <div class="d-flex align-items-center">
+                                        <input class="form-check-input me-2 buylist-filter" type="checkbox" value="${res.data.id}" id="list-${res.data.id}" checked>
+                                        <label class="form-check-label mb-0" for="list-${res.data.id}">${res.data.name}</label>
+                                    </div>
+                                    <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y">
+                                        <button class="btn btn-sm btn-outline-danger delete-buylist" data-id="${res.data.id}"><i class="ti ti-trash"></i></button>
+                                    </div>
+                                </div>
+                            `);
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Something went wrong while creating buylist.', 'error');
+                    }
+                });
+            });
+
+            // Delete Buylist
+            $(document).on('click', '.delete-buylist', function (e) {
+                e.preventDefault();
+                let btn = $(this);
+                let id = btn.data('id');
+
+                Swal.fire({
+                    title: 'Delete Buylist?',
+                    text: 'This action cannot be undone.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: `/buylist/${id}/delete`, // ✅ your delete route
+                            type: 'DELETE',
+                            data: { _token: '{{ csrf_token() }}' },
+                            success: function (res) {
+                                if (res.success) {
+                                    Swal.fire('Deleted!', res.message, 'success');
+                                    btn.closest('.column-item').remove();
+                                } else {
+                                    Swal.fire('Error', res.message, 'error');
+                                }
+                            },
+                            error: function () {
+                                Swal.fire('Error', 'Failed to delete buylist.', 'error');
+                            }
+                        });
+                    }
                 });
             });
         });

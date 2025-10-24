@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Buylist;
 use App\Models\LineItem;
+use App\Models\Order;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -33,8 +34,9 @@ class BuylistController extends Controller
             return DataTables::of(collect())->make(true);
         }
 
-        $query = LineItem::where('is_buylist', '1')
-            ->whereIn('buylist_id', $request->buylist_ids);
+        $query = LineItem::where('is_buylist', '1')->where('is_rejected', 0)
+            ->whereIn('buylist_id', $request->buylist_ids)
+            ->orderByDesc('id');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -78,16 +80,69 @@ class BuylistController extends Controller
                 return $supplier;
             })
             ->addColumn('actions', function ($b) {
+                $url = $b->source_url;
+                $buyCostUrl = $b->order_id ? route('buy.cost.calculator', $b->buylist_id) : '#';
+
                 return '
                     <div class="d-flex justify-content-center gap-1">
-                        <button class="btn btn-sm btn-success"><i class="ti ti-currency-dollar"></i></button>
-                        <button class="btn btn-sm btn-light"><i class="ti ti-external-link"></i></button>
+                        <a href="'. $url .'" target="_blank" class="btn btn-sm btn-light">
+                            <i class="ti ti-external-link"></i>
+                        </a>
+                        <a href="' . $buyCostUrl . '" target="_blank" class="btn btn-sm btn-light">
+                            <i class="ti ti-shopping-cart"></i>
+                        </a>
                         <div class="dropdown">
-                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="ti ti-dots-vertical"></i></button>
+                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown">
+                                <i class="ti ti-dots-vertical"></i>
+                            </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
+                                <li>
+                                    <a class="dropdown-item text-danger delete-buylist-item" data-id="' . $b->id . '" href="#">
+                                        <i class="ti ti-trash me-2"></i>Delete
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" 
+                                    class="dropdown-item edit-smart-item"
+                                    data-id="' . $b->id . '"
+                                    data-name="' . e($b->name) . '"
+                                    data-asin="' . e($b->asin) . '"
+                                    data-msku="' . e($b->msku) . '"
+                                    data-unit_purchased="' . e($b->unit_purchased) . '"
+                                    data-list_price="' . e($b->list_price) . '"
+                                    data-category="' . e($b->category) . '"
+                                    data-supplier="' . e($b->supplier) . '"
+                                    data-cost="' . e($b->buy_cost) . '"
+                                    data-selling_price="' . e($b->selling_price) . '"
+                                    data-net_profit="' . e($b->net_profit) . '"
+                                    data-roi="' . e($b->roi) . '"
+                                    data-min="' . e($b->min) . '"
+                                    data-max="' . e($b->max) . '"
+                                    data-bsr="' . e($b->bsr) . '"
+                                    data-source_url="' . e($b->source_url) . '"
+                                    data-promo="' . e($b->promo) . '"
+                                    data-coupon="' . e($b->coupon_code) . '"
+                                    data-date="' . e($b->created_at) . '"
+                                    data-product_notes="' . e($b->order_note) . '"
+                                    data-buyer_notes="' . e($b->product_buyer_notes) . '">
+                                        <i class="ti ti-edit me-2"></i>Edit
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item duplicate-item" data-id="' . $b->id . '" href="#">
+                                        <i class="ti ti-copy me-2"></i>Duplicate
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item reject-item" data-id="' . $b->id . '" href="#">
+                                        <i class="ti ti-ban me-2"></i>Reject Item
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item move-item" data-id="' . $b->id . '" href="#">
+                                        <i class="ti ti-arrow-right me-2"></i>Move to Other Buy List
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -104,7 +159,8 @@ class BuylistController extends Controller
         }
 
         $query = LineItem::with('createdBy')->where('is_buylist', '1')->where('is_rejected', '1')
-            ->whereIn('buylist_id', $request->buylist_ids);
+            ->whereIn('buylist_id', $request->buylist_ids)
+            ->orderByDesc('id');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -151,16 +207,55 @@ class BuylistController extends Controller
                 return $b->createdBy?->name ?? '--';
             })
             ->addColumn('actions', function ($b) {
+                $url = $b->source_url;
                 return '
                     <div class="d-flex justify-content-center gap-1">
-                        <button class="btn btn-sm btn-success"><i class="ti ti-currency-dollar"></i></button>
-                        <button class="btn btn-sm btn-light"><i class="ti ti-external-link"></i></button>
+                        <a href="'. $url .'" target="_blank" class="btn btn-sm btn-light"><i class="ti ti-external-link"></i></a>
                         <div class="dropdown">
                             <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="ti ti-dots-vertical"></i></button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
+                                <li>
+                                    <a class="dropdown-item text-danger delete-buylist-item" data-id="' . $b->id . '" href="#">
+                                        <i class="ti ti-trash me-2"></i>Delete
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" 
+                                    class="dropdown-item edit-smart-item"
+                                    data-id="' . $b->id . '"
+                                    data-name="' . e($b->name) . '"
+                                    data-asin="' . e($b->asin) . '"
+                                    data-msku="' . e($b->msku) . '"
+                                    data-unit_purchased="' . e($b->unit_purchased) . '"
+                                    data-list_price="' . e($b->list_price) . '"
+                                    data-category="' . e($b->category) . '"
+                                    data-supplier="' . e($b->supplier) . '"
+                                    data-cost="' . e($b->buy_cost) . '"
+                                    data-selling_price="' . e($b->selling_price) . '"
+                                    data-net_profit="' . e($b->net_profit) . '"
+                                    data-roi="' . e($b->roi) . '"
+                                    data-min="' . e($b->min) . '"
+                                    data-max="' . e($b->max) . '"
+                                    data-bsr="' . e($b->bsr) . '"
+                                    data-source_url="' . e($b->source_url) . '"
+                                    data-promo="' . e($b->promo) . '"
+                                    data-coupon="' . e($b->coupon_code) . '"
+                                    data-date="' . e($b->created_at) . '"
+                                    data-product_notes="' . e($b->order_note) . '"
+                                    data-buyer_notes="' . e($b->product_buyer_notes) . '">
+                                        <i class="ti ti-edit me-2"></i>Edit
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item duplicate-item" data-id="' . $b->id . '" href="#">
+                                        <i class="ti ti-copy me-2"></i>Duplicate
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item move-item" data-id="' . $b->id . '" href="#">
+                                        <i class="ti ti-arrow-right me-2"></i>Move to Other Buy List
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -168,6 +263,86 @@ class BuylistController extends Controller
             })
             ->rawColumns(['name', 'asin', 'image', 'variations', 'supplier', 'actions'])
             ->make(true);
+    }
+
+    public function rejectItemsBulk(Request $request)
+    {
+        $ids = $request->ids;
+
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'message' => 'No items selected']);
+        }
+
+        LineItem::whereIn('id', $ids)->update([
+            'rejection_reason' => $request->reason,
+            'is_rejected' => 1,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Items rejected successfully']);
+    }
+
+    public function duplicateItem($id)
+    {
+        $item = LineItem::find($id);
+
+        if (!$item) {
+            return response()->json(['success' => false, 'message' => 'Item not found.']);
+        }
+
+        $duplicate = $item->replicate();
+        $duplicate->created_at = now();
+        $duplicate->updated_at = now();
+        $duplicate->save();
+
+        return response()->json(['success' => true, 'message' => 'Item duplicated successfully.']);
+    }
+
+    public function moveItems(Request $request)
+    {
+        $request->validate([
+            'buylist_id' => 'required|exists:buylists,id',
+            'item_ids' => 'required|string',
+        ]);
+
+        $itemIds = explode(',', $request->item_ids);
+
+        LineItem::whereIn('id', $itemIds)->update([
+            'buylist_id' => $request->buylist_id,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Items moved successfully!']);
+    }
+
+    public function createMultipleItemsOrder(Request $request)
+    {
+        // dd($request->all());
+        $itemIds = $request->input('ids', []);
+        $order_id = $this->createOrderForItem();
+        $units = 0;
+        foreach ($itemIds as $id) {
+            $item = LineItem::find($id);
+            $total_sku = $item ->unit_purchased * $item->buy_cost;
+            $item->is_buylist = 0;
+            // $item->buylist_id = null;
+            $item->sku_total = $total_sku;
+            $item->order_id = $order_id;
+            $item->save();
+            $units += $item->unit_purchased;
+        }
+        $findOrder = Order::where('id',$order_id)->first();
+        $findOrder->total_units_purchased  = $units;
+        $findOrder->total = $request->buy_cost * $request->unit_purchased;
+        $findOrder->subtotal = $request->buy_cost * $request->unit_purchased;
+        $findOrder->save();
+        return response()->json(['success' => true, 'message' => 'Orders created successfully.','order_id'=>$order_id]);
+    }
+
+    private function createOrderForItem(){
+        $order = Order::create([
+            'date' => now(),
+            'status' => 'ordered',
+        ]);
+        return $order->id;
     }
 
     /**
@@ -183,7 +358,16 @@ class BuylistController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $buylist = Buylist::create([
+            'name' => $request->name,
+            'creatd_by' => auth()->user()->id,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Buylist created successfully!',
+            'data' => $buylist
+        ]);
     }
 
     /**
@@ -210,11 +394,48 @@ class BuylistController extends Controller
         //
     }
 
+    public function bulkDelete(Request $request)
+    {
+        $ids = $request->ids;
+
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'message' => 'No IDs provided.']);
+        }
+
+        try {
+            LineItem::whereIn('id', $ids)->delete();
+            return response()->json(['success' => true, 'message' => 'Selected items deleted successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+        }
+    }
+
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroyBuylistItem($id)
     {
-        //
+        $buylist = LineItem::find($id);
+
+        if (!$buylist) {
+            return response()->json(['success' => false, 'message' => 'Item not found.']);
+        }
+
+        $buylist->delete();
+
+        return response()->json(['success' => true, 'message' => 'Item deleted successfully.']);
     }
+
+    public function destroy($id)
+    {
+        $buylist = Buylist::find($id);
+        if (!$buylist) {
+            return response()->json(['success' => false, 'message' => 'Buylist not found.']);
+        }
+
+        $buylist->delete();
+
+        return response()->json(['success' => true, 'message' => 'Buylist deleted successfully!']);
+    }
+
 }

@@ -7,8 +7,8 @@
       </div>
 
       <div class="modal-body">
-        <label for="buylistName" class="form-label">Enter Buylist Name</label>
-        <input type="text" class="form-control" id="buylistName" placeholder="Buylist Name">
+        <label for="buylist_name" class="form-label">Enter Buylist Name</label>
+        <input type="text" class="form-control" id="buylist_name" name="name" placeholder="Buylist Name">
       </div>
 
       <div class="modal-footer">

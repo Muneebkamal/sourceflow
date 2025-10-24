@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class Buylist extends Model
 {
     use HasFactory;
-    protected $fillable = ['name','created_by','updated'];
+    protected $fillable = ['name','creatd_by','updated'];
 }

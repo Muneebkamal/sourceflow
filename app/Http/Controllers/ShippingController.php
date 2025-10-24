@@ -66,9 +66,10 @@ class ShippingController extends Controller
                 return $html;
             })
             ->addColumn('actions', function ($row) {
+                $url = route('shipping.show', $row->id);
                 return '
                     <div class="d-flex justify-content-center gap-1">
-                        <a href="#" class="btn btn-sm btn-light"><i class="ti ti-eye"></i></a>
+                        <a href="'.$url.'" class="btn btn-sm btn-light"><i class="ti ti-eye"></i></a>
                         <div class="dropdown">
                             <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body">
                                 <i class="ti ti-dots-vertical"></i>
@@ -105,7 +106,8 @@ class ShippingController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $shipping = Shipping::where('id', $id)->first();
+        return view('shipping.show', compact('shipping'));
     }
 
     /**

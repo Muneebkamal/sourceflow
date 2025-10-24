@@ -13,7 +13,7 @@
                     <form action="javascript:void(0);">
                         <div class="row g-2 mb-0 align-items-center">
                             <div class="col-auto">
-                                <button class="btn btn-primary">
+                                <button id="orderSaveBtn" class="btn btn-primary">
                                     Save & Go To Order
                                 </button>
                             </div>
@@ -61,27 +61,30 @@
             </div>
             <div class="row">
                 <div class="col-md-10 table-responsive">
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle" id="savedItemsContainer">
                         <thead class="table-light">
                             <tr>
-                            <th scope="col">ASIN</th>
-                            <th scope="col">Image</th>
-                            <th scope="col">Product Title</th>
-                            <th scope="col">Variation Details</th>
-                            <th scope="col" class="text-center">Tax Exempt</th>
-                            <th scope="col"># of Units</th>
-                            <th scope="col">Cost Per Unit ($)</th>
-                            <th scope="col">SKU Total ($)</th>
-                            <th scope="col" class="bg-success-subtle">Cost Per Unit<br>Calculated</th>
-                            <th scope="col" class="text-center">Action</th>
+                                <th scope="col">ASIN</th>
+                                <th scope="col">Image</th>
+                                <th scope="col">Product Title</th>
+                                <th scope="col">Variation Details</th>
+                                <th scope="col" class="text-center">Tax Exempt</th>
+                                <th scope="col"># of Units</th>
+                                <th scope="col">Cost Per Unit ($)</th>
+                                <th scope="col">SKU Total ($)</th>
+                                <th scope="col" class="bg-success-subtle">Cost Per Unit<br>Calculated</th>
+                                <th scope="col" class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($order->LineItems as $item)
                                 <tr>
-                                    <td>{{ $item->asin }}</td>
                                     <td>
-                                        <img src="https://app.sourceflow.io/storage/images/no-image-thumbnail.png" alt="Product Image" class="img-fluid rounded" width="50">
+                                        <input type="hidden" class="line-item-id" value="{{ $item->id }}">{{ $item->asin }}
+                                    </td>
+                                    <td>
+                                        <img src="https://app.sourceflow.io/storage/images/no-image-thumbnail.png"
+                                            alt="Product Image" class="img-fluid rounded" width="50">
                                     </td>
                                     <td>{{ $item->name }}</td>
                                     <td>---</td>
@@ -91,19 +94,20 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control" value="{{ $item->unit_purchased }}">
+                                        <input type="number" class="form-control unit-input" value="{{ $item->unit_purchased }}">
                                     </td>
-                                    <td>${{ $item->buy_cost }}</td>
-                                    <td>${{ $item->sku_total }}</td>
-                                    <td>$</td>
+                                    <td class="buy-cost">${{ $item->buy_cost }}</td>
+                                    <td class="sku-total">${{ $item->sku_total }}</td>
+                                    <td class="bg-success-subtle">$0.00</td>
                                     <td class="text-center">
-                                        <i class="ti ti-trash text-danger fs-3"></i>
+                                        <i class="ti ti-trash text-danger delLineItem fs-3"></i>
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
+
                 <div class="col-md-2 card bg-light">
                     <div class="card-header border-bottom">
                         <h4 class="card-title fw-bold">Order Totals</h4>
@@ -111,44 +115,49 @@
                     <div class="card-body p-0">
                         <div class="mb-1 mt-2">
                             <label for="pre_tax_discount" class="form-label">Pre-Tax Discount</label>
-                            <input type="text" class="form-control" id="pre_tax_discount" name="pre_tax_discount" value="{{ $order->pre_tax_discount }}" autocomplete="pre_tax_discount">
+                            <input type="text" class="form-control" id="pre_tax_discount" name="pre_tax_discount"
+                                value="{{ $order->pre_tax_discount }}" autocomplete="pre_tax_discount">
                         </div>
 
                         <div class="mb-1">
                             <label for="post_tax_discount" class="form-label">Post-Tax Discount</label>
-                            <input type="text" class="form-control" id="post_tax_discount" name="post_tax_discount" value="{{ $order->post_tax_discount }}" autocomplete="post_tax_discount">
+                            <input type="text" class="form-control" id="post_tax_discount" name="post_tax_discount"
+                                value="{{ $order->post_tax_discount }}" autocomplete="post_tax_discount">
                         </div>
 
                         <div class="mb-1">
                             <label for="shipping_total" class="form-label">Shipping Cost</label>
-                            <input type="text" class="form-control" value="{{ $order->shipping_cost }}" id="shipping_total" name="shipping_total" autocomplete="shipping_total">
+                            <input type="text" class="form-control" value="{{ $order->shipping_cost }}"
+                                id="shipping_total" name="shipping_total" autocomplete="shipping_total">
                         </div>
 
                         <div class="mb-1">
                             <label for="tax_paid" class="form-label">Sales Tax</label>
-                            <input type="text" class="form-control" value="{{ $order->sales_tax }}" id="tax_paid" name="tax_paid" autocomplete="tax_paid">
+                            <input type="text" class="form-control" value="{{ $order->sales_tax }}"
+                                id="tax_paid" name="tax_paid" autocomplete="tax_paid">
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <label for="sales_tax_shipping" class="form-label mb-0">Sales Tax Paid on Shipping</label>
                             <div class="form-check form-switch mb-0">
-                            <input class="form-check-input" type="checkbox" id="sales_tax_shipping" @if($order->is_sale_tax_shipping == 1) checked @endif>
+                                <input class="form-check-input" type="checkbox" id="sales_tax_shipping"
+                                    @if($order->is_sale_tax_shipping == 1) checked @endif>
                             </div>
                         </div>
 
                         <div class="d-flex justify-content-between mb-2">
                             <span>Sales Tax Rate</span>
-                            <span class="fw-semibold">{{ $order->sales_tax_rate }}%</span>
+                            <span class="fw-semibold" id="sales_tax_rate_display">{{ $order->sales_tax_rate }}%</span>
                         </div>
 
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal (Pre-Tax)</span>
-                            <span class="fw-semibold">${{ $order->subtotal }}</span>
+                            <span class="fw-semibold" id="subtotal_display">${{ $order->subtotal }}</span>
                         </div>
 
                         <div class="d-flex justify-content-between mb-3">
                             <span class="fw-bold">Grand Total</span>
-                            <span class="fw-bold text-dark">${{ $order->total }}</span>
+                            <span class="fw-bold text-dark" id="grand_total_display">${{ $order->total }}</span>
                         </div>
                     </div>
                 </div>
@@ -327,25 +336,94 @@
 
 @section('scripts')
 <script>
-    $(document).ready(function() {
-        $('.note-card').on('click', function() {
-            $(this).find('.note-text').hide();
-            $(this).find('textarea').show().focus();
+    // $(document).ready(function() {
+    //     // Click to edit note
+    //     $('.note-card').on('click', function() {
+    //         const card = $(this).closest('.card');
 
-            $(this).closest('.card').find('.check-icon').show();
+    //         // Hide note text and show textarea
+    //         card.find('.note-text').hide();
+    //         card.find('textarea').show().focus();
+
+    //         // Show check icon
+    //         card.find('.check-icon').show();
+    //     });
+
+    //     // Click to save note
+    //     $('.check-icon').on('click', function(e) {
+    //         e.preventDefault();
+
+    //         const card = $(this).closest('.card');
+    //         const textarea = card.find('textarea');
+    //         const noteText = card.find('.note-text');
+    //         const noteValue = textarea.val();
+
+    //         // Optional: disable icon while saving
+    //         const icon = $(this).find('i');
+    //         icon.removeClass('ti-check').addClass('ti-loader ti-spin');
+
+    //         // Send AJAX update request
+    //         $.ajax({
+    //             url: "{{ route('orders.updateNote', $order->id) }}",
+    //             type: "POST",
+    //             data: {
+    //                 _token: "{{ csrf_token() }}",
+    //                 note: noteValue
+    //             },
+    //             success: function(response) {
+    //                 icon.removeClass('ti-loader ti-spin').addClass('ti-check');
+
+    //                 if (response.success) {
+    //                     toastr.success(response.message);
+
+    //                     // Update visible note text
+    //                     noteText.text(noteValue);
+    //                 } else {
+    //                     toastr.error(response.message || 'Failed to update note.');
+    //                 }
+
+    //                 // Hide textarea and check icon
+    //                 textarea.hide();
+    //                 noteText.show();
+    //                 card.find('.check-icon').hide();
+    //             },
+    //             error: function(xhr) {
+    //                 icon.removeClass('ti-loader ti-spin').addClass('ti-check');
+    //                 toastr.error('Failed to update note.');
+    //                 console.error(xhr.responseText);
+    //             }
+    //         });
+    //     });
+    // });
+    $(document).ready(function () {
+        // 🟢 Click to edit note
+        $(document).on('click', '.note-card', function () {
+            const card = $(this).closest('.card');
+            
+            // Hide note text, show textarea, and focus it
+            card.find('.note-text').hide();
+            card.find('textarea').show().focus();
+            
+            // Show the check icon
+            card.find('.check-icon').show();
         });
 
-        $('.check-icon').on('click', function(e) {
+        // Click the check icon to save (locally only)
+        $(document).on('click', '.check-icon', function (e) {
             e.preventDefault();
-            var card = $(this).closest('.card');
-            var textarea = card.find('textarea');
-            var noteText = card.find('.note-text');
 
-            noteText.text(textarea.val());
+            const card = $(this).closest('.card');
+            const textarea = card.find('textarea');
+            const noteText = card.find('.note-text');
+            const noteValue = textarea.val().trim();
+
+            // Update visible note text
+            noteText.text(noteValue || ''); // keep it blank if empty
+
+            // Hide textarea and check icon, show text
             textarea.hide();
             noteText.show();
-
-            $(this).hide();
+            card.find('.check-icon').hide();
         });
     });
 
@@ -440,5 +518,257 @@
             tooltip = new bootstrap.Tooltip(tooltipEl);
         });
     });
+
+    $(document).ready(function () {
+
+        function renderEditableInputs() {
+            const calculatorType = $('#calculator_type').val();
+
+            $('#savedItemsContainer tbody tr').each(function () {
+                const $row = $(this);
+                const buyCostVal = $row.find('.buy-cost').data('value') || $row.find('.buy-cost').text().replace('$', '').trim();
+                const skuTotalVal = $row.find('.sku-total').data('value') || $row.find('.sku-total').text().replace('$', '').trim();
+
+                $row.find('.buy-cost').data('value', buyCostVal);
+                $row.find('.sku-total').data('value', skuTotalVal);
+
+                if (calculatorType === 'Cost Per Unit') {
+                    $row.find('.buy-cost').html(`<input type="number" class="form-control buy-cost-input" value="${buyCostVal}">`);
+                    $row.find('.sku-total').text(`$${parseFloat(skuTotalVal).toFixed(2)}`);
+                } else {
+                    $row.find('.buy-cost').text(`$${parseFloat(buyCostVal).toFixed(2)}`);
+                    $row.find('.sku-total').html(`<input type="number" class="form-control sku-total-input" value="${skuTotalVal}">`);
+                }
+            });
+        }
+
+        renderEditableInputs();
+        calculateTotals();
+
+        $('#calculator_type').on('change', function () {
+            renderEditableInputs();
+            calculateTotals();
+        });
+
+        $(document).on('input change',
+            '#pre_tax_discount, #post_tax_discount, #shipping_total, #tax_paid, #sales_tax_shipping, .unit-input, .buy-cost-input, .sku-total-input',
+            function () {
+                calculateTotals();
+            }
+        );
+
+        function calculateTotals() {
+            const calculatorType = $('#calculator_type').val();
+            const preTaxDiscount = parseFloat($('#pre_tax_discount').val()) || 0;
+            const postTaxDiscount = parseFloat($('#post_tax_discount').val()) || 0;
+            const shippingCost = parseFloat($('#shipping_total').val()) || 0;
+            const taxPaidAmount = parseFloat($('#tax_paid').val()) || 0; // 🟢 tax as absolute value
+            const isSalesTaxOnShipping = $('#sales_tax_shipping').is(':checked');
+
+            let lineItemsTotal = 0;
+            let totalUnits = 0;
+            const rows = [];
+
+            $('#savedItemsContainer tbody tr').each(function () {
+                const $row = $(this);
+                const units = parseFloat($row.find('.unit-input').val()) || 0;
+
+                let buyCost = 0;
+                let skuTotal = 0;
+
+                if (calculatorType === 'Cost Per Unit') {
+                    buyCost = parseFloat($row.find('.buy-cost-input').val()) || 0;
+                    skuTotal = units * buyCost;
+                    $row.find('.sku-total').text(`$${skuTotal.toFixed(2)}`);
+                } else {
+                    skuTotal = parseFloat($row.find('.sku-total-input').val()) || 0;
+                    buyCost = units > 0 ? (skuTotal / units) : 0;
+                    $row.find('.buy-cost').text(`$${buyCost.toFixed(2)}`);
+                }
+
+                rows.push({ $row, units, buyCost, skuTotal });
+                lineItemsTotal += skuTotal;
+                totalUnits += units;
+            });
+
+            const subtotalBeforeTax = lineItemsTotal - preTaxDiscount;
+            let totalTaxableBase = subtotalBeforeTax;
+            if (isSalesTaxOnShipping) totalTaxableBase += shippingCost;
+
+            // 🟢 Calculate tax rate based on entered tax amount
+            const salesTaxRate = totalTaxableBase > 0 ? (taxPaidAmount / totalTaxableBase) * 100 : 0;
+
+            const grandTotal = subtotalBeforeTax + taxPaidAmount + shippingCost - postTaxDiscount;
+            const safeLineTotal = lineItemsTotal > 0 ? lineItemsTotal : 0;
+
+            // 🟢 Per-item calculations
+            rows.forEach(function (r) {
+                const proportion = safeLineTotal > 0 ? (r.skuTotal / safeLineTotal) : 0;
+                const preTaxAlloc = preTaxDiscount * proportion;
+                const postTaxAlloc = postTaxDiscount * proportion;
+                const shippingAlloc = shippingCost * proportion;
+                const taxAlloc = taxPaidAmount * proportion;
+
+                const itemFinal = r.skuTotal - preTaxAlloc + shippingAlloc + taxAlloc - postTaxAlloc;
+                const perUnitCalculated = r.units > 0 ? (itemFinal / r.units) : 0;
+
+                r.$row.find('td.bg-success-subtle').text(`$${perUnitCalculated.toFixed(2)}`);
+            });
+
+            // 🟢 Update summary
+            $('#subtotal_display').text(`$${Math.max(0, subtotalBeforeTax).toFixed(2)}`);
+            $('#grand_total_display').text(`$${Math.max(0, grandTotal).toFixed(2)}`);
+            $('#sales_tax_rate_display').text(`${salesTaxRate.toFixed(2)}%`);
+        }
+    });
+
+    $(document).on('click', '#orderSaveBtn', function (e) {
+        e.preventDefault();
+
+        const $btn = $(this);
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
+
+        // 🟢 Collect order-level data
+        const orderData = {
+            order_id: $('#order_id').val(),
+            source: $('#source').val(),
+            destination: $('#destination').val(),
+            email_used: $('#email_used').val(),
+            calculator_type: $('#calculator_type').val(),
+            pre_tax_discount: $('#pre_tax_discount').val(),
+            post_tax_discount: $('#post_tax_discount').val(),
+            shipping_total: $('#shipping_total').val(),
+            sales_tax: $('#tax_paid').val(),
+            is_sale_tax_shipping: $('#sales_tax_shipping').is(':checked') ? 1 : 0,
+            sales_tax_rate: $('#sales_tax_rate_display').text().replace('%', '').trim(),
+            subtotal: $('#subtotal_display').text().replace('$', '').trim(),
+            total: $('#grand_total_display').text().replace('$', '').trim(),
+            note: $('textarea[name="note"]').val(),
+            card_used: $('#card_used').val(),
+            amount_charged: $('#amount_charged').val(),
+            cash_back_source: $('#cash_back_source').val(),
+            cash_back_percentage: $('#cash_percentage').val(),
+            status: $('select[name="status"]').val(),
+            date_ordered: $('#editDate').val() || $('#displayDate').text().trim()
+        };
+
+        // 🟢 Collect line items data
+        const lineItems = [];
+        $('#savedItemsContainer tbody tr').each(function () {
+            const $row = $(this);
+            const item = {
+                id: $row.find('.line-item-id').val(),
+                asin: $row.find('td:eq(0)').text().trim(),
+                unit_purchased: $row.find('.unit-input').val(),
+                buy_cost: $row.find('.buy-cost-input').length
+                    ? $row.find('.buy-cost-input').val()
+                    : $row.find('.buy-cost').text().replace('$', '').trim(),
+                sku_total: $row.find('.sku-total-input').length
+                    ? $row.find('.sku-total-input').val()
+                    : $row.find('.sku-total').text().replace('$', '').trim(),
+                cost_per_unit_calculated: $row.find('.bg-success-subtle').text().replace('$', '').trim(),
+                tax_exempt: $row.find('input.form-check').is(':checked') ? 1 : 0
+            };
+            lineItems.push(item);
+        });
+
+        // 🟢 AJAX call to save all data
+        $.ajax({
+            url: '{{ route("orders.updateFull", $order->id) }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                order: orderData,
+                line_items: lineItems
+            },
+            success: function (response) {
+                if (response.success) {
+                    toastr.success('Order updated successfully!');
+                    $btn.html('Saved');
+                    setTimeout(() => {
+                        window.location.href = `/order/${response.order_id}`;
+                    }, 800);
+                } else {
+                    toastr.error(response.message || 'Failed to update order.');
+                    $btn.prop('disabled', false).text('Save & Go To Order');
+                }
+            },
+            error: function () {
+                toastr.error('Server error. Please try again.');
+                $btn.prop('disabled', false).text('Save & Go To Order');
+            }
+        });
+    });
+
+    $(document).ready(function() {
+    // Delete icon click
+    $(document).on('click', '.delLineItem', function() {
+        const row = $(this).closest('tr');
+        const lineItemId = row.find('.line-item-id').val();
+
+        Swal.fire({
+            title: "Delete or Move?",
+            html: `
+                <p class="mb-2">Do you want to delete this item or move it back to the Buylist?</p>
+                <div class="form-check d-flex align-items-start justify-content-center">
+                    <input class="form-check-input me-2" type="checkbox" id="moveToBuylistCheckbox">
+                    <label class="form-check-label" for="moveToBuylistCheckbox">
+                        Move this item to Buylist instead of deleting
+                    </label>
+                </div>
+            `,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, continue!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const isBuylist = $('#moveToBuylistCheckbox').is(':checked') ? 1 : 0;
+
+                $.ajax({
+                    url: "{{ route('orders.deleteLineItem') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        line_item_id: lineItemId,
+                        is_buylist: isBuylist
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Done!",
+                                text: response.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+
+                            // Fade out the row smoothly
+                            row.fadeOut(400, function() {
+                                $(this).remove();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error!",
+                                text: response.message || "Something went wrong."
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error!",
+                            text: "Server error occurred."
+                        });
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+        });
+    });
+});
+
 </script>
 @endsection

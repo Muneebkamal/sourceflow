@@ -204,7 +204,7 @@
 
 
                 <div class="btn-group drop-down">
-                    <button type="button" class="btn btn-soft-primary dropdown-toggle drop-arrow-none" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="true">
+                    <button type="button" class="btn btn-soft-primary dropdown-toggle drop-arrow-none" data-bs-auto-close="false" data-bs-toggle="dropdown" aria-expanded="true">
                         Tags <i class="ti ti-chevron-down align-middle ms-1"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-lg p-0 shadow">
@@ -223,7 +223,7 @@
                                     <!-- All -->
                                     <div class="d-flex align-items-center mb-2 column-item position-relative">
                                         <div class="d-flex align-items-center">
-                                            <input class="form-check-input me-2" type="checkbox" id="col-all">
+                                            <input class="form-check-input me-2" type="checkbox" id="col-all" checked>
                                             <label class="form-check-label mb-0" for="col-all">All</label>
                                         </div>
                                     </div>
@@ -231,12 +231,19 @@
                                     @foreach ($tags as $tag)
                                         <div class="d-flex justify-content-between align-items-center mb-2 column-item position-relative">
                                             <div class="d-flex align-items-center">
-                                                <input class="form-check-input me-2" type="checkbox" id="col-335">
-                                                <label class="form-check-label mb-0" for="col-335">{{ $tag->name }}</label>
+                                                <input class="form-check-input me-2" type="checkbox" id="col-{{ $tag->id }}" checked>
+                                                <label class="form-check-label mb-0" for="col-{{ $tag->id }}">{{ $tag->name }}</label>
                                             </div>
                                             <div class="column-actions d-none position-absolute end-0 top-50 translate-middle-y me-2">
-                                                <button class="btn btn-sm btn-outline-primary me-1"><i class="ti ti-pencil"></i></button>
-                                                <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
+                                                <button class="btn btn-sm btn-outline-primary me-1 editTagBtn"
+                                                    data-id="{{ $tag->id }}"
+                                                    data-name="{{ $tag->name }}"
+                                                    data-color="{{ $tag->color }}">
+                                                    <i class="ti ti-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger deleteTagBtn" data-id="{{ $tag->id }}">
+                                                    <i class="ti ti-trash"></i>
+                                                </button>
                                             </div>
                                         </div>
                                     @endforeach
@@ -618,67 +625,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Row 1 -->
-                                {{-- <tr class="small">
-                                    <td>
-                                        <input type="checkbox" class="form-check-input">
-                                    </td>
-                                    <td>2025/09/05</td>
-                                    <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" alt=""></td>
-                                    <td>Fashion</td>
-                                    <td><span class="badge bg-dark">Exclusive</span></td>
-                                    <td>2025-09-08</td>
-                                    <td>Leather Jacket</td>
-                                    <td>B01QWE852</td>
-                                    <td>Supplier E</td>
-                                    <td>$100</td>
-                                    <td>$250</td>
-                                    <td>$90</td>
-                                    <td>90%</td>
-                                    <td>5,000</td>
-                                    <td>Clothing</td>
-                                    <td>Yes</td>
-                                    <td>STYLE20</td>
-                                    <td>Limited Stock</td>
-                                    <td>4,800</td>
-                                    <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <!-- Dollar Button -->
-                                            <button class="btn btn-sm btn-success">
-                                            <i class="ti ti-currency-dollar"></i>
-                                            </button>
-
-                                            <!-- Open in New Button -->
-                                            <button class="btn btn-sm btn-light">
-                                            <i class="ti ti-external-link"></i>
-                                            </button>
-
-                                            <!-- Dropdown -->
-                                            <div class="dropdown">
-                                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-copy me-2"></i> Copy to Clipboard
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item" href="#">
-                                                    <i class="ti ti-edit me-2"></i> Edit Item Details
-                                                </a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item text-danger" href="#">
-                                                    <i class="ti ti-trash me-2"></i> Delete Lead
-                                                </a>
-                                                </li>
-                                            </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr> --}}
                             </tbody>
                         </table>
                     </div>
@@ -687,210 +633,6 @@
 
             <div id="cards-section" class="d-none">
                 <div class="cards-container">
-                    {{-- <div class="card">
-                        <div class="card-body">
-                            <div class="row g-3 align-items-start">
-                                <!-- Left Column (Image / Info) -->
-                                <div class="col-md-5">
-                                    <!-- Top Action Row -->
-                                    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <!-- Yellow Icons -->
-                                            <div class="d-flex align-items-center gap-2">
-                                            <i class="ti ti-trophy text-warning fs-3"></i>
-                                            <i class="ti ti-user-plus text-warning fs-3"></i>
-                                            </div>
-
-                                            <!-- Add Type Button -->
-                                            <button class="btn btn-sm btn-soft-primary d-flex align-items-center gap-1">
-                                            <span>Add Type</span>
-                                            <i class="ti ti-plus"></i>
-                                            </button>
-
-                                            <!-- Divider -->
-                                            <div class="vr mx-1"></div>
-
-                                            <!-- Last Updated -->
-                                            <small>
-                                            <b>Last Updated:</b> <span>10/03/25</span>
-                                            </small>
-                                        </div>
-                                    </div>
-
-                                    <div class="d-flex align-items-start gap-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" checked>
-                                        </div>
-                                    <img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" 
-                                        alt="Product" class="img-fluid rounded" style="max-width:100px;">
-                                    <div>
-                                        <h5 class="fw-semibold mb-1">Zymöl Factory Original Spray Detailer™</h5>
-                                        <span class="badge bg-light text-primary border border-primary">No Good</span>
-                                        <a href="#" class="d-block text-decoration-none text-primary mt-1 small fw-semibold">Manage Tags</a>
-                                    </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Right Column (Details / Info) -->
-                                <div class="col-md-7">
-                                    <div class="d-flex justify-content-between align-items-start gap-3">
-                                        
-                                        <!-- Left Info -->
-                                        <div class="flex-fill w-100">
-                                            <!-- ASIN -->
-                                            <div>
-                                                <small class="text-muted me-1">ASIN:</small>
-                                                <a href="#" class="text-primary text-decoration-none">B06XWC9249</a>
-                                                <i class="ti ti-copy text-secondary ms-1" role="button" title="Copy"></i>
-                                            </div>
-
-                                            <!-- Supplier -->
-                                            <div>
-                                                <small class="text-muted me-1">Supplier:</small>
-                                                <a href="#" class="text-primary text-decoration-none">zymol</a>
-                                            </div>
-
-                                            <!-- Category -->
-                                            <div>
-                                                <small class="text-muted me-1">Category:</small>
-                                                <span>Automotive</span>
-                                            </div>
-
-                                            <!-- Variation -->
-                                            <div>
-                                                <small class="text-muted me-1">Variation Details:</small>
-                                                <span>SIZE: 24 Ounce (Pack of 1)</span>
-                                            </div>
-                                        </div>
-
-                                        <!-- Middle Pricing Info -->
-                                        <div class="flex-fill">
-                                            <div class="row">
-                                                <div class="col-4 mb-3">
-                                                    <small class="text-muted d-block">Cost</small>
-                                                    <div class="fw-semibold">$11.00</div>
-                                                </div>
-                                                <div class="col-4 mb-3">
-                                                    <small class="text-muted d-block">Sale Price</small>
-                                                    <div class="fw-semibold text-success">
-                                                        $31.95 <span class="text-decoration-line-through text-muted fs-6">$29.29</span>
-                                                    </div>
-                                                </div>
-                                                <div class="col-4 mb-3">
-                                                    <small class="text-muted d-block">Net Profit</small>
-                                                    <div class="fw-semibold text-success">
-                                                        $10.77 <span class="text-decoration-line-through text-muted fs-6">$9.20</span>
-                                                    </div>
-                                                </div>
-                                                <div class="col-4 mb-3">
-                                                    <small class="text-muted d-block">ROI</small>
-                                                    <div class="fw-semibold text-success">
-                                                        98.00% <span class="text-decoration-line-through text-muted fs-6">84.00%</span>
-                                                    </div>
-                                                </div>
-                                                <div class="col-4 mb-3">
-                                                    <small class="text-muted d-block">BSR</small>
-                                                    <div class="fw-semibold">
-                                                        702,342 <span class="text-decoration-line-through text-muted fs-6">647,655</span>
-                                                    </div>
-                                                </div>
-                                                <div class="col-4 mb-3">
-                                                    <small class="text-muted d-block">90d BSR Avg.</small>
-                                                    <div class="fw-semibold">
-                                                        493,988 <span class="text-decoration-line-through text-muted fs-6">385,326</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Right Buttons -->
-                                        <div class="d-flex flex-column align-items-end gap-2">
-                                            <!-- Dropdown Menu Button -->
-                                            <div class="dropdown">
-                                                <button class="btn btn-light p-2" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="ti ti-dots-vertical fs-5"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy to Clipboard</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit Item Details</a></li>
-                                                    <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete Lead</a></li>
-                                                </ul>
-                                            </div>
-
-                                            <!-- Open Links Button -->
-                                            <button class="btn btn-light p-2">
-                                                <i class="ti ti-external-link fs-5"></i>
-                                            </button>
-                                            
-                                            <!-- Add to Buy List Button -->
-                                            <button class="btn btn-soft-success p-2">
-                                                <i class="ti ti-cash fs-5"></i>
-                                            </button>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-
-                            <hr>
-
-                            <!-- Bottom Section -->
-                            <div class="row">
-                                <div class="col-md-4 border-end">
-                                    <h6 class="fw-semibold mb-2">Sourcing Info</h6>
-                                    <div class="d-flex justify-content-between">
-                                        <small class="text-muted">Promo Code:</small>
-                                        <div>50%off code: <strong>FIRSTORDER</strong></div>
-                                    </div>
-                                    <div class="d-flex justify-content-between mt-1">
-                                        <small class="text-muted">Coupon Code:</small>
-                                        <div>-</div>
-                                    </div>
-                                    <div class="d-flex justify-content-between mt-1">
-                                        <small class="text-nowrap text-muted">Lead Note:</small>
-                                        <div class="text-end">Added 20 in cart est shipping $62 / $14.10 each</div>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4 border-end">
-                                    <h6 class="fw-semibold mb-2">Lead Info</h6>
-                                    <div class="d-flex justify-content-between">
-                                        <small class="text-muted">Publish Date:</small>
-                                        <div>04/23/24</div>
-                                    </div>
-                                    <div class="d-flex justify-content-between mt-1">
-                                        <small class="text-muted">Lead Source:</small>
-                                        <div>OAMANAGE</div>
-                                    </div>
-                                    <div class="d-flex justify-content-between mt-1">
-                                        <small class="text-muted">UPC / GTIN:</small>
-                                        <div>724943672239</div>
-                                    </div>
-                                    <div class="d-flex justify-content-between mt-1">
-                                        <small class="text-muted">Brand:</small>
-                                        <div>ZYMÖL</div>
-                                    </div>
-                                    <div class="d-flex justify-content-between mt-1">
-                                        <small class="text-muted">New Offers:</small>
-                                        <div>2</div>
-                                    </div>
-                                    <div class="d-flex justify-content-between mt-1">
-                                        <small class="text-muted"># of Reviews:</small>
-                                        <div>46</div>
-                                    </div>
-                                    <div class="d-flex justify-content-between mt-1">
-                                        <small class="text-muted">Ratings:</small>
-                                        <div>4.8</div>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <h6 class="fw-semibold mb-2">Order History</h6>
-                                    <div class="text-muted small" style="filter: blur(2px); cursor: not-allowed;">[Order data here]</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
                 </div>
                 <div id="card-pagination" class="pb-3 px-3"></div>
             </div>
@@ -941,19 +683,6 @@
     </script>
 
     <script>
-        // $(document).ready(function() {
-        //     $('#smart-data-table').DataTable({
-        //         scrollY: '40vh',
-        //         // fixedHeader: true,
-        //         searching: false,
-        //         lengthChange: false,
-        //         ordering: false,
-        //         scrollX: true,
-        //         scrollCollapse: true,
-        //         paging: true,
-        //     });
-        // });
-
         $(document).ready(function () {
             function initTooltips() {
                 $('[data-bs-tooltip="tooltip"]').each(function() {
@@ -1314,8 +1043,144 @@
                     $btn.prop('disabled', false);
                     $btn.html('Reset');
                 });
+            });
+        });
+        
+        // for tags store and update delete
+        $(document).ready(function() {
+            let editMode = false;
+            let currentTagId = null;
+            let selectedColor = '';
 
-                // table.ajax.reload();
+            // 🎨 Handle color selection (save lowercase color name)
+            $('#tagModal .btn-soft-success, #tagModal .btn-soft-info, #tagModal .btn-soft-primary, #tagModal .btn-soft-secondary, #tagModal .btn-soft-danger, #tagModal .btn-soft-warning, #tagModal .btn-soft-dark, #tagModal .btn-soft-light')
+            .on('click', function(e) {
+                e.preventDefault();
+                $('#tagModal .btn').removeClass('active');
+                $(this).addClass('active');
+                selectedColor = $(this).text().trim().toLowerCase(); // 👈 lowercase color name
+            });
+
+            // ✳️ Open modal for create
+            $(document).on('click', '#addTagBtn', function() {
+                editMode = false;
+                currentTagId = null;
+                selectedColor = '';
+                $('#TagsForm')[0].reset();
+                $('#tagModalLabel').text('Create Tag');
+                $('#TagsForm button[type="submit"]').text('Create');
+                $('#tagModal').modal('show');
+            });
+
+            // ✏️ Open modal for edit
+            $(document).on('click', '.editTagBtn', function() {
+                editMode = true;
+                currentTagId = $(this).data('id');
+                $('#leadListSourceName').val($(this).data('name'));
+                selectedColor = $(this).data('color');
+
+                // Highlight selected color
+                $('#tagModal .btn').removeClass('active');
+                $('#tagModal .btn').each(function() {
+                    if ($(this).text().trim().toLowerCase() === selectedColor) {
+                        $(this).addClass('active');
+                    }
+                });
+
+                $('#tagModalLabel').text('Edit Tag');
+                $('#TagsForm button[type="submit"]').text('Update');
+                $('#tagModal').modal('show');
+            });
+
+            // 💾 Submit form (create or update)
+            $('#TagsForm').on('submit', function(e) {
+                e.preventDefault();
+                const name = $('#leadListSourceName').val();
+
+                if (!selectedColor) {
+                    toastr.warning('Please select a color');
+                    return;
+                }
+
+                $.ajax({
+                    url: editMode
+                        ? `/tags/${currentTagId}/update`
+                        : `/tags/store`,
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        name: name,
+                        color: selectedColor,
+                    },
+                    success: function(response) {
+                        $('#tagModal').modal('hide');
+                        toastr.success(response.message || (editMode ? 'Tag updated successfully' : 'Tag created successfully'));
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        console.log(xhr.responseText);
+                        toastr.error('Something went wrong');
+                    }
+                });
+            });
+
+            // 🗑️ Delete tag with SweetAlert
+            $(document).on('click', '.deleteTagBtn', function() {
+                const id = $(this).data('id');
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "This tag will be moved to trash (soft delete).",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Yes, delete it!",
+                    cancelButtonText: "Cancel"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: `/tags/${id}/delete`,
+                            method: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: response.message || 'Tag deleted successfully',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                                setTimeout(() => location.reload(), 1500);
+                            },
+                            error: function() {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: 'Failed to delete tag.'
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+        });
+
+        // tags all check or uncheck
+        $(document).ready(function() {
+            // When "All" is checked or unchecked
+            $('#col-all').on('change', function() {
+                const isChecked = $(this).is(':checked');
+                $('.column-item input.form-check-input').not('#col-all').prop('checked', isChecked);
+            });
+
+            // When any individual tag checkbox is changed
+            $(document).on('change', '.column-item input.form-check-input:not(#col-all)', function() {
+                const allChecked = $('.column-item input.form-check-input:not(#col-all)').length === 
+                                $('.column-item input.form-check-input:not(#col-all):checked').length;
+                $('#col-all').prop('checked', allChecked);
             });
         });
     </script>
