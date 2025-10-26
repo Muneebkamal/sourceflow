@@ -44,27 +44,154 @@ class OrderController extends Controller
             }
         }
 
+        $orders->latest('id');
+
         // ======= DATA TABLE =======
         return DataTables::of($orders->select([
-                'id',
-                'status',
-                'order_id',
-                'source',
-                'date',
-                'total',
-                'created_at',
-                'total_units_purchased',
-                'total_units_received',
-                'total_units_shipped',
-                'unit_errors',
-                'note'
-            ]))
+            'id',
+            'status',
+            'order_id',
+            'source',
+            'date',
+            'total',
+            'created_at',
+            'total_units_purchased',
+            'total_units_received',
+            'total_units_shipped',
+            'unit_errors',
+            'note'
+        ]))
+        ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="form-check-input" data-id="' . $row->id . '">')
+        ->editColumn('date', fn($row) => $row->date ? Carbon::parse($row->date)->format('m/d/y') : '-')
+        ->editColumn('source', function ($row) {
+            if (!$row->source) return '-';
+            $source = preg_match('/^https?:\/\//', $row->source) ? $row->source : 'https://' . $row->source;
+            return '<a href="' . e($source) . '" target="_blank" class="text-decoration-none">' . e($row->source) . '</a>';
+        })
+        ->editColumn('status', function ($row) {
+            $statuses = [
+                'partially received' => 'warning',
+                'received in full'   => 'success',
+                'ordered'            => 'primary',
+                'draft'              => 'secondary',
+                'closed'             => 'info',
+                'canceled'           => 'danger',
+                'reconcile'          => 'dark',
+                'breakage'           => 'light',
+            ];
+
+            $options = '';
+            foreach ($statuses as $status => $color) {
+                $selected = $row->status === $status ? 'selected' : '';
+                $options .= '<option value="' . e($status) . '" class="bg-white text-dark" ' . $selected . '>' . ucfirst($status) . '</option>';
+            }
+
+            $currentColor = $statuses[$row->status] ?? 'secondary';
+
+            return '<select class="form-select form-select-sm status-select bg-soft-' . $currentColor . ' text-' . $currentColor . '" 
+                        data-id="' . e($row->id) . '">' . $options . '</select>';
+        })
+        ->rawColumns(['status'])
+        ->editColumn('order_item_count', function ($order) {
+            $badges = [
+                'ordered'  => $order->total_units_purchased,
+                'received' => $order->total_units_received,
+                'shipped'  => $order->total_units_shipped,
+                'errors'   => $order->unit_errors,
+            ];
+
+            $colors = [
+                'ordered'  => 'bg-light text-dark',
+                'received' => 'bg-info',
+                'shipped'  => 'bg-success',
+                'errors'   => 'bg-danger',
+            ];
+
+            $html = '';
+            foreach ($badges as $key => $val) {
+                $html .= $val != 0
+                    ? '<span class="badge ' . $colors[$key] . ' me-3" data-bs-toggle="tooltip" title="' . ucfirst($key) . '">' . $val . '</span>'
+                    : '<span class="me-3" data-bs-toggle="tooltip" title="' . ucfirst($key) . '">-</span>';
+            }
+
+            return '<div class="d-flex justify-content-center align-items-center" style="cursor: pointer;">' . $html . '</div>';
+        })
+        ->addColumn('event', fn() => '-')
+        ->addColumn('actions', function ($row) {
+            $showUrl = route('order.show', $row->id);
+            return '
+                <div class="d-flex justify-content-center gap-1">
+                    <a href="' . $showUrl . '" class="btn btn-sm btn-light"><i class="ti ti-eye"></i></a>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body">
+                            <i class="ti ti-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a href="' . $showUrl . '" class="dropdown-item" href="#">Edit</a></li>
+                            <li><a class="dropdown-item duplicateBtn" data-id="' . $row->id . '" href="#">Duplicate</a></li>
+                            <li><a class="dropdown-item text-danger singleDelBtn" data-id="' . $row->id . '" href="#">Delete</a></li>
+                        </ul>
+                    </div>
+                </div>';
+        })
+        ->rawColumns(['checkbox', 'status', 'source', 'order_item_count', 'actions'])
+        ->make(true);
+    }
+
+    public function ordersItems()
+    {
+        return view('orders.orders-items');
+    }
+
+    public function getDataOrdersItems(Request $request)
+    {
+        // ✅ Start query using join
+        $lineItems = LineItem::query()
+            ->where('line_items.is_buylist', 0)
+            ->join('orders', 'orders.id', '=', 'line_items.order_id')
+            ->select([
+                'line_items.*',
+                'orders.date as order_date',
+                'orders.order_id as order_id',
+                'orders.status as status',
+            ]);
+
+        // ✅ Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $lineItems->where(function($query) use ($search) {
+                $query->where('orders.order_id', 'like', "%{$search}%")
+                    ->orWhere('line_items.name', 'like', "%{$search}%");
+            });
+        }
+
+        // ✅ Status filter
+        if ($request->filled('status') && $request->status != 'all') {
+            $lineItems->where('orders.status', $request->status);
+        }
+
+        // ✅ Date range filter (from orders table)
+        if ($request->filled('dateRange')) {
+            $dates = explode(' - ', $request->dateRange);
+            if (count($dates) === 2) {
+                $start = \Carbon\Carbon::parse($dates[0])->startOfDay();
+                $end = \Carbon\Carbon::parse($dates[1])->endOfDay();
+                $lineItems->whereBetween('orders.date', [$start, $end]);
+            }
+        }
+
+        // ✅ DataTables
+        return DataTables::of($lineItems)
             ->addColumn('checkbox', fn() => '<input type="checkbox" class="form-check-input">')
-            ->editColumn('date', fn($row) => $row->date ? Carbon::parse($row->date)->format('m/d/y') : '-')
+            ->editColumn('date', fn($row) => $row->order_date ? \Carbon\Carbon::parse($row->order_date)->format('m/d/y') : '-')
             ->editColumn('source', function ($row) {
                 if (!$row->source) return '-';
                 $source = preg_match('/^https?:\/\//', $row->source) ? $row->source : 'https://' . $row->source;
                 return '<a href="' . e($source) . '" target="_blank" class="text-decoration-none">' . e($row->source) . '</a>';
+            })
+            ->editColumn('name', function ($b) {
+                $fullName = e($b->name);
+                return "<div class='text-truncate-multiline' data-bs-toggle='tooltip' title='{$fullName}'>{$fullName}</div>";
             })
             ->editColumn('status', function ($row) {
                 $statuses = [
@@ -78,24 +205,18 @@ class OrderController extends Controller
                     'breakage'           => 'light',
                 ];
 
-                $options = '';
-                foreach ($statuses as $status => $color) {
-                    $selected = $row->status === $status ? 'selected' : '';
-                    $options .= '<option value="' . e($status) . '" class="bg-white text-dark" ' . $selected . '>' . ucfirst($status) . '</option>';
-                }
+                $color = $statuses[$row->status] ?? 'secondary';
 
-                $currentColor = $statuses[$row->status] ?? 'secondary';
-
-                return '<select class="form-select form-select-sm status-select bg-soft-' . $currentColor . ' text-' . $currentColor . '" 
-                            data-id="' . e($row->id) . '">' . $options . '</select>';
+                return '<span class="p-1 fs-5 badge bg-soft-' . $color . ' text-' . $color . '">'
+                        . ucfirst($row->status) .
+                    '</span>';
             })
-            ->rawColumns(['status'])
-            ->editColumn('order_item_count', function ($order) {
+            ->editColumn('order_item_count', function ($row) {
                 $badges = [
-                    'ordered'  => $order->total_units_purchased,
-                    'received' => $order->total_units_received,
-                    'shipped'  => $order->total_units_shipped,
-                    'errors'   => $order->unit_errors,
+                    'ordered'  => $row->total_units_purchased,
+                    'received' => $row->total_units_received,
+                    'shipped'  => $row->total_units_shipped,
+                    'errors'   => $row->unit_errors,
                 ];
 
                 $colors = [
@@ -115,6 +236,7 @@ class OrderController extends Controller
                 return '<div class="d-flex justify-content-center align-items-center" style="cursor: pointer;">' . $html . '</div>';
             })
             ->addColumn('event', fn() => '-')
+            ->addColumn('image', fn($row) => '<img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" width="60">')
             ->addColumn('actions', function ($row) {
                 $showUrl = route('order.show', $row->id);
                 return '
@@ -132,7 +254,7 @@ class OrderController extends Controller
                         </div>
                     </div>';
             })
-            ->rawColumns(['checkbox', 'status', 'source', 'order_item_count', 'actions'])
+            ->rawColumns(['checkbox', 'name', 'status', 'source', 'order_item_count', 'image', 'actions'])
             ->make(true);
     }
 
@@ -142,12 +264,206 @@ class OrderController extends Controller
         return view('orders.buy-cost-calculator', compact('order'));
     }
 
+    public function updateItem(Request $request)
+    {
+        $item = LineItem::find($request->id);
+
+        if (!$item) {
+            return response()->json(['success' => false, 'message' => 'Item not found']);
+        }
+
+        $item->update([
+            'name' => $request->name,
+            'asin' => $request->asin,
+            'category' => $request->category,
+            'msku' => $request->msku,
+            'unit_purchased' => $request->unit_purchased,
+            'buy_cost' => $request->buy_cost,
+            'selling_price' => $request->selling_price,
+            'net_profit' => $request->net_profit,
+            'roi' => $request->roi,
+            'bsr' => $request->bsr_ninety,
+            'list_price' => $request->list_price,
+            'min' => $request->min,
+            'max' => $request->max,
+            'supplier' => $request->supplier,
+            'source_url' => $request->source_url,
+            'brand' => $request->brand,
+            'promo' => $request->promo,
+            'coupon_code' => $request->coupon_code,
+            'order_note' => $request->product_note,
+            'product_buyer_notes' => $request->buyer_note,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Item updated successfully']);
+    }
+
+    public function bulkUpdateStatus(Request $request)
+    {
+        Order::whereIn('id', $request->ids)->update(['status' => $request->status]);
+        return response()->json(['success' => true]);
+    }
+
+    // public function bulkDelete(Request $request)
+    // {
+    //     try {
+    //         Order::whereIn('id', $request->ids)->delete();
+    //         return response()->json(['success' => true]);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['success' => false, 'error' => $e->getMessage()]);
+    //     }
+    // }
+    public function bulkDelete(Request $request)
+    {
+        try {
+            $orderIds = $request->ids;
+
+            if ($request->move_to_buylist) {
+                // Move all line items for these orders to Buylist
+                $orders = Order::with('LineItems')->whereIn('id', $orderIds)->get();
+
+                foreach ($orders as $order) {
+                    foreach ($order->LineItems as $item) {
+                        $item->update([
+                            'order_id' => null,
+                            'is_buylist' => 1,
+                        ]);
+                    }
+                }
+
+                // Delete only the orders themselves
+                Order::whereIn('id', $orderIds)->delete();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Orders deleted and items moved to Buylist successfully.'
+                ]);
+            } else {
+                // Delete orders and their items completely
+                $orders = Order::with('LineItems')->whereIn('id', $orderIds)->get();
+
+                foreach ($orders as $order) {
+                    $order->LineItems()->delete();
+                    $order->delete();
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Selected orders and their items deleted successfully.'
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    // public function singleDelete(Request $request)
+    // {
+    //     try {
+    //         $order = Order::findOrFail($request->id);
+    //         $order->delete();
+
+    //         return response()->json(['success' => true]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => $e->getMessage()
+    //         ]);
+    //     }
+    // }
+    public function singleDelete(Request $request)
+    {
+        try {
+            $order = Order::findOrFail($request->id);
+
+            if ($request->move_to_buylist) {
+                // Move all line items to Buylist instead of deleting
+                foreach ($order->LineItems as $item) {
+                    $item->update([
+                        'order_id' => null,
+                        'is_buylist' => 1,
+                    ]);
+                }
+
+                // Delete the order record only
+                $order->delete();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Order deleted and items moved to Buylist successfully.'
+                ]);
+            } else {
+                // Delete related line items first
+                $order->LineItems()->delete();
+
+                // Delete the order
+                $order->delete();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Order and its items deleted successfully.'
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function duplicate(Request $request)
+    {
+        try {
+            $order = Order::findOrFail($request->id);
+
+            $newOrder = $order->replicate();
+            $newOrder->order_id = $order->order_id . ' (copy)';
+            $newOrder->created_at = now();
+            $newOrder->updated_at = now();
+            $newOrder->save();
+
+            foreach ($order->LineItems as $item) {
+                $newItem = $item->replicate();
+                $newItem->order_id = $newOrder->id; 
+                $newItem->created_at = now();
+                $newItem->updated_at = now();
+                $newItem->save();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order and line items duplicated successfully',
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        //
+        // if (!\Auth::user()->can('view_orders')) {
+        //     abort(403);
+        // }
+        $order = Order::create([
+            'status' => 'draft',
+            'date' => Carbon::now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'orderId' => $order->id,
+        ]);
     }
 
     /**
@@ -243,7 +559,7 @@ class OrderController extends Controller
                         ' . $fixedBadge . '
                     </div>';
             })
-            ->addColumn('product_note', fn($row) => e($row->product_note ?? '-'))
+            ->addColumn('order_note', fn($row) => e($row->order_note ?? '-'))
             ->addColumn('buyer_note', fn($row) => e($row->product_buyer_notes ?? '-'))
             ->addColumn('actions', function ($row) {
                 return '
@@ -257,7 +573,33 @@ class OrderController extends Controller
                                 <i class="ti ti-dots-vertical"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#">Edit Item</a></li>
+                                <li>
+                                    <a href="#" 
+                                    class="dropdown-item edit-smart-item"
+                                    data-id="' . $row->id . '"
+                                    data-name="' . e($row->name) . '"
+                                    data-asin="' . e($row->asin) . '"
+                                    data-msku="' . e($row->msku) . '"
+                                    data-unit_purchased="' . e($row->unit_purchased) . '"
+                                    data-list_price="' . e($row->list_price) . '"
+                                    data-category="' . e($row->category) . '"
+                                    data-supplier="' . e($row->supplier) . '"
+                                    data-cost="' . e($row->buy_cost) . '"
+                                    data-selling_price="' . e($row->selling_price) . '"
+                                    data-net_profit="' . e($row->net_profit) . '"
+                                    data-roi="' . e($row->roi) . '"
+                                    data-min="' . e($row->min) . '"
+                                    data-max="' . e($row->max) . '"
+                                    data-bsr="' . e($row->bsr) . '"
+                                    data-source_url="' . e($row->source_url) . '"
+                                    data-promo="' . e($row->promo) . '"
+                                    data-coupon="' . e($row->coupon_code) . '"
+                                    data-date="' . e($row->created_at) . '"
+                                    data-product_notes="' . e($row->order_note) . '"
+                                    data-buyer_notes="' . e($row->product_buyer_notes) . '">
+                                        Edit Item
+                                    </a>
+                                </li>
                                 <li><a class="dropdown-item" href="#">Duplicate Item</a></li>
                                 <li><a class="dropdown-item text-danger" href="#">Delete Item</a></li>
                             </ul>
@@ -268,7 +610,7 @@ class OrderController extends Controller
                 'id' => $row->id,
                 'product_id' => $row->product_id,
                 'name' => $row->name,
-                'asin' => $row->asin,
+                'asin_input' => $row->asin,
                 'variation_details' => $row->variation_details,
                 'msku' => $row->msku,
                 'qty' => $row->unit_purchased,
@@ -287,9 +629,8 @@ class OrderController extends Controller
                 'category' => $row->category,
                 'supplier' => $row->supplier,
                 'create_at' => $row->created_at ? $row->created_at->format('m/d/Y') : null,
-                'product_note' => $row->product_note,
+                'order_note' => $row->order_note,
                 'buyer_note' => $row->product_buyer_notes,
-                'image' => asset('storage/products-imgs/' . $row->product_id . '/thumb.jpg'),
             ])
             ->rawColumns(['checkbox', 'image', 'asin', 'orlef', 'actions'])
             ->make(true);
@@ -334,6 +675,113 @@ class OrderController extends Controller
             'message' => 'Order info updated successfully!',
             'data' => $order
         ]);
+    }
+
+    public function updatePayment(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+        $order->card_used = $request->card_used;
+        $order->total = $request->total;
+        $order->cash_back_source = $request->cash_back_source;
+        $order->cash_back_percentage = $request->cash_back_percentage;
+        $order->save();
+
+        return response()->json(['success' => true, 'message' => 'Payment details updated successfully.']);
+    }
+
+    public function updateNote(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+        $order->note = $request->note;
+        $order->save();
+
+        return response()->json(['success' => true, 'message' => 'Order note updated successfully.']);
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $order = Order::find($id);
+
+        if (!$order) {
+            return response()->json(['success' => false, 'message' => 'Order not found.']);
+        }
+
+        $order->status = $request->status;
+        $order->save();
+
+        return response()->json(['success' => true, 'message' => 'Order status updated successfully.']);
+    }
+
+    public function updateFull(Request $request, $orderId)
+    {
+        // dd($request->all());
+        $order = Order::findOrFail($orderId);
+        $data = $request->order;
+
+        $formattedDate = \Carbon\Carbon::parse($data['date_ordered'])->format('Y-m-d 00:00:00');
+
+        // 🟢 Update main order
+        $order->update([
+            'order_id' => $data['order_id'],
+            'source' => $data['source'],
+            'destination' => $data['destination'],
+            'email' => $data['email_used'],
+            'pre_tax_discount' => $data['pre_tax_discount'],
+            'post_tax_discount' => $data['post_tax_discount'],
+            'shipping_cost' => $data['shipping_total'],
+            'sales_tax' => $data['sales_tax'],
+            'is_sale_tax_shipping' => $data['is_sale_tax_shipping'],
+            'sales_tax_rate' => $data['sales_tax_rate'],
+            'subtotal' => $data['subtotal'],
+            'total' => $data['total'],
+            'note' => $data['note'],
+            'card_used' => $data['card_used'],
+            // 'amount_charged' => $data['amount_charged'],
+            'cash_back_source' => $data['cash_back_source'],
+            'cash_back_percentage' => $data['cash_back_percentage'],
+            'status' => $data['status'],
+            'date' => $formattedDate,
+        ]);
+
+        // 🟢 Update line items
+        foreach ($request->line_items as $item) {
+            if (!empty($item['id'])) {
+                $lineItem = $order->LineItems()->where('id', $item['id'])->first();
+
+                if ($lineItem) {
+                    $lineItem->update([
+                        'unit_purchased' => $item['unit_purchased'],
+                        'buy_cost' => $item['buy_cost'],
+                        'sku_total' => $item['sku_total'],
+                    ]);
+                }
+            }
+        }
+
+        return response()->json(['success' => true, 'order_id' => $order->id]);
+    }
+
+    public function deleteLineItem(Request $request)
+    {
+        $lineItem = LineItem::find($request->line_item_id);
+        if (!$lineItem) {
+            return response()->json(['success' => false, 'message' => 'Line item not found.']);
+        }
+
+        if ($request->is_buylist) {
+            // Move to buylist
+            $lineItem->update([
+                'order_id' => null,
+                'is_buylist' => 1,
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'Item moved to Buylist successfully.']);
+        } else {
+            // Permanently delete
+            $lineItem->delete();
+
+            return response()->json(['success' => true, 'message' => 'Item deleted successfully.']);
+        }
     }
 
     /**

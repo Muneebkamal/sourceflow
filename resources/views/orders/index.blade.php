@@ -16,7 +16,7 @@
                                 <button class="btn btn-soft-primary">
                                     Export
                                 </button>
-                                <button class="btn btn-primary">
+                                <button class="btn btn-primary" id="createNewOrderButton">
                                     Create Order
                                 </button>
                             </div>
@@ -72,8 +72,15 @@
         <div class="col-md-5">
             <div class="d-flex align-items-end justify-content-md-end gap-1 mt-2 mt-md-0">
                 <div class="btn-group" role="group" id="viewToggle">
-                    <button type="button" class="btn btn-primary">Orders View</button>
-                    <button type="button" class="btn btn-soft-primary">Items View</button>
+                    <a href="{{ route('orders.index') }}" 
+                        class="btn {{ request()->routeIs('orders.index') ? 'btn-primary' : 'btn-soft-primary' }}">
+                        Orders View
+                    </a>
+
+                    <a href="{{ route('orders.items') }}" 
+                        class="btn {{ request()->routeIs('orders.items') ? 'btn-primary' : 'btn-soft-primary' }}">
+                        Items View
+                    </a>
                 </div>
 
                 <div class="btn-group">
@@ -297,6 +304,18 @@
     </div>
 
     <div class="row">
+        <div id="select-count-section" class="col-md-12 d-flex mb-2 align-items-center d-none">
+            <div class="dropdown">
+                <button class="btn btn-sm btn-light" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="true">
+                    <i class="ti ti-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item updateStatusBtn" href="#">Update Status</a></li>
+                    <li><a class="dropdown-item text-danger bulkDelBtn" href="#">Delete</a></li>
+                </ul>
+            </div>
+            <span class="fw-bold ms-3">Selected: <span id="selectedCount">0</span></span>
+        </div>
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body p-0">
@@ -304,7 +323,7 @@
                         <table id="orders-table" class="table align-middle w-100 mb-0 table-hover">
                             <thead class="table-light">
                                 <tr class="text-nowrap small">
-                                    <th><input type="checkbox" class="form-check-input"></th>
+                                    <th><input type="checkbox" id="selectAll" class="form-check-input"></th>
                                     <th>Order Date</th>
                                     <th>Order #</th>
                                     <th>Supplier</th>
@@ -323,6 +342,7 @@
         </div>
     </div>
 
+    @include('modals.order.bulk-status-modal')
 @endsection
 
 @section('scripts')
@@ -338,6 +358,10 @@
                     d.status = $('#statusFilter').val();
                     d.dateRange = $('#dateRangeFilter').val();
                 }
+            },
+            drawCallback: function () {
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
             },
             scrollY: '40vh',
             scrollX: true,
@@ -400,17 +424,11 @@
 
             // Reload DataTable
             table.ajax.reload(function() {
-                // Re-enable button after table has fully loaded
                 $btn.prop('disabled', false);
                 $btn.html('Reset');
             });
         });
 
-    });
-
-    $(document).on('click', '#viewToggle .btn', function() {
-        $('#viewToggle .btn').removeClass('btn-primary').addClass('btn-soft-primary');
-        $(this).removeClass('btn-soft-primary').addClass('btn-primary');
     });
 
     $(document).ready(function () {
@@ -454,5 +472,534 @@
         });
     });
 
+    $(document).ready(function () {
+        function updateSelectColor($select) {
+            let status = $select.val();
+
+            if (status === 'all') {
+                $select.removeClass().addClass('form-select status-select w-50');
+                return;
+            }
+
+            let colors = {
+                'partially received': 'warning',
+                'received in full': 'success',
+                'ordered': 'primary',
+                'draft': 'secondary',
+                'closed': 'info',
+                'canceled': 'danger',
+                'reconcile': 'dark',
+                'breakage': 'light'
+            };
+
+            // Remove old Bootstrap color classes
+            $.each(colors, function (key, color) {
+                $select.removeClass('bg-soft-' + color + ' text-' + color);
+            });
+
+            // Add new color class
+            let newColor = colors[status] || 'secondary';
+            $select.addClass('bg-soft-' + newColor + ' text-' + newColor);
+        }
+
+        // ✅ Status change event (includes AJAX)
+        $(document).on('change', '.status-select', function () {
+            const $select = $(this);
+            const newStatus = $select.val();
+            const orderId = $select.data('id');
+
+            // Instantly update color visually
+            updateSelectColor($select);
+
+            $.ajax({
+                url: `/orders/${orderId}/update-status`,
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    status: newStatus
+                },
+                beforeSend: function () {
+                    $select.prop('disabled', true);
+                },
+                success: function (response) {
+                    $select.prop('disabled', false);
+
+                    if (response.success) {
+                        toastr.success(response.message || 'Status updated successfully');
+                    } else {
+                        toastr.error(response.message || 'Failed to update status');
+                    }
+                },
+                error: function (xhr) {
+                    $select.prop('disabled', false);
+                    toastr.error('Something went wrong while updating status');
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+
+        // ✅ Run once on page load for all existing selects
+        $('.status-select').each(function () {
+            updateSelectColor($(this));
+        });
+    });
+
+    $(document).ready(function () {
+        // Select all checkboxes
+        $(document).on('change', '#selectAll', function () {
+            const checked = $(this).is(':checked');
+            $('#orders-table tbody input[type="checkbox"]').prop('checked', checked);
+            updateSelectedCount();
+        });
+
+        // Handle individual checkbox selection
+        $(document).on('change', '#orders-table tbody input[type="checkbox"]', function () {
+            const allChecked =
+                $('#orders-table tbody input[type="checkbox"]').length ===
+                $('#orders-table tbody input[type="checkbox"]:checked').length;
+
+            $('#selectAll').prop('checked', allChecked);
+            updateSelectedCount();
+        });
+
+        // Function to update the count and toggle visibility
+        function updateSelectedCount() {
+            const count = $('#orders-table tbody input[type="checkbox"]:checked').length;
+            $('#selectedCount').text(count);
+
+            if (count > 0) {
+                $('#select-count-section').removeClass('d-none');
+            } else {
+                $('#select-count-section').addClass('d-none');
+            }
+        }
+
+        // Reset select-all and hide bar when table redraws
+        $('#orders-table').on('draw.dt', function () {
+            $('#selectAll').prop('checked', false);
+            updateSelectedCount();
+        });
+
+        // ✅ Open modal when "Update Status" clicked
+        $(document).on('click', '.updateStatusBtn', function (e) {
+            e.preventDefault();
+            $('.dropdown-menu').removeClass('show'); // close dropdown menu
+            $('#bulkStatusModal').modal('show');
+        });
+
+        // ✅ Submit new status
+        $('#bulkStatusSave').on('click', function () {
+            const selectedIds = $('#orders-table tbody input[type="checkbox"]:checked')
+                .map(function () { return $(this).data('id'); }).get();
+
+            const newStatus = $('#bulkStatusSelect').val();
+
+            if (selectedIds.length === 0 || !newStatus) {
+                toastr.error('Please select rows and choose a status.');
+                return;
+            }
+
+            $.ajax({
+                url: '{{ route("orders.bulkUpdateStatus") }}',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    ids: selectedIds,
+                    status: newStatus
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $('#bulkStatusModal').modal('hide');
+                        toastr.success('Status updated successfully');
+                        $('#orders-table').DataTable().ajax.reload();
+                    } else {
+                        toastr.error('Failed to update status');
+                    }
+                },
+                error: function () {
+                    toastr.error('Server error');
+                }
+            });
+        });
+    });
+
+    // $(document).on('click', '.bulkDelBtn', function (e) {
+    //     e.preventDefault();
+
+    //     const selectedIds = $('#orders-table tbody input[type="checkbox"]:checked')
+    //         .map(function () { return $(this).data('id'); }).get();
+
+    //     if (selectedIds.length === 0) {
+    //         toastr.error('Please select at least one row to delete.');
+    //         return;
+    //     }
+
+    //     Swal.fire({
+    //         title: 'Are you sure?',
+    //         text: "You won't be able to revert this action!",
+    //         icon: 'warning',
+    //         showCancelButton: true,
+    //         confirmButtonColor: '#d33',
+    //         cancelButtonColor: '#6c757d',
+    //         confirmButtonText: 'Yes, delete it!',
+    //         cancelButtonText: 'Cancel'
+    //     }).then((result) => {
+    //         if (result.isConfirmed) {
+    //             $.ajax({
+    //                 url: '{{ route("orders.bulkDelete") }}',
+    //                 type: 'POST',
+    //                 data: {
+    //                     _token: '{{ csrf_token() }}',
+    //                     ids: selectedIds
+    //                 },
+    //                 beforeSend: function () {
+    //                     Swal.fire({
+    //                         title: 'Deleting...',
+    //                         text: 'Please wait a moment.',
+    //                         allowOutsideClick: false,
+    //                         didOpen: () => Swal.showLoading()
+    //                     });
+    //                 },
+    //                 success: function (response) {
+    //                     Swal.close();
+    //                     if (response.success) {
+    //                         Swal.fire({
+    //                             icon: 'success',
+    //                             title: 'Deleted!',
+    //                             text: 'Selected orders have been deleted.',
+    //                             timer: 1500,
+    //                             showConfirmButton: false
+    //                         });
+    //                         $('#orders-table').DataTable().ajax.reload();
+    //                         $('#selectAll').prop('checked', false);
+    //                         $('#select-count-section').addClass('d-none');
+    //                     } else {
+    //                         Swal.fire({
+    //                             icon: 'error',
+    //                             title: 'Error!',
+    //                             text: 'Failed to delete selected orders.'
+    //                         });
+    //                     }
+    //                 },
+    //                 error: function () {
+    //                     Swal.close();
+    //                     Swal.fire({
+    //                         icon: 'error',
+    //                         title: 'Server Error!',
+    //                         text: 'Something went wrong. Please try again later.'
+    //                     });
+    //                 }
+    //             });
+    //         }
+    //     });
+    // });
+    $(document).on('click', '.bulkDelBtn', function (e) {
+        e.preventDefault();
+
+        const selectedIds = $('#orders-table tbody input[type="checkbox"]:checked')
+            .map(function () { return $(this).data('id'); }).get();
+
+        if (selectedIds.length === 0) {
+            toastr.error('Please select at least one row to delete.');
+            return;
+        }
+
+        Swal.fire({
+            title: 'Delete or Move?',
+            html: `
+                <p class="mb-2">Do you want to delete these orders or move their items back to the Buylist?</p>
+                <div class="form-check d-flex align-items-start justify-content-center">
+                    <input class="form-check-input me-2" type="checkbox" id="moveBulkToBuylist">
+                    <label class="form-check-label" for="moveBulkToBuylist">
+                        Move all items to Buylist instead of deleting
+                    </label>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, continue!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const moveToBuylist = $('#moveBulkToBuylist').is(':checked') ? 1 : 0;
+
+                $.ajax({
+                    url: '{{ route("orders.bulkDelete") }}',
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        ids: selectedIds,
+                        move_to_buylist: moveToBuylist
+                    },
+                    beforeSend: function () {
+                        Swal.fire({
+                            title: moveToBuylist ? 'Moving to Buylist...' : 'Deleting...',
+                            text: 'Please wait a moment.',
+                            allowOutsideClick: false,
+                            didOpen: () => Swal.showLoading()
+                        });
+                    },
+                    success: function (response) {
+                        Swal.close();
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Done!',
+                                text: response.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            $('#orders-table').DataTable().ajax.reload();
+                            $('#selectAll').prop('checked', false);
+                            $('#select-count-section').addClass('d-none');
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: response.message || 'Failed to process request.'
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.close();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Server Error!',
+                            text: 'Something went wrong. Please try again later.'
+                        });
+                    }
+                });
+            }
+        });
+    });
+
+    // $(document).on('click', '.singleDelBtn', function (e) {
+    //     e.preventDefault();
+
+    //     const orderId = $(this).data('id');
+
+    //     Swal.fire({
+    //         title: 'Are you sure?',
+    //         text: "This order will be permanently deleted.",
+    //         icon: 'warning',
+    //         showCancelButton: true,
+    //         confirmButtonColor: '#d33',
+    //         cancelButtonColor: '#6c757d',
+    //         confirmButtonText: 'Yes, delete it!',
+    //         cancelButtonText: 'Cancel'
+    //     }).then((result) => {
+    //         if (result.isConfirmed) {
+    //             $.ajax({
+    //                 url: '{{ route("orders.singleDelete") }}',
+    //                 type: 'POST',
+    //                 data: {
+    //                     _token: '{{ csrf_token() }}',
+    //                     id: orderId
+    //                 },
+    //                 beforeSend: function () {
+    //                     Swal.fire({
+    //                         title: 'Deleting...',
+    //                         text: 'Please wait a moment.',
+    //                         allowOutsideClick: false,
+    //                         didOpen: () => Swal.showLoading()
+    //                     });
+    //                 },
+    //                 success: function (response) {
+    //                     Swal.close();
+    //                     if (response.success) {
+    //                         Swal.fire({
+    //                             icon: 'success',
+    //                             title: 'Deleted!',
+    //                             text: 'Order deleted successfully.',
+    //                             timer: 1500,
+    //                             showConfirmButton: false
+    //                         });
+    //                         $('#orders-table').DataTable().ajax.reload();
+    //                     } else {
+    //                         Swal.fire({
+    //                             icon: 'error',
+    //                             title: 'Error!',
+    //                             text: response.message || 'Failed to delete order.'
+    //                         });
+    //                     }
+    //                 },
+    //                 error: function () {
+    //                     Swal.close();
+    //                     Swal.fire({
+    //                         icon: 'error',
+    //                         title: 'Server Error!',
+    //                         text: 'Something went wrong. Please try again later.'
+    //                     });
+    //                 }
+    //             });
+    //         }
+    //     });
+    // });
+
+    $(document).on('click', '.singleDelBtn', function (e) {
+        e.preventDefault();
+
+        const orderId = $(this).data('id');
+
+        Swal.fire({
+            title: 'Delete or Move?',
+            html: `
+                <p class="mb-2">Do you want to delete this order or move its items back to the Buylist?</p>
+                <div class="form-check d-flex align-items-start justify-content-center">
+                    <input class="form-check-input me-2" type="checkbox" id="moveOrderToBuylist">
+                    <label class="form-check-label" for="moveOrderToBuylist">
+                        Move all order items to Buylist instead of deleting
+                    </label>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, continue!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const moveToBuylist = $('#moveOrderToBuylist').is(':checked') ? 1 : 0;
+
+                $.ajax({
+                    url: '{{ route("orders.singleDelete") }}',
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: orderId,
+                        move_to_buylist: moveToBuylist
+                    },
+                    beforeSend: function () {
+                        Swal.fire({
+                            title: 'Processing...',
+                            text: 'Please wait a moment.',
+                            allowOutsideClick: false,
+                            didOpen: () => Swal.showLoading()
+                        });
+                    },
+                    success: function (response) {
+                        Swal.close();
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Done!',
+                                text: response.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            $('#orders-table').DataTable().ajax.reload();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: response.message || 'Something went wrong.'
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.close();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Server Error!',
+                            text: 'Something went wrong. Please try again later.'
+                        });
+                    }
+                });
+            }
+        });
+    });
+
+    $(document).on('click', '.duplicateBtn', function (e) {
+        e.preventDefault();
+
+        const orderId = $(this).data('id');
+
+        Swal.fire({
+            title: 'Duplicate this order?',
+            text: 'A new order will be created as a copy of this one.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, duplicate it',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '{{ route("orders.duplicate") }}',
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: orderId
+                    },
+                    beforeSend: function () {
+                        Swal.fire({
+                            title: 'Duplicating...',
+                            text: 'Please wait a moment.',
+                            allowOutsideClick: false,
+                            didOpen: () => Swal.showLoading()
+                        });
+                    },
+                    success: function (response) {
+                        Swal.close();
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Duplicated!',
+                                text: response.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            $('#orders-table').DataTable().ajax.reload();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: response.message || 'Failed to duplicate order.'
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.close();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Server Error!',
+                            text: 'Something went wrong. Please try again later.'
+                        });
+                    }
+                });
+            }
+        });
+    });
+
+    $('#createNewOrderButton').on('click', function () {
+        $.ajax({
+            url: "{{ url('/create-order') }}",
+            type: "POST",
+            data: {
+                _token: "{{ csrf_token() }}"
+            },
+            beforeSend: function() {
+                $('#createNewOrderButton').prop('disabled', true).text('Creating...');
+            },
+            success: function (data) {
+                if (data.success) {
+                    const orderId = data.orderId;
+                    window.location.href = `/buy-cost-calculator/${orderId}`;
+                } else {
+                    alert(data.message || 'Something went wrong.');
+                }
+            },
+            error: function (xhr) {
+                alert('Error: ' + (xhr.responseJSON?.message || 'Failed to create order.'));
+            },
+            complete: function() {
+                $('#createNewOrderButton').prop('disabled', false).text('Create Order');
+            }
+        });
+    });
 </script>
 @endsection

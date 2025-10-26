@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lead;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Carbon\Carbon;
@@ -15,7 +16,8 @@ class SmartDataController extends Controller
      */
     public function index()
     {
-        return view('smart-data.index');
+        $tags = Tag::all();
+        return view('smart-data.index', compact('tags'));
     }
 
     public function getSmartData(Request $request)
@@ -88,11 +90,53 @@ class SmartDataController extends Controller
                 ->addColumn('checkbox', fn($lead) => '<input type="checkbox" class="form-check-input">')
 
                 // 🖼️ Static image (no image column in DB)
-                ->addColumn('image', fn() => '<img src="' . asset('storage/static/default.jpg') . '" class="img-thumbnail" width="60">')
+                ->addColumn('image', fn() => '<img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" width="60">')
 
-                ->addColumn('type', fn() => '--')
+                ->addColumn('type', function ($lead) {
+                    return '
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle drop-arrow-none" type="button" data-bs-auto-close="outside" id="typeDropdown' . $lead->id . '" data-bs-toggle="dropdown" aria-expanded="false" data-bs-tooltip="tooltip"
+                            data-bs-placement="top" title="Add Type">
+                                <i class="ti ti-plus"></i>
+                            </button>
+                            <div class="dropdown-menu p-0" aria-labelledby="typeDropdown' . $lead->id . '" style="min-width: 250px;">
+                                <div class="card m-0 border-0">
+                                    <div class="card-header py-2 bg-light">
+                                        <h6 class="mb-0">Lead Type</h6>
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <div class="form-check mb-1">
+                                            <input class="form-check-input" type="radio" name="type_' . $lead->id . '" id="normal_' . $lead->id . '" value="normal">
+                                            <label class="form-check-label" for="normal_' . $lead->id . '">Normal</label>
+                                        </div>
+                                        <div class="form-check mb-1">
+                                            <input class="form-check-input" type="radio" name="type_' . $lead->id . '" id="bonus_' . $lead->id . '" value="bonus">
+                                            <label class="form-check-label" for="bonus_' . $lead->id . '">Bonus</label>
+                                        </div>
 
-                // 🏷️ Replaced tags column placeholder
+                                        <div class="form-check mb-1">
+                                            <input class="form-check-input" type="checkbox" id="replenishable_' . $lead->id . '">
+                                            <label class="form-check-label" for="replenishable_' . $lead->id . '">Replenishable</label>
+                                        </div>
+                                        <div class="form-check mb-1">
+                                            <input class="form-check-input" type="checkbox" id="hazmat_' . $lead->id . '">
+                                            <label class="form-check-label" for="hazmat_' . $lead->id . '">Hazmat</label>
+                                        </div>
+                                        <div class="form-check mb-1">
+                                            <input class="form-check-input" type="checkbox" id="disputed_' . $lead->id . '">
+                                            <label class="form-check-label" for="disputed_' . $lead->id . '">Caution</label>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer d-flex justify-content-end gap-2 py-2">
+                                        <button type="button" class="btn btn-sm btn-light" data-bs-toggle="dropdown">Close</button>
+                                        <button type="button" class="btn btn-sm btn-primary save-type-btn" data-id="' . $lead->id . '">Save</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ';
+                })
+
                 ->addColumn('tags', function ($lead) {
                     $badges = [];
                     if ($lead->is_hazmat) {
@@ -101,9 +145,53 @@ class SmartDataController extends Controller
                     if ($lead->is_disputed) {
                         $badges[] = '<span class="badge bg-warning text-dark">Disputed</span>';
                     }
-                    return $badges ? implode(' ', $badges) : '<span class="badge bg-secondary">Normal</span>';
-                })
 
+                    if (!empty($badges)) {
+                        return implode(' ', $badges);
+                    }
+
+                    return '
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle drop-arrow-none" type="button" data-bs-auto-close="outside" id="typeDropdown' . $lead->id . '" data-bs-toggle="dropdown" aria-expanded="false" data-bs-tooltip="tooltip"
+                            data-bs-placement="top" title="Add Tags">
+                                <i class="ti ti-plus"></i>
+                            </button>
+                            <div class="dropdown-menu p-0" aria-labelledby="typeDropdown' . $lead->id . '" style="min-width: 250px;">
+                                <div class="card m-0 border-0">
+                                    <div class="card-header py-2 bg-light">
+                                        <h6 class="mb-0">Lead Tags</h6>
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <div class="form-check mb-1">
+                                            <input class="form-check-input" type="checkbox" id="addedToBuyList_{{ $lead->id }}">
+                                            <label class="form-check-label badge bg-primary-subtle text-primary fw-semibold" for="addedToBuyList_{{ $lead->id }}">Added to Buy List</label>
+                                        </div>
+                                        <div class="form-check mb-1">
+                                            <input class="form-check-input" type="checkbox" id="ann_{{ $lead->id }}">
+                                            <label class="form-check-label badge bg-primary-subtle text-primary fw-semibold" for="ann_{{ $lead->id }}">ANN</label>
+                                        </div>
+                                        <div class="form-check mb-1">
+                                            <input class="form-check-input" type="checkbox" id="ayadded_{{ $lead->id }}">
+                                            <label class="form-check-label badge bg-primary-subtle text-primary fw-semibold" for="ayadded_{{ $lead->id }}">AY ADDED</label>
+                                        </div>
+                                        <div class="form-check mb-1">
+                                            <input class="form-check-input" type="checkbox" id="duplicate_{{ $lead->id }}">
+                                            <label class="form-check-label badge bg-primary-subtle text-primary fw-semibold" for="duplicate_{{ $lead->id }}">Duplicate</label>
+                                        </div>
+                                        <div class="form-check mb-1">
+                                            <input class="form-check-input" type="checkbox" id="followup_{{ $lead->id }}">
+                                            <label class="form-check-label badge bg-danger-subtle text-danger fw-semibold" for="followup_{{ $lead->id }}">Followup</label>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer d-flex justify-content-end gap-2 py-2">
+                                        <button type="button" class="btn btn-sm btn-light" data-bs-toggle="dropdown">Close</button>
+                                        <button type="button" class="btn btn-sm btn-primary save-type-btn" data-id="' . $lead->id . '">Apply</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ';
+                })
                 // 🧮 Static bsr_current
                 ->addColumn('bsr_current', fn() => '--')
 
@@ -176,7 +264,7 @@ class SmartDataController extends Controller
                         </div>
                     ';
                 })
-                ->rawColumns(['checkbox', 'image', 'tags', 'name', 'asin', 'supplier', 'actions'])
+                ->rawColumns(['checkbox', 'image', 'type', 'tags', 'name', 'asin', 'supplier', 'actions'])
                 ->make(true);
         }
     }

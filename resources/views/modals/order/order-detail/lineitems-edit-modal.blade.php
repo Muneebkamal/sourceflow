@@ -38,7 +38,7 @@
               </div>
 
                 <div class="d-flex align-items-center">
-                    <span id="item-position" class="text-muted small fw-semibold me-2">1 of 2</span>
+                    <span id="item-position" class="text-muted small fw-semibold me-2">1 of 1</span>
                     <button type="button" id="prev-item" class="btn btn-sm btn-outline-secondary me-1" disabled>
                         <i class="ti ti-chevron-left"></i>
                     </button>
@@ -64,105 +64,106 @@
         <div class="tab-content">
           <div class="tab-pane show active" id="edit-lead-tab">
             <form id="edit-items-form">
+              <input type="hidden" name="_token" value="{{ csrf_token() }}">
               <div class="mb-3">
                 <label for="name" class="form-label">Product Title</label>
-                <input type="text" class="form-control" id="name">
+                <input type="text" class="form-control" id="name" name="name">
               </div>
 
               <div class="row g-2">
                 <div class="col-md-4">
                   <label for="asin" class="form-label">ASIN</label>
-                  <input type="text" class="form-control" id="asin">
+                  <input type="text" class="form-control" id="asin" name="asin">
                 </div>
                 <div class="col-md-4">
                   <label for="category" class="form-label">Category</label>
-                  <input type="text" class="form-control" id="category">
+                  <input type="text" class="form-control" id="category" name="category">
                 </div>
                 <div class="col-md-4">
                   <label for="unitsPurchased" class="form-label">Quantity</label>
-                  <input type="number" class="form-control" id="unitsPurchased">
+                  <input type="number" class="form-control" id="unitsPurchased" name="unit_purchased">
                 </div>
               </div>
 
               <div class="row g-2 mt-2">
                 <div class="col-md-2">
                   <label for="costPerUnit" class="form-label">Cost</label>
-                  <input type="number" class="form-control" id="costPerUnit">
+                  <input type="number" step="0.001" value="0.00" class="form-control" id="costPerUnit" name="buy_cost">
                 </div>
                 <div class="col-md-2">
                   <label for="sellingPrice" class="form-label">Selling Price</label>
-                  <input type="number" class="form-control" id="sellingPrice">
+                  <input type="number" class="form-control" value="0.00" id="sellingPrice" name="selling_price">
                 </div>
                 <div class="col-md-2">
                   <label for="netProfit" class="form-label">Net Profit</label>
-                  <input type="number" class="form-control" id="netProfit">
+                  <input type="number" class="form-control" value="0.00" id="netProfit" name="net_profit">
                 </div>
                 <div class="col-md-3">
                   <label for="roi" class="form-label">ROI (0.00%)</label>
-                  <input type="text" class="form-control" id="roi">
+                  <input type="text" class="form-control" id="roi" name="roi">
                 </div>
                 <div class="col-md-3">
                   <label for="bsr_ninety" class="form-label">90D BSR Avg.</label>
-                  <input type="text" class="form-control" id="bsr_ninety">
+                  <input type="text" class="form-control" id="bsr_ninety" name="bsr_ninety">
                 </div>
               </div>
 
               <div class="row g-2 mt-2">
                 <div class="col-md-3">
                   <label for="msku" class="form-label">MSKU</label>
-                  <input type="text" class="form-control" id="msku">
+                  <input type="text" class="form-control" id="msku" name="msku">
                 </div>
                 <div class="col-md-3">
                   <label for="listPrice" class="form-label">List Price</label>
-                  <input type="number" class="form-control" id="listPrice" max="99999">
+                  <input type="number" step="0.001" class="form-control" id="listPrice" max="99999" name="list_price">
                 </div>
                 <div class="col-md-3">
                   <label for="minPrice" class="form-label">Min Price</label>
-                  <input type="number" class="form-control" id="minPrice" max="99999">
+                  <input type="number" class="form-control" id="minPrice" max="99999" name="min">
                 </div>
                 <div class="col-md-3">
                   <label for="maxPrice" class="form-label">Max Price</label>
-                  <input type="number" class="form-control" id="maxPrice" max="99999">
+                  <input type="number" class="form-control" id="maxPrice" max="99999" name="max">
                 </div>
               </div>
 
               <div class="row g-2 mt-2">
                 <div class="col-md-3">
                   <label for="supplier" class="form-label">Supplier</label>
-                  <input type="text" class="form-control" id="supplier">
+                  <input type="text" class="form-control" id="supplier" name="supplier">
                 </div>
                 <div class="col-md-3">
                   <label for="source_url" class="form-label">Source URL</label>
-                  <input type="url" class="form-control" id="source_url">
+                  <input type="url" class="form-control" id="source_url" name="source_url">
                 </div>
                 <div class="col-md-3">
                   <label for="brand" class="form-label">Brand</label>
-                  <input type="text" class="form-control" id="brand">
+                  <input type="text" class="form-control" id="brand" name="brand">
                 </div>
                 <div class="col-md-3">
                   <label for="variation" class="form-label">Variation Details</label>
-                  <input type="text" class="form-control" id="variation">
+                  <input type="text" class="form-control" id="variation" name="variation_details">
                 </div>
               </div>
 
               <div class="row g-2 mt-2">
                 <div class="col-md-6">
                   <label for="promo" class="form-label">Promo</label>
-                  <input type="text" class="form-control" id="promo">
+                  <input type="text" class="form-control" id="promo" name="promo">
                 </div>
                 <div class="col-md-6">
                   <label for="coupon_code" class="form-label">Coupon Code</label>
-                  <input type="text" class="form-control" id="coupon_code">
+                  <input type="text" class="form-control" id="coupon_code" name="coupon_code">
                 </div>
               </div>
 
               <div class="mt-3">
                 <label for="product_note" class="form-label">Product Note</label>
-                <textarea id="product_note" rows="3" class="form-control"></textarea>
+                <textarea id="product_note" rows="3" class="form-control" name="product_note"></textarea>
               </div>
               <div class="mt-3">
                 <label for="buyerNote" class="form-label">Buyer Note</label>
-                <textarea id="buyerNote" rows="3" class="form-control"></textarea>
+                <textarea id="buyerNote" rows="3" class="form-control" name="buyer_note"></textarea>
               </div>
             </form>
           </div>
@@ -196,7 +197,7 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
         <button type="submit" form="edit-items-form" class="btn btn-primary">Save Changes</button>
       </div>
     </div>
