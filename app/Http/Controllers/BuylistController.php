@@ -34,7 +34,9 @@ class BuylistController extends Controller
             return DataTables::of(collect())->make(true);
         }
 
-        $query = LineItem::where('is_buylist', '1')->where('is_rejected', 0)
+        $query = LineItem::with('buylist')
+            ->where('is_buylist', '1')
+            ->where('is_rejected', 0)
             ->whereIn('buylist_id', $request->buylist_ids)
             ->orderByDesc('id');
 
@@ -78,6 +80,9 @@ class BuylistController extends Controller
                     return "<a href='{$url}' target='_blank' class='text-primary text-decoration-none fw-semibold' data-bs-toggle='tooltip' title='{$url}'>{$supplier}</a>";
                 }
                 return $supplier;
+            })
+            ->addColumn('buylist_name', function ($b) {
+                return $b->buylist ? e($b->buylist->name) : '--';
             })
             ->addColumn('actions', function ($b) {
                 $url = $b->source_url;

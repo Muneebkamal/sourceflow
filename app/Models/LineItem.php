@@ -55,4 +55,8 @@ class LineItem extends Model
     public function lead(){
         return $this->hasOne(Lead::class, 'asin','asin');
     }
+    public function buylist()
+    {
+        return $this->belongsTo(Buylist::class, 'buylist_id');
+    }
 }
