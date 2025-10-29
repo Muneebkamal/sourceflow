@@ -47,7 +47,7 @@ class ShippingController extends Controller
 
         return DataTables::of($query)
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="form-check-input row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="form-check-input shipping-checkbox" value="' . $row->id . '">';
             })
             ->editColumn('status', function ($row) {
                 $statuses = [
@@ -59,7 +59,7 @@ class ShippingController extends Controller
                 $html = '<select class="form-select form-select-sm shipping-status" data-id="'.$row->id.'">';
                 foreach ($statuses as $key => $label) {
                     $selected = ($row->status === $key) ? 'selected' : '';
-                    $html .= '<option class="bg-white text-black" value="'.$key.'" '.$selected.'>'.$label.'</option>';
+                    $html .= '<option value="'.$key.'" '.$selected.'>'.$label.'</option>';
                 }
                 $html .= '</select>';
 
@@ -75,8 +75,8 @@ class ShippingController extends Controller
                                 <i class="ti ti-dots-vertical"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#">Edit</a></li>
-                                <li><a class="dropdown-item text-danger" href="#">Delete</a></li>
+                                <li><a class="dropdown-item editShippingBtn" data-id="'.$row->id.'" href="#">Edit</a></li>
+                                <li><a class="dropdown-item text-danger DelSingleBtn" data-id="'.$row->id.'" href="#">Delete</a></li>
                             </ul>
                         </div>
                     </div>';
@@ -97,8 +97,28 @@ class ShippingController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        //
+    {   
+        try {
+            $batch = Shipping::create([
+                'name' => $request->name,
+                'status' => $request->status,
+                'date' => $request->shipped_at,
+                'tracking_number' => $request->tracking_number,
+                'market_place' => $request->marketplace,
+                'notes' => $request->note,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Shipping batch created successfully.',
+                'batch' => $batch
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create shipping batch: ' . $e->getMessage()
+            ]);
+        }
     }
 
     /**
@@ -108,6 +128,24 @@ class ShippingController extends Controller
     {
         $shipping = Shipping::where('id', $id)->first();
         return view('shipping.show', compact('shipping'));
+    }
+
+    public function showModal($id)
+    {
+        $batch = Shipping::find($id);
+        if(!$batch) {
+            return response()->json(['success' => false]);
+        }
+        return response()->json(['success' => true, 'batch' => $batch]);
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $batch = Shipping::findOrFail($id);
+        $batch->status = $request->status;
+        $batch->save();
+
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -123,7 +161,33 @@ class ShippingController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        try {
+            $batch = Shipping::findOrFail($id);
+            $batch->update([
+                'name' => $request->name,
+                'status' => $request->status,
+                'date' => $request->shipped_at,
+                'tracking_number' => $request->tracking_number,
+                'market_place' => $request->marketplace,
+                'notes' => $request->note,
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'Shipping batch updated successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to update batch.']);
+        }
+    }
+
+    public function bulkStatus(Request $request)
+    {
+        Shipping::whereIn('id', $request->ids)->update(['status' => $request->status]);
+        return response()->json(['success' => true, 'message' => 'Status updated for selected records.']);
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        Shipping::whereIn('id', $request->ids)->delete();
+        return response()->json(['success' => true, 'message' => 'Selected records deleted successfully.']);
     }
 
     /**
@@ -131,6 +195,13 @@ class ShippingController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $batch = Shipping::findOrFail($id);
+            $batch->delete();
+
+            return response()->json(['success' => true, 'message' => 'Shipping batch deleted successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to delete batch.']);
+        }
     }
 }

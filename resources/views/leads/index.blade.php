@@ -58,18 +58,30 @@
                         <button type="button" class="btn btn-primary w-100 mt-2" data-bs-toggle="modal" data-bs-target="#templateModal">
                             View/Edit Template
                         </button>
-                        <button class="btn btn-outline-primary w-100 mt-2" data-bs-toggle="modal" data-bs-target="#addLeadModal">Add Lead <i class="ti ti-plus fs-4 ms-1"></i></button>
+                        <button class="btn btn-outline-primary w-100 mt-2" id="addLeadModalBtn" data-bs-toggle="modal" data-bs-target="#addLeadModal">Add Lead <i class="ti ti-plus fs-4 ms-1"></i></button>
                     </div>
                     <hr>
                     <button type="button" class="btn btn-soft-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#leadListSourceModal">
                         Lead List Sources <i class="ti ti-plus"></i>
                     </button>
-                    <div class="column-list ps-2">
+                    {{-- <div class="column-list ps-2">
                         @foreach ($sources as $key => $source)
                             <div class="d-flex justify-content-between align-items-center my-2 column-item position-relative {{ $key === 0 ? 'active' : '' }}" data-source-id="{{ $source->id }}">
                                 <span class="fw-bold">{{ $source->list_name }}</span>
                                 <div class="column-actions d-none">
                                     <i class="ti ti-trash text-danger fs-3"></i>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div> --}}
+                    <div class="column-list ps-2">
+                        @foreach ($sources as $key => $source)
+                            <div class="d-flex justify-content-between align-items-center my-2 column-item position-relative {{ $key === 0 ? 'active' : '' }}" data-source-id="{{ $source->id }}">
+                                <span class="fw-bold">{{ $source->list_name }}</span>
+                                <div class="column-actions d-none">
+                                    <i class="ti ti-trash text-danger fs-3 delete-source" 
+                                    data-source-id="{{ $source->id }}" 
+                                    style="cursor:pointer;"></i>
                                 </div>
                             </div>
                         @endforeach
@@ -111,65 +123,7 @@
 
                                     <div class="card-body p-2">
                                         <!-- ✅ Sortable list -->
-                                        <div class="column-list-draggable">
-
-                                            <div class="d-flex justify-content-between align-items-center draggable-item">
-                                                <div>
-                                                    <input class="form-check-input" type="checkbox" id="col-oac_id">
-                                                    <label class="form-check-label" for="col-oac_id">Oac ID</label>
-                                                </div>
-                                                <i class="ti ti-grip-vertical grip-icon"></i>
-                                            </div>
-
-                                            <div class="d-flex justify-content-between align-items-center draggable-item">
-                                                <div>
-                                                    <input class="form-check-input" type="checkbox" id="col-name" checked>
-                                                    <label class="form-check-label" for="col-name">Name</label>
-                                                </div>
-                                                <i class="ti ti-grip-vertical grip-icon"></i>
-                                            </div>
-
-                                            <div class="d-flex justify-content-between align-items-center draggable-item">
-                                                <div>
-                                                    <input class="form-check-input" type="checkbox" id="col-status" checked>
-                                                    <label class="form-check-label" for="col-status">Status</label>
-                                                </div>
-                                                <i class="ti ti-grip-vertical grip-icon"></i>
-                                            </div>
-
-                                            <div class="d-flex justify-content-between align-items-center draggable-item">
-                                                <div>
-                                                    <input class="form-check-input" type="checkbox" id="col-shipped" checked>
-                                                    <label class="form-check-label" for="col-shipped">Shipped Date</label>
-                                                </div>
-                                                <i class="ti ti-grip-vertical grip-icon"></i>
-                                            </div>
-
-                                            <div class="d-flex justify-content-between align-items-center mb-1 opacity-75 draggable-item">
-                                                <div>
-                                                    <input class="form-check-input" type="checkbox" id="col-items" checked disabled>
-                                                    <label class="form-check-label" for="col-items"># Items</label>
-                                                </div>
-                                                <i class="ti ti-grip-vertical grip-icon"></i>
-                                            </div>
-
-                                            <div class="d-flex justify-content-between align-items-center mb-1 opacity-75 draggable-item">
-                                                <div>
-                                                    <input class="form-check-input" type="checkbox" id="col-tracking" checked disabled>
-                                                    <label class="form-check-label" for="col-tracking">Tracking #</label>
-                                                </div>
-                                                <i class="ti ti-grip-vertical grip-icon"></i>
-                                            </div>
-
-                                            <div class="d-flex justify-content-between align-items-center draggable-item">
-                                                <div>
-                                                    <input class="form-check-input" type="checkbox" id="col-note" checked>
-                                                    <label class="form-check-label" for="col-note">Note</label>
-                                                </div>
-                                                <i class="ti ti-grip-vertical grip-icon"></i>
-                                            </div>
-
-                                        </div>
+                                        <div class="column-list-draggable"></div>
                                     </div>
                                 </div>
                             </div>
@@ -179,6 +133,19 @@
             </div>
 
             <div class="row">
+                <div id="select-count-section" class="col-md-12 d-flex mb-2 align-items-center d-none">
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="true">
+                            <i class="ti ti-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item bulkMoveLeads" href="#">Move to Lead List...</a></li>
+                            <li><a class="dropdown-item updatepublishdate" href="#">Change Publish Date</a></li>
+                            <li><a class="dropdown-item text-danger bulkDelBtn" href="#">Delete</a></li>
+                        </ul>
+                    </div>
+                    <span class="fw-bold ms-3">Selected: <span id="selectedCount">0</span></span>
+                </div>
                 <div class="col-md-12">
                     <div id="table-section" class="card">
                         <div class="card-body p-0">
@@ -186,7 +153,7 @@
                                 <table id="leads-table" class="table align-middle w-100 mb-0 table-hover">
                                     <thead class="table-light">
                                     <tr class="text-nowrap small">
-                                        <th><input type="checkbox" class="form-check-input"></th>
+                                        <th><input type="checkbox" id="selectAll" class="form-check-input"></th>
                                         <th>Product Title</th>
                                         <th>ASIN</th>
                                         <th>Cost</th>
@@ -194,59 +161,30 @@
                                         <th>Supplier</th>
                                         <th>Current BSR</th>
                                         <th>Category</th>
-                                        <th>ROI</th>
+                                        <th>Latest ROI</th>
                                         <th>Latest Net Profit</th>
-                                        {{-- <th>Brand</th> --}}
+                                        <th>Brand</th>
                                         <th>90-Day BSR</th>
                                         <th>Promo</th>
                                         <th>Coupon Code</th>
                                         <th>Product Note</th>
-                                        {{-- <th>Type</th> --}}
+                                        <th>Type</th>
                                         <th>Created</th>
                                         <th>updated</th>
                                         <th>Publish Time</th>
-                                        {{-- <th>ROI</th> --}}
-                                        {{-- <th>Net Profit</th>
+                                        <th>ROI</th>
+                                        <th>Net Profit</th>
                                         <th>Amazon Fees</th>
                                         <th>Latest Low FBA Price</th>
                                         <th>Latest Rank</th>
                                         <th>Latest Updated</th>
-                                        <th>Parent ASIN</th> --}}
+                                        <th>Parent ASIN</th>
                                         <th>Note</th>
                                         <th class="sticky-col text-center">Actions</th>
                                     </tr>
                                     </thead>
 
                                     <tbody>
-                                    <!-- Row 1 -->
-                                    {{-- <tr class="small">
-                                        <td><input type="checkbox" class="form-check-input"></td>
-                                        <td>2025/09/20</td>
-                                        <td>B09XYZ123</td>
-                                        <td><img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" width="50" alt=""></td>
-                                        <td>Wireless Headphones</td>
-                                        <td><span class="badge bg-primary">Hot</span> <span class="badge bg-success">New</span></td>
-                                        <td>Supplier A</td>
-                                        <td>$789</td>
-                                        <td>12,345</td>
-                                        <td>Electronics</td>
-                                        <td>Good margin</td>
-                                        <td class="text-center sticky-col">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <button class="btn btn-sm btn-light"><i class="ti ti-eye"></i></button>
-                                            <div class="dropdown">
-                                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                
-                                                <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                                <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
-                                            </ul>
-                                            </div>
-                                        </div>
-                                        </td>
-                                    </tr> --}}
                                     </tbody>
                                 </table>
                             </div>
@@ -400,6 +338,8 @@
     @include('modals.leads.temp-edit-view-modal')
     @include('modals.leads.temp-detail-modal')
     @include('modals.leads.add-lead-modal')
+    @include('modals.leads.bulk-move-leads-modal')
+    @include('modals.leads.leads-bulk-date-update-modal')
 @endsection
 
 @section('scripts')
@@ -410,45 +350,130 @@
         var table = $('#leads-table').DataTable({
             processing: true,
             serverSide: true,
+            stateSave: true,
+            colReorder: true,
             ajax: {
                 url: "{{ route('leads.data') }}",
-                data: function(d) {
+                data: function (d) {
                     d.source_id = selectedSourceId;
                     d.search_text = $('#input-search').val();
-                }
+                },
             },
             drawCallback: function () {
                 const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
+                tooltipTriggerList.map(function (el) {
+                    return new bootstrap.Tooltip(el);
+                });
             },
             scrollY: '40vh',
             scrollX: true,
             scrollCollapse: true,
-            ordering: false,
+            ordering: true,
             lengthChange: false,
             searching: false,
+
             columns: [
-                { data: 'id', render: function(data,type,row){ return `<input type="checkbox" class="form-check-input">`; }, orderable: false },
-                { data: 'name', name: 'name' },
-                { data: 'asin', name: 'asin' },
-                { data: 'cost', name: 'cost' },
-                { data: 'sell_price', name: 'sell_price' },
-                { data: 'supplier', name: 'supplier' },
-                { data: 'bsr', name: 'bsr' },
-                { data: 'category', name: 'category' },
-                { data: 'roi', name: 'roi' },
-                { data: 'net_profit', name: 'net_profit' },
-                { data: 'bsr', name: 'bsr' },
-                { data: 'promo', name: 'promo' },
-                { data: 'coupon', name: 'coupon' },
-                { data: 'notes', name: 'notes' },
-                { data: 'created_at', name: 'created_at' },
-                { data: 'updated_at', name: 'updated_at' },
-                { data: 'date', name: 'date' },
-                { data: 'notes', name: 'notes' },
-                { data: 'actions', name: 'actions', orderable: false, searchable: false, className: 'text-center' },
-            ]
+                {
+                    data: 'id',
+                    render: function (data, type, row) {
+                        return `<input type="checkbox" class="form-check-input lead-checkbox" data-id="${row.id}">`;
+                    },
+                    orderable: false,
+                    searchable: false
+                },
+                { data: 'name', name: 'name', title: 'Product Title' },
+                { data: 'asin', name: 'asin', title: 'ASIN' },
+                { data: 'cost', name: 'cost', title: 'Cost' },
+                { data: 'sell_price', name: 'sell_price', title: 'Selling Price' },
+                { data: 'supplier', name: 'supplier', title: 'Supplier' },
+                { data: 'bsr', name: 'bsr', title: 'Current BSR' },
+                { data: 'category', name: 'category', title: 'Category' },
+                { data: 'roi', name: 'roi', title: 'Latest ROI' },
+                { data: 'net_profit', name: 'net_profit', title: 'Latest Net Profit' },
+                { data: null, defaultContent: '-', title: 'Brand' }, // static
+                { data: null, defaultContent: '-', title: '90-Day BSR' }, // static
+                { data: 'promo', name: 'promo', title: 'Promo' },
+                { data: 'coupon', name: 'coupon', title: 'Coupon Code' },
+                { data: 'notes', name: 'notes', title: 'Product Note' },
+                { data: null, defaultContent: '-', title: 'Type' },
+                { data: 'created_at', name: 'created_at', title: 'Created' },
+                { data: 'updated_at', name: 'updated_at', title: 'Updated' },
+                { data: 'date', name: 'publish_time', title: 'Publish Time' },
+                { data: 'roi', name: 'roi', title: 'ROI' },
+                { data: 'net_profit', name: 'net_profit', title: 'Net Profit' },
+                { data: null, defaultContent: '-', title: 'Amazon Fees' },
+                { data: null, defaultContent: '-', title: 'Latest Low FBA Price' },
+                { data: null, defaultContent: '-', title: 'Latest Rank' },
+                { data: 'updated_at', name: 'latest_updated_at', title: 'Latest Updated' },
+                { data: null, defaultContent: '-', title: 'Parent ASIN' },
+                { data: 'notes', name: 'note', title: 'Note' },
+                {
+                    data: 'actions',
+                    name: 'actions',
+                    orderable: false,
+                    searchable: false,
+                    className: 'text-center sticky-col',
+                    title: 'Actions'
+                }
+            ],
+
+            initComplete: function () {
+                generateColumnList();
+            }
         });
+
+        // 🔹 Generate dynamic column list
+        function generateColumnList() {
+            const columnList = $('.column-list-draggable');
+            columnList.empty();
+
+            table.columns().every(function (index) {
+                // Skip first (checkbox) and last (actions)
+                if (index === 0 || index === table.columns().count() - 1) return;
+
+                const col = table.column(index);
+                const title = $(col.header()).text().trim() || 'Column ' + index;
+                const checked = col.visible() ? 'checked' : '';
+
+                columnList.append(`
+                    <div class="d-flex justify-content-between align-items-center draggable-item" 
+                        data-column-index="${index}">
+                        <div>
+                            <input class="form-check-input col-toggle" type="checkbox" ${checked} id="col-${index}">
+                            <label class="form-check-label ms-2" for="col-${index}">${title}</label>
+                        </div>
+                        <i class="ti ti-grip-vertical grip-icon"></i>
+                    </div>
+                `);
+            });
+
+            enableColumnListFeatures();
+        }
+
+        // 🔹 Enable hide/show + drag reorder
+        function enableColumnListFeatures() {
+            // Show/Hide columns
+            $(document).off('change', '.col-toggle').on('change', '.col-toggle', function () {
+                const index = $(this).closest('.draggable-item').data('column-index');
+                const visible = $(this).is(':checked');
+                table.column(index).visible(visible);
+            });
+
+            // Drag reorder using jQuery UI sortable
+            $('.column-list-draggable').sortable({
+                handle: '.grip-icon',
+                update: function () {
+                    const newOrder = $('.column-list-draggable .draggable-item').map(function () {
+                        return $(this).data('column-index');
+                    }).get();
+
+                    // Always keep checkbox (0) first, and actions (last)
+                    const fullOrder = [0, ...newOrder, table.columns().count() - 1];
+                    table.colReorder.order(fullOrder, true);
+                }
+            });
+        }
+
 
         // Click on source to filter table
         $('.column-item').on('click', function() {
@@ -532,12 +557,519 @@
             }
         });
     });
+
+    $(document).ready(function () {
+        $('#leadListSourceForm').on('submit', function (e) {
+            e.preventDefault();
+
+            let formData = {
+                name: $('#leadListSourceName').val(),
+                _token: '{{ csrf_token() }}'
+            };
+
+            $.ajax({
+                url: "{{ route('lead.sources.store') }}",
+                method: "POST",
+                data: formData,
+                beforeSend: function () {
+                    $('#leadListSourceForm button[type="submit"]').prop('disabled', true).text('Saving...');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $('#leadListSourceModal').modal('hide');
+                        $('#leadListSourceForm')[0].reset();
+                        toastr.success(response.message);
+                        setTimeout(function() {
+                            location.reload();
+                        }, 2000); 
+                    } else {
+                        toastr.error(response.message || 'Something went wrong.');
+                    }
+                },
+                error: function (xhr) {
+                    console.error(xhr.responseText);
+                    toastr.error('An error occurred. Please try again.');
+                },
+                complete: function () {
+                    $('#leadListSourceForm button[type="submit"]').prop('disabled', false).text('Save Source');
+                }
+            });
+        });
+    });
+
+    $(document).on('click', '.delete-source', function (e) {
+        e.stopPropagation(); // prevent activating list item
+
+        const sourceId = $(this).data('source-id');
+        const $columnItem = $(this).closest('.column-item');
+
+        // remove 'active' class from the deleted item
+        $columnItem.removeClass('active');
+
+        // build other sources list for move option
+        let sourceOptions = '';
+        $('.column-item').each(function () {
+            const id = $(this).data('source-id');
+            const name = $(this).find('span').text();
+            if (id !== sourceId) {
+                sourceOptions += `<option value="${id}">${name}</option>`;
+            }
+        });
+
+        Swal.fire({
+            title: 'Delete Lead List Source?',
+            html: `
+                <div class="form-check text-start">
+                    <input class="form-check-input" type="checkbox" id="moveLeadsCheck">
+                    <label class="form-check-label" for="moveLeadsCheck">
+                        Move items to another Team Lead List
+                    </label>
+                </div>
+                <div id="moveLeadsSelectDiv" class="mt-3" style="display:none;">
+                    <label for="moveLeadsSelect" class="form-label">Select Team Lead List</label>
+                    <select id="moveLeadsSelect" class="form-select">
+                        <option value="">-- Select Source --</option>
+                        ${sourceOptions}
+                    </select>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            preConfirm: () => {
+                const isMove = $('#moveLeadsCheck').is(':checked');
+                const targetSourceId = $('#moveLeadsSelect').val();
+
+                if (isMove && !targetSourceId) {
+                    Swal.showValidationMessage('Please select a Team Lead List to move leads.');
+                    return false;
+                }
+                return { isMove, targetSourceId };
+            },
+            didOpen: () => {
+                $('#moveLeadsCheck').on('change', function () {
+                    $('#moveLeadsSelectDiv').toggle(this.checked);
+                });
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const { isMove, targetSourceId } = result.value;
+
+                $.ajax({
+                    url: "{{ route('leadlist.source.delete') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        source_id: sourceId,
+                        move_leads: isMove,
+                        target_source_id: targetSourceId
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            // remove item from list without reload
+                            $columnItem.fadeOut(300, function () { $(this).remove(); });
+                        } else {
+                            toastr.error(response.message || 'Something went wrong.');
+                        }
+                    },
+                    error: function () {
+                        toastr.error('Server error, please try again.');
+                    }
+                });
+            }
+        });
+    });
+
+    $(document).on('submit', '#addLeadForm', function (e) {
+        e.preventDefault();
+
+        const form = $(this);
+        let formData = form.serialize();
+        formData += '&_token={{ csrf_token() }}';
+
+        $.ajax({
+            url: "{{ route('leads.save') }}", // same route for add/update
+            method: "POST",
+            data: formData,
+            beforeSend: function () {
+                form.find('button[type="submit"]').prop('disabled', true).text('Saving...');
+            },
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message);
+                    $('#addLeadForm')[0].reset();
+                    $('#lead_id').val('');
+
+                    setTimeout(() => {
+                        $('#addLeadModal').modal('hide');
+                        if ($.fn.DataTable.isDataTable('#leads-table')) {
+                            $('#leads-table').DataTable().ajax.reload(null, false);
+                        }
+                    }, 1000);
+                } else {
+                    toastr.error(response.message || 'Something went wrong.');
+                }
+            },
+            error: function (xhr) {
+                let message = 'Server error, please try again.';
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    const errors = xhr.responseJSON.errors;
+                    message = Object.values(errors).map(err => err.join('<br>')).join('<br>');
+                }
+                toastr.error(message);
+            },
+            complete: function () {
+                form.find('button[type="submit"]').prop('disabled', false).text('Save Lead');
+            }
+        });
+    });
+
+    $(document).on('click', '.edit-lead', function (e) {
+        e.preventDefault();
+        const leadId = $(this).data('id');
+
+        $.ajax({
+            url: "{{ route('leads.show', ':id') }}".replace(':id', leadId),
+            method: 'GET',
+            success: function (response) {
+                if (response.success) {
+                    const d = response.data;
+
+                    // Fill form fields
+                    $('#lead_id').val(d.id);
+                    $('#lead_source').val(d.source_id);
+                    $('#name').val(d.name);
+                    $('#asin').val(d.asin);
+                    $('#parent_asin').val(d.parent_asin);
+                    $('#category').val(d.category);
+                    $('#cost').val(d.cost);
+                    $('#selling_price').val(d.sell_price);
+                    $('#net_profit_input').val(d.net_profit);
+                    $('#roi_input').val(d.roi);
+                    $('#bsr_ninety').val(d.bsr_ninety);
+                    $('#supplier').val(d.supplier);
+                    $('#source_url').val(d.url);
+                    $('#brand').val(d.brand);
+                    $('#bsr_current').val(d.bsr);
+                    $('#promo').val(d.promo);
+                    $('#coupon_code').val(d.coupon_code);
+                    $('#list_item_note').val(d.notes);
+
+                    // Change modal title & button text
+                    $('#addLeadModalLabel').text('Edit Lead');
+                    $('#addLeadForm button[type="submit"]').text('Update Lead');
+
+                    $('#addLeadModal').modal('show');
+                } else {
+                    toastr.error(response.message || 'Lead not found.');
+                }
+            },
+            error: function () {
+                toastr.error('Failed to load lead data.');
+            }
+        });
+    });
+
+    $('#addLeadModalBtn').on('click', function () {
+        $('#addLeadForm')[0].reset();
+        $('#lead_id').val('');
+        $('#addLeadModalLabel').text('Add New Lead');
+        $('#addLeadForm button[type="submit"]').text('Save Lead');
+        $('#addLeadModal').modal('show');
+    });
+
+    $(document).on('click', '.singleLeadDel', function (e) {
+        e.preventDefault();
+        const leadId = $(this).data('id');
+
+        Swal.fire({
+            title: 'Move or Delete Lead?',
+            html: `
+                <div class="text-start">
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="moveLeadCheckboxSwal">
+                        <label class="form-check-label" for="moveLeadCheckboxSwal">
+                            Move this lead to another source
+                        </label>
+                    </div>
+                    <div id="sourceSelectContainer" style="display:none;">
+                        <label for="sourceSelectSwal" class="form-label">Select New Source</label>
+                        <select id="sourceSelectSwal" class="form-select">
+                            <option value="">-- Select Source --</option>
+                            @foreach($sources as $source)
+                                <option value="{{ $source->id }}">{{ $source->list_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Continue',
+            didOpen: () => {
+                // Toggle dropdown visibility based on checkbox
+                $('#moveLeadCheckboxSwal').on('change', function () {
+                    $('#sourceSelectContainer').toggle(this.checked);
+                });
+            },
+            preConfirm: () => {
+                const moveChecked = $('#moveLeadCheckboxSwal').is(':checked');
+                const selectedSourceId = $('#sourceSelectSwal').val();
+
+                if (moveChecked && !selectedSourceId) {
+                    Swal.showValidationMessage('Please select a source to move the lead.');
+                    return false;
+                }
+
+                return { moveChecked, selectedSourceId };
+            }
+        }).then(result => {
+            if (result.isConfirmed) {
+                const { moveChecked, selectedSourceId } = result.value;
+
+                $.ajax({
+                    url: "{{ route('lead.moveOrDelete') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        lead_id: leadId,
+                        source_id: selectedSourceId,
+                        move: moveChecked
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            setTimeout(() => location.reload(), 2000);
+                        } else {
+                            toastr.error(response.message || 'Something went wrong.');
+                        }
+                    }
+                });
+            }
+        });
+    });
+
+    // 🗑️ Bulk Delete Leads
+    $(document).on('click', '.bulkDelBtn', function (e) {
+        e.preventDefault();
+
+        // Collect selected IDs
+        const selectedIds = $('#leads-table tbody .lead-checkbox:checked')
+            .map(function () { return $(this).data('id'); })
+            .get();
+
+        if (selectedIds.length === 0) {
+            toastr.error('Please select at least one lead.');
+            return;
+        }
+
+        // Confirm bulk delete
+        Swal.fire({
+            title: `Delete ${selectedIds.length} Lead(s)?`,
+            text: "This action cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Delete',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('lead.bulkDelete') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        lead_ids: selectedIds
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success(response.message || 'Leads deleted successfully.');
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            toastr.error(response.message || 'Something went wrong.');
+                        }
+                    },
+                    error: function () {
+                        toastr.error('Server error. Please try again.');
+                    }
+                });
+            }
+        });
+    });
+
+    //bulk move leads
+    $(document).ready(function () {
+
+        $(document).on('click', '.bulkMoveLeads', function (e) {
+            e.preventDefault();
+
+            const selectedIds = $('#leads-table tbody .lead-checkbox:checked')
+                .map(function () {
+                    return $(this).data('id');
+                })
+                .get();
+
+            if (selectedIds.length === 0) {
+                toastr.error('Please select at least one lead.');
+                return;
+            }
+
+            // Store selected IDs in modal
+            $('#bulkMoveLeadForm').data('selectedIds', selectedIds);
+            $('#bulkMoveLeadModal').modal('show');
+        });
+
+        // Handle form submit
+        $('#bulkMoveLeadForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const sourceId = $('#leadSourceSelect').val();
+            const selectedIds = $(this).data('selectedIds');
+
+            if (!sourceId) {
+                toastr.error('Please select a lead source.');
+                return;
+            }
+
+            $.ajax({
+                url: "{{ route('leads.bulk.move') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    source_id: sourceId,
+                    lead_ids: selectedIds
+                },
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        $('#bulkMoveLeadModal').modal('hide');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
+                    } else {
+                        toastr.error(response.message || 'Something went wrong.');
+                    }
+                },
+                error: function () {
+                    toastr.error('Server error occurred.');
+                }
+            });
+        });
+
+    });
+
+    $(document).ready(function () {
+
+        // Open modal when bulk "Change Publish Date" clicked
+        $(document).on('click', '.updatepublishdate', function (e) {
+            e.preventDefault();
+
+            const selectedIds = $('#leads-table tbody .lead-checkbox:checked')
+                .map(function () { return $(this).data('id'); }).get();
+
+            if (selectedIds.length === 0) {
+                toastr.error('Please select at least one lead.');
+                return;
+            }
+
+            // Store selected IDs in modal data
+            $('#bulkPublishDateModal').data('lead-ids', selectedIds);
+
+            // Open modal
+            $('#bulkPublishDateModal').modal('show');
+        });
+
+        // Submit modal form
+        $(document).on('submit', '#bulkPublishDateForm', function (e) {
+            e.preventDefault();
+
+            const leadIds = $('#bulkPublishDateModal').data('lead-ids');
+            const publishDate = $('#publishDateTime').val();
+
+            if (!publishDate) {
+                toastr.error('Please select a date & time.');
+                return;
+            }
+
+            $.ajax({
+                url: "{{ route('leads.bulkPublishDate') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    lead_ids: leadIds,
+                    publish_time: publishDate
+                },
+                beforeSend: function () {
+                    $('#bulkPublishDateForm button[type="submit"]').prop('disabled', true).text('Updating...');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        $('#bulkPublishDateModal').modal('hide');
+
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
+                    } else {
+                        toastr.error(response.message || 'Something went wrong.');
+                    }
+                },
+                error: function () {
+                    toastr.error('Server error. Please try again.');
+                },
+                complete: function () {
+                    $('#bulkPublishDateForm button[type="submit"]').prop('disabled', false).text('Update Date');
+                }
+            });
+        });
+
+    });
+
+    $(document).ready(function () {
+
+        // Select all
+        $(document).on('change', '#selectAll', function () {
+            const checked = $(this).is(':checked');
+            $('#leads-table tbody .lead-checkbox').prop('checked', checked);
+            updateSelectedCount();
+        });
+
+        // Single checkbox change
+        $(document).on('change', '#leads-table tbody .lead-checkbox', function () {
+            const allChecked =
+                $('#leads-table tbody .lead-checkbox').length ===
+                $('#leads-table tbody .lead-checkbox:checked').length;
+
+            $('#selectAll').prop('checked', allChecked);
+            updateSelectedCount();
+        });
+
+        // Update counter and bar
+        function updateSelectedCount() {
+            const count = $('#leads-table tbody .lead-checkbox:checked').length;
+            $('#selectedCount').text(count);
+            if (count > 0) {
+                $('#select-count-section').removeClass('d-none');
+            } else {
+                $('#select-count-section').addClass('d-none');
+            }
+        }
+
+        // Reset on table redraw
+        $('#leads-table').on('draw.dt', function () {
+            $('#selectAll').prop('checked', false);
+            updateSelectedCount();
+        });
+    });
+
 </script>
 
 <!-- Dropzone File Upload js -->
 <script src="{{ asset('assets/vendor/dropzone/min/dropzone.min.js') }}"></script>
 <!-- File Upload Demo js -->
 <script src="{{ asset('assets/js/pages/form-fileupload.js') }}"></script>
+
 <script>
     $(document).ready(function() {
         Dropzone.autoDiscover = false;

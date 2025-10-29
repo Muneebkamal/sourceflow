@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Source extends Model
 {
     use HasFactory;
+    protected $fillable = ['list_name'];
+    
     public function leads()
     {
         return $this->hasMany(Lead::class);

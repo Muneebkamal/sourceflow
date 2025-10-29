@@ -20,15 +20,15 @@
             <select id="batchStatus" class="form-select">
               <option selected disabled>Choose status</option>
               <option value="open">Open</option>
-              <option value="close">Close</option>
-              <option value="in transit">In transit</option>
+              <option value="closed">Closed</option>
+              <option value="in_transit">In transit</option>
             </select>
           </div>
 
           <!-- Shipped At -->
           <div class="col-md-6">
             <label for="shippedAt" class="form-label">Shipped At</label>
-            <input type="text" class="form-control" id="shippedAt" placeholder="mm/dd/yyyy">
+            <input type="date" class="form-control" id="shippedAt">
           </div>
 
           <!-- Tracking Number -->

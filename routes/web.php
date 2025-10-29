@@ -43,6 +43,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tags/store', [TagController::class, 'store'])->name('tags.store');
     Route::post('/tags/{id}/update', [TagController::class, 'update'])->name('tags.update');
     Route::post('/tags/{id}/delete', [TagController::class, 'destroy'])->name('tags.delete');
+    Route::get('smart-data/lead/{id}', [SmartDataController::class, 'showSmartData'])->name('smart.data.lead');
 
 
 
@@ -89,10 +90,26 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/shipping-batches', [ShippingController::class, 'index'])->name('shipping.index');
     Route::get('/shipping-data', [ShippingController::class, 'getData'])->name('shipping.data');
     Route::get('/shipping-batches/{id}', [ShippingController::class, 'show'])->name('shipping.show');
+    Route::post('/shipping-batch/store', [ShippingController::class, 'store'])->name('shipping-batch.store');
+    Route::get('/shipping-batch/{id}', [ShippingController::class, 'showModal']);
+    Route::put('/shipping-batch/{id}', [ShippingController::class, 'update']);
+    Route::patch('/shipping-batch/{id}/update-status', [ShippingController::class, 'updateStatus'])->name('shipping-batch.update-status');
+    Route::patch('/shipping-batch/bulk-status', [ShippingController::class, 'bulkStatus'])->name('shipping-batch.bulk-status');
+    Route::delete('/shipping-batch/bulk-delete', [ShippingController::class, 'bulkDelete'])->name('shipping-batch.bulk-delete');
+    Route::delete('/shipping-batch/{id}', [ShippingController::class, 'destroy'])->name('shipping-batch.destroy');
+
 
     // Leads routes
     Route::get('/team-leads', [LeadController::class, 'index'])->name('leads.index');
     Route::get('/leads/data', [LeadController::class, 'getData'])->name('leads.data');
+    Route::post('/lead-sources/store', [LeadController::class, 'SourceStore'])->name('lead.sources.store');
+    Route::post('/leadlist/source/delete', [LeadController::class, 'deleteSource'])->name('leadlist.source.delete');
+    Route::get('/leads/show/{id}', [LeadController::class, 'showLead'])->name('leads.show');
+    Route::post('/leads/save', [LeadController::class, 'saveLead'])->name('leads.save');
+    Route::post('/lead/move-or-delete', [LeadController::class, 'moveOrDeleteLead'])->name('lead.moveOrDelete');
+    Route::post('/leads/bulk-delete', [LeadController::class, 'bulkDelete'])->name('lead.bulkDelete');
+    Route::post('/leads/bulk-move', [LeadController::class, 'bulkMove'])->name('leads.bulk.move');
+    Route::post('/leads/bulk-publish-date', [LeadController::class, 'bulkPublishDate'])->name('leads.bulkPublishDate');
 
     Route::get('/templates/{id}/details', [LeadController::class, 'details'])->name('templates.details');
 
