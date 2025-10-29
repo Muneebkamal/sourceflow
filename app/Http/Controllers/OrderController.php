@@ -52,13 +52,20 @@ class OrderController extends Controller
             'status',
             'order_id',
             'source',
+            'email',
             'date',
             'total',
             'created_at',
+            'updated_at',
             'total_units_purchased',
             'total_units_received',
             'total_units_shipped',
             'unit_errors',
+            'shipping_cost',
+            'card_used',
+            'destination',
+            'cash_back_source',
+            'cash_back_percentage',
             'note'
         ]))
         ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="form-check-input" data-id="' . $row->id . '">')
@@ -91,6 +98,17 @@ class OrderController extends Controller
             return '<select class="form-select form-select-sm status-select bg-soft-' . $currentColor . ' text-' . $currentColor . '" 
                         data-id="' . e($row->id) . '">' . $options . '</select>';
         })
+        ->editColumn('created_at', function ($row) {
+            return $row->created_at ? Carbon::parse($row->created_at)->format('m/d/Y') : '-';
+        })
+        ->editColumn('updated_at', function ($row) {
+            return $row->updated_at ? Carbon::parse($row->updated_at)->format('m/d/Y') : '-';
+        })
+        ->addColumn('closed', fn() => '-')
+        ->addColumn('supplier', fn() => '-')
+        ->addColumn('amount_charged', fn() => '')
+        ->addColumn('cashback', fn() => '-')
+
         ->rawColumns(['status'])
         ->editColumn('order_item_count', function ($order) {
             $badges = [

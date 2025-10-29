@@ -2,10 +2,6 @@
 
 @section('title', 'BuyList')
 
-@section('styles')
-<link rel="stylesheet" href="https://cdn.datatables.net/colreorder/1.6.2/css/colReorder.dataTables.min.css">
-@endsection
-
 @section('content')
     <div class="row">
         <div class="col-md-12">
@@ -418,8 +414,6 @@
 @endsection
     
 @section('scripts')
-    <!-- DataTables ColReorder extension -->
-    <script src="https://cdn.datatables.net/colreorder/1.6.2/js/dataTables.colReorder.min.js"></script>
     <script>
         // $(document).ready(function () {
         //     const table = $('#buylist-table').DataTable({

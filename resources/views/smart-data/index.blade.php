@@ -352,7 +352,7 @@
                 </div>
 
 
-                <div class="btn-group">
+                <div class="btn-group customize-btn">
                     <button type="button" class="btn btn-soft-primary dropdown-toggle drop-arrow-none" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="true">
                         <i class="ti ti-adjustments-horizontal"></i> Customize
                     </button>
@@ -365,7 +365,7 @@
 
                             <div class="card-body p-2">
                                 <!-- ✅ Sortable list -->
-                                <div class="column-list-draggable">
+                                {{-- <div class="column-list-draggable">
                                     <!-- Publish Date -->
                                     <div class="d-flex justify-content-between align-items-center draggable-item">
                                         <div>
@@ -581,7 +581,8 @@
                                         </div>
                                         <i class="ti ti-grip-vertical grip-icon"></i>
                                     </div>
-                                </div>
+                                </div> --}}
+                                <div class="column-list-draggable"></div>
                             </div>
                         </div>
                     </div>
@@ -592,6 +593,17 @@
     </div>
 
     <div class="row">
+        <div id="select-count-section" class="col-md-12 d-flex mb-2 align-items-center d-none">
+            <div class="dropdown">
+                <button class="btn btn-sm btn-light" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="true">
+                    <i class="ti ti-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#">Add Tags</a></li>
+                </ul>
+            </div>
+            <span class="fw-bold ms-3">Selected: <span id="selectedCount">0</span></span>
+        </div>
         <div class="col-md-12">
             <div id="table-section" class="card">
                 <div class="card-body p-0">
@@ -600,7 +612,7 @@
                             <thead class="table-light">
                                 <tr class="text-nowrap small">
                                     <th>
-                                        <input type="checkbox" class="form-check-input">
+                                        <input type="checkbox" id="selectAll" class="form-check-input">
                                     </th>
                                     <th>Publish Date</th>
                                     <th>Image</th>
@@ -610,6 +622,7 @@
                                     <th>Product Title</th>
                                     <th>Asin</th>
                                     <th>Supplier</th>
+                                    <th>Brand</th>
                                     <th>Cost</th>
                                     <th>Sale Price</th>
                                     <th>Net Profit</th>
@@ -619,7 +632,12 @@
                                     <th>Promo</th>
                                     <th>Coupon Code</th>
                                     <th>Lead Note</th>
+                                    <th>New Offers</th>
+                                    <th>Rating</th>
+                                    <th>Reviews</th>
                                     <th>BSR Current</th>
+                                    <th>Lead Source</th>
+                                    <th>Variations</th>
                                     {{-- <th class="sticky-col">Actions</th> --}}
                                     <th>Actions</th>
                                 </tr>
@@ -640,6 +658,7 @@
     </div>
 
     @include('modals.smart-data.tag-modal')
+    @include('modals.smart-data.smart-data-buylist-modal')
 @endsection
 
 @section('scripts')
@@ -647,7 +666,8 @@
         $(document).ready(function() {
             $('#show-cards').click(function() {
                 $('#table-section').addClass('d-none');  
-                $('#cards-section').removeClass('d-none'); 
+                $('#cards-section').removeClass('d-none');
+                $('.customize-btn').addClass('d-none');
 
                 // Button active state
                 $('#show-cards').removeClass('btn-light').addClass('btn-primary');
@@ -657,6 +677,7 @@
             $('#show-table').click(function() {
                 $('#cards-section').addClass('d-none');  
                 $('#table-section').removeClass('d-none'); 
+                $('.customize-btn').removeClass('d-none');
 
                 // Button active state
                 $('#show-table').removeClass('btn-light').addClass('btn-primary');
@@ -694,6 +715,8 @@
             let table = $('#smart-data-table').DataTable({
                 processing: true,
                 serverSide: true,
+                stateSave: true,
+                colReorder: true,
                 ajax: {
                     url: "{{ route('get.smart.data') }}",
                     data: function (d) {
@@ -738,7 +761,7 @@
                 ordering: true,
                 lengthChange: false,
                 columns: [
-                    { data: 'checkbox' },
+                    { data: 'checkbox', orderable: false, searchable: false },
                     { data: 'date' },
                     { data: 'image' },
                     { data: 'type' },
@@ -747,6 +770,7 @@
                     { data: 'name' },
                     { data: 'asin' },
                     { data: 'supplier' },
+                    { data: null, title: 'Brand', defaultContent: '-', orderable: false },
                     { data: 'cost' },
                     { data: 'sell_price' },
                     { data: 'net_profit' },
@@ -756,14 +780,77 @@
                     { data: 'promo' },
                     { data: 'coupon' },
                     { data: 'notes' },
+                    { data: null, title: 'New Offers', defaultContent: '-', orderable: false },
+                    { data: null, title: 'Rating', defaultContent: '-', orderable: false },
+                    { data: null, title: 'Reviews', defaultContent: '-', orderable: false },
                     { data: 'bsr_current' },
-                    { data: 'actions' }
+                    { data: null, title: 'Lead Source', defaultContent: '-', orderable: false },
+                    { data: null, title: 'Variations', defaultContent: '-', orderable: false },
+                    { data: 'actions', orderable: false, searchable: false}
                 ],
                 columnDefs: [
                     { orderable: false, targets: [0, 2, 4, 19] }
-                ]
+                ],
+                createdRow: function (row) {
+                    $(row).addClass('text-nowrap small');
+                },
+                initComplete: function () {
+                    generateColumnList();
+                }
             });
 
+            // ✅ Dynamic Column List Builder
+            function generateColumnList() {
+                const columnList = $('.column-list-draggable');
+                columnList.empty();
+
+                table.columns().every(function (index) {
+                    // ❌ Skip first & last column
+                    if (index === 0 || index === table.columns().count() - 1) return;
+
+                    const col = table.column(index);
+                    const title = $(col.header()).text().trim() || 'Column ' + index;
+                    const checked = col.visible() ? 'checked' : '';
+
+                    columnList.append(`
+                        <div class="d-flex justify-content-between align-items-center draggable-item" 
+                            data-column-index="${index}">
+                            <div>
+                                <input class="form-check-input col-toggle" type="checkbox" ${checked} id="col-${index}">
+                                <label class="form-check-label ms-2" for="col-${index}">${title}</label>
+                            </div>
+                            <i class="ti ti-grip-vertical grip-icon"></i>
+                        </div>
+                    `);
+                });
+
+                enableColumnListFeatures();
+            }
+
+            function enableColumnListFeatures() {
+                // ✅ Show/Hide columns
+                $(document).off('change', '.col-toggle').on('change', '.col-toggle', function () {
+                    const index = $(this).closest('.draggable-item').data('column-index');
+                    const visible = $(this).is(':checked');
+                    table.column(index).visible(visible);
+                });
+
+                // ✅ Drag & Drop reorder (sync with DataTables)
+                $('.column-list-draggable').sortable({
+                    handle: '.grip-icon',
+                    update: function () {
+                        const newOrder = $('.column-list-draggable .draggable-item').map(function () {
+                            return $(this).data('column-index');
+                        }).get();
+
+                        // Keep first & last fixed
+                        const fullOrder = [0, ...newOrder, table.columns().count() - 1];
+                        table.colReorder.order(fullOrder, true);
+                    }
+                });
+            }
+
+            // for card layout
             function renderCards(data) {
                 const $cardsSection = $('#cards-section .cards-container');
                 $cardsSection.empty(); // clear previous cards
@@ -803,7 +890,7 @@
                                             alt="Product" class="img-fluid rounded" style="max-width:100px;">
                                         <div>
                                             <h5 class="fw-semibold mb-1">${item.name ?? '-'}</h5>
-                                            <span class="badge bg-light text-primary border border-primary">${item.type ?? ''}</span>
+                                            <span class="">${item.type ?? ''}</span>
                                             <a href="#" class="d-block text-decoration-none text-primary mt-1 small fw-semibold">Manage Tags</a>
                                         </div>
                                     </div>
@@ -1181,6 +1268,147 @@
                 const allChecked = $('.column-item input.form-check-input:not(#col-all)').length === 
                                 $('.column-item input.form-check-input:not(#col-all):checked').length;
                 $('#col-all').prop('checked', allChecked);
+            });
+        });
+
+        $(document).ready(function () {
+            // Select all
+            $(document).on('change', '#selectAll', function () {
+                const checked = $(this).is(':checked');
+                $('#smart-data-table tbody .smart-data-checkbox').prop('checked', checked);
+                updateSelectedCount();
+            });
+
+            // Single checkbox change
+            $(document).on('change', '#smart-data-table tbody .smart-data-checkbox', function () {
+                const allChecked =
+                    $('#smart-data-table tbody .smart-data-checkbox').length ===
+                    $('#smart-data-table tbody .smart-data-checkbox:checked').length;
+
+                $('#selectAll').prop('checked', allChecked);
+                updateSelectedCount();
+            });
+
+            // Update counter and bar
+            function updateSelectedCount() {
+                const count = $('#smart-data-table tbody .smart-data-checkbox:checked').length;
+                $('#selectedCount').text(count);
+                if (count > 0) {
+                    $('#select-count-section').removeClass('d-none');
+                } else {
+                    $('#select-count-section').addClass('d-none');
+                }
+            }
+
+            // Reset on table redraw
+            $('#smart-data-table').on('draw.dt', function () {
+                $('#selectAll').prop('checked', false);
+                updateSelectedCount();
+            });
+        });
+
+        $(document).on('click', '.copyNameBtn', function(e) {
+            e.preventDefault();
+
+            const name = $(this).data('name');
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(name).then(() => {
+                toastr.success('Copied: ' + name);
+            }).catch(() => {
+                toastr.error('Failed to copy!');
+            });
+        });
+
+        $(document).on('click', '.movetobuylist', function() {
+            const leadId = $(this).data('id');
+            $.ajax({
+                url: '/smart-data/lead/' + leadId,
+                type: 'GET',
+                success: function(response) {
+                    if(response.success) {
+                        const lead = response.lead;
+
+                        // Fill modal fields
+                        $('#editItemsModalLabel').text(lead.name || 'Product Title');
+                        $('#editItemsModal img').attr('src', lead.image_url || 'https://app.sourceflow.io/storage/images/no-image-thumbnail.png');
+                        $('#est_selling_price').val(lead.sell_price);
+
+                        $('#name').val(lead.name);
+                        $('#asin').val(lead.asin);
+                        $('#category').val(lead.category);
+                        $('#unitsPurchased').val(lead.quantity);
+                        $('#costPerUnit').val(lead.cost);
+                        $('#sellingPrice').val(lead.sell_price);
+                        $('#netProfit').val(lead.net_profit);
+                        $('#roi').val(lead.roi);
+                        $('#bsr_ninety').val(lead.bsr);
+                        // $('#msku').val(lead.msku);
+                        // $('#listPrice').val(lead.list_price);
+                        // $('#minPrice').val(lead.min);
+                        // $('#maxPrice').val(lead.max);
+                        $('#supplier').val(lead.supplier);
+                        $('#source_url').val(lead.url);
+                        // $('#brand').val(lead.brand);
+                        // $('#variation').val(lead.variation_details);
+                        $('#promo').val(lead.promo);
+                        $('#coupon_code').val(lead.coupon);
+                        $('#product_note').val(lead.notes);
+                        // $('#buyerNote').val(lead.buyer_note);
+
+                        // Optional: smart data tab
+                        $('#smart-date').text(lead.date || '-');
+                        $('#smart-supplier').text(lead.supplier || '-');
+                        $('#smart-buy-cost').text('$' + (lead.cost || '0'));
+                        $('#smart-net-cost').text('$' + (lead.net_profit || '0'));
+                        $('#smart-roi').text(lead.roi || '0%');
+                        $('#smart-bsr').text(lead.bsr || '-');
+                        $('#supplier-link').attr('href', lead.url || '#');
+
+                        // Show modal
+                        $('#editItemsModal').modal('show');
+                    } else {
+                        toastr.error('Failed to fetch lead data.');
+                    }
+                },
+                error: function() {
+                    toastr.error('Something went wrong!');
+                }
+            });
+        });
+
+        $(document).on('click', '#leadFieldsHideShow', function () {
+            const section = $('#leadFieldsSection');
+            const icon = $(this).find('i');
+            
+            section.toggleClass('d-none');
+            
+            if (section.hasClass('d-none')) {
+                $(this).html('Show Details <i class="ti ti-chevron-down"></i>');
+            } else {
+                $(this).html('Hide Details <i class="ti ti-chevron-up"></i>');
+            }
+        });
+
+        $(document).on('click', '.btn-plus', function () {
+            const input = $(this).siblings('input[type="number"]');
+            let value = parseInt(input.val()) || 1;
+            input.val(value + 1);
+        });
+
+        $(document).on('click', '.btn-minus', function () {
+            const input = $(this).siblings('input[type="number"]');
+            let value = parseInt(input.val()) || 1;
+            if (value > 1) {
+                input.val(value - 1);
+            }
+        });
+
+        $(document).ready(function() {
+            $('#multiBuyList').select2({
+                placeholder: 'Select Buy List',
+                allowClear: true,
+                width: '100%'
             });
         });
     </script>

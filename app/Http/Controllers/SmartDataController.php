@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Buylist;
 use App\Models\Lead;
 use App\Models\Tag;
 use Illuminate\Http\Request;
@@ -17,7 +18,8 @@ class SmartDataController extends Controller
     public function index()
     {
         $tags = Tag::all();
-        return view('smart-data.index', compact('tags'));
+        $buylist = Buylist::all();
+        return view('smart-data.index', compact('tags', 'buylist'));
     }
 
     public function getSmartData(Request $request)
@@ -87,7 +89,7 @@ class SmartDataController extends Controller
             $leads->orderByDesc('date');
 
             return DataTables::of($leads)
-                ->addColumn('checkbox', fn($lead) => '<input type="checkbox" class="form-check-input">')
+                ->addColumn('checkbox', fn($lead) => '<input type="checkbox" class="form-check-input smart-data-checkbox">')
 
                 // 🖼️ Static image (no image column in DB)
                 ->addColumn('image', fn() => '<img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" width="60">')
@@ -251,14 +253,14 @@ class SmartDataController extends Controller
                     }
                     return '
                         <div class="d-flex justify-content-center gap-1">
-                            <button class="btn btn-sm btn-success"><i class="ti ti-currency-dollar"></i></button>
+                            <button class="btn btn-sm btn-success movetobuylist" data-id="' . $lead->id . '"><i class="ti ti-currency-dollar"></i></button>
                             <a href="' . e($url) . '" class="btn btn-sm btn-light"><i class="ti ti-external-link"></i></a>
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="ti ti-dots-vertical"></i></button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i> Copy to Clipboard</a></li>
-                                    <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i> Edit Item Details</a></li>
-                                    <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i> Delete Lead</a></li>
+                                    <li><a class="dropdown-item copyNameBtn" href="#" data-name="' . e($lead->name) . '">
+                                        <i class="ti ti-copy me-2"></i> Copy to Clipboard
+                                    </a></li>
                                 </ul>
                             </div>
                         </div>
@@ -266,6 +268,25 @@ class SmartDataController extends Controller
                 })
                 ->rawColumns(['checkbox', 'image', 'type', 'tags', 'name', 'asin', 'supplier', 'actions'])
                 ->make(true);
+        }
+    }
+
+    public function showSmartData($id)
+    {
+        try {
+            $lead = Lead::findOrFail($id);
+
+            $lead->image_url = $lead->image_url ?? 'https://app.sourceflow.io/storage/images/no-image-thumbnail.png';
+
+            return response()->json([
+                'success' => true,
+                'lead' => $lead
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lead not found.'
+            ], 404);
         }
     }
 

@@ -8,6 +8,9 @@
             </div>
 
             <form id="addLeadForm">
+                @csrf
+                
+                <input type="hidden" name="lead_id" id="lead_id">
                 <div class="modal-body p-4 overflow-auto" style="max-height:70vh;">
                     <!-- Lead Source -->
                     <div class="mb-2">

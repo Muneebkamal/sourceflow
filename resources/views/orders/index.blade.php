@@ -96,7 +96,7 @@
 
                             <div class="card-body p-2">
                                 <!-- ✅ Sortable list -->
-                                <div class="column-list-draggable">
+                                {{-- <div class="column-list-draggable">
                                     <!-- Created -->
                                     <div class="d-flex justify-content-between align-items-center draggable-item">
                                         <div>
@@ -294,7 +294,8 @@
                                         </div>
                                         <i class="ti ti-grip-vertical grip-icon"></i>
                                     </div>
-                                </div>
+                                </div> --}}
+                                <div class="column-list-draggable"></div>
                             </div>
                         </div>
                     </div>
@@ -324,14 +325,25 @@
                             <thead class="table-light">
                                 <tr class="text-nowrap small">
                                     <th><input type="checkbox" id="selectAll" class="form-check-input"></th>
+                                    <th>Created</th>
                                     <th>Order Date</th>
+                                    <th>Updated</th>
+                                    <th>Closed</th>
                                     <th>Order #</th>
+                                    <th>Email</th>
                                     <th>Supplier</th>
+                                    <th>Shipping</th>
                                     <th>Order Total</th>
+                                    <th>Card Used</th>
+                                    <th>Amount Charged</th>
                                     <th>Order Status</th>
+                                    <th>Destination</th>
                                     <th>O-R-L-E-F</th>
                                     <th>Order Note</th>
                                     <th>Events</th>
+                                    <th>Cash Back Src</th>
+                                    <th>Cash Back %</th>
+                                    <th>Cash Back</th>
                                     <th class="sticky-col text-center">Actions</th>
                                 </tr>
                             </thead>
@@ -351,6 +363,7 @@
         var table = $('#orders-table').DataTable({
             processing: true,
             serverSide: true,
+            stateSave: true,
             ajax: {
                 url: '{{ route("orders.data") }}',
                 data: function(d) {
@@ -370,19 +383,81 @@
             searching: false,
             lengthChange: false,
             ordering: false,
+            colReorder: true, // 🔹 enable column reordering
             columns: [
-                { data: 'checkbox', orderable: false, searchable: false },
+                { data: 'checkbox', orderable: false, searchable: false }, // fixed, hidden from list
+                { data: 'created_at', name: 'created_at' },
                 { data: 'date', name: 'date' },
+                { data: 'updated_at', name: 'updated_at' },
+                { data: 'closed', name: 'closed' },
                 { data: 'order_id', name: 'order_id' },
-                { data: 'source', name: 'source' },
+                { data: 'email', name: 'email' },
+                { data: 'supplier', name: 'supplier' },
+                { data: 'shipping_cost', name: 'shipping_cost' },
                 { data: 'total', name: 'total' },
+                { data: 'card_used', name: 'card_used' },
+                { data: 'amount_charged', name: 'amount_charged' },
                 { data: 'status', name: 'status' },
+                { data: 'destination', name: 'destination' },
                 { data: 'order_item_count', name: 'order_item_count' },
                 { data: 'note', name: 'note' },
                 { data: 'event', name: 'event' },
-                { data: 'actions', orderable: false, searchable: false }
+                { data: 'cash_back_source', name: 'cash_back_source' },
+                { data: 'cash_back_percentage', name: 'cash_back_percentage' },
+                { data: 'cashback', name: 'cashback' },
+                { data: 'actions', orderable: false, searchable: false } // fixed, hidden from list
             ]
         });
+
+        function generateColumnList() {
+            const columnList = $('.column-list-draggable');
+            columnList.empty();
+
+            const lockedColumns = ['order_id', 'total', 'order_item_count'];
+
+            table.columns().every(function (index) {
+                if (index === 0 || index === table.columns().count() - 1) return; // skip first & last
+
+                const col = table.column(index);
+                const title = $(col.header()).text().trim() || 'Column ' + index;
+                const checked = col.visible() ? 'checked' : '';
+
+                // get the column data name
+                const colName = col.dataSrc();
+
+                // check if column should be locked
+                const isLocked = lockedColumns.includes(colName);
+
+                columnList.append(`
+                    <div class="d-flex justify-content-between align-items-center draggable-item" data-column-index="${index}">
+                        <div>
+                            <input class="form-check-input col-toggle" type="checkbox" ${checked} ${isLocked ? 'disabled' : ''} id="col-${index}">
+                            <label class="form-check-label ms-2" for="col-${index}">${title}</label>
+                        </div>
+                        <i class="ti ti-grip-vertical grip-icon"></i>
+                    </div>
+                `);
+            });
+        }
+
+        table.on('init.dt', generateColumnList);
+
+        $(document).on('change', '.col-toggle', function() {
+            const index = $(this).closest('.draggable-item').data('column-index');
+            table.column(index).visible($(this).is(':checked'));
+        });
+
+        $('.column-list-draggable').sortable({
+            handle: '.grip-icon',
+            update: function() {
+                const newMiddle = $('.column-list-draggable .draggable-item').map(function () {
+                    return $(this).data('column-index');
+                }).get();
+                const fullOrder = [0, ...newMiddle, table.columns().count() - 1];
+                table.colReorder.order(fullOrder);
+            }
+        });
+
 
         // Reload table when search or status changes
         $('#searchInput, #statusFilter').on('change keyup', function() {
