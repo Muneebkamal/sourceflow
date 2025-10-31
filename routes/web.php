@@ -44,7 +44,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tags/{id}/update', [TagController::class, 'update'])->name('tags.update');
     Route::post('/tags/{id}/delete', [TagController::class, 'destroy'])->name('tags.delete');
     Route::get('smart-data/lead/{id}', [SmartDataController::class, 'showSmartData'])->name('smart.data.lead');
-
+    Route::post('/buylist/add-item', [SmartDataController::class, 'addItem'])->name('buylist.addItem');
 
 
     // Buylists route
@@ -84,6 +84,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/create-order', [OrderController::class, 'create'])->name('orders.create');
     Route::post('/orders/{order}/update-full', [OrderController::class, 'updateFull'])->name('orders.updateFull');
     Route::post('/orders/delete-line-item', [OrderController::class, 'deleteLineItem'])->name('orders.deleteLineItem');
+    Route::post('/order-items/duplicate/{id}', [OrderController::class, 'duplicateItem'])
+    ->name('order.items.duplicate');
+    Route::post('/order-items/delete/{id}', [OrderController::class, 'deleteItem'])
+    ->name('order.items.delete');
+    Route::post('/order-items/bulk-delete', [OrderController::class, 'bulkDeleteItems'])
+    ->name('order.items.bulk.delete');
+
 
 
     // Shipping routes

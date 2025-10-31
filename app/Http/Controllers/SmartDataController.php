@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Buylist;
 use App\Models\Lead;
+use App\Models\LineItem;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -277,16 +278,66 @@ class SmartDataController extends Controller
             $lead = Lead::findOrFail($id);
 
             $lead->image_url = $lead->image_url ?? 'https://app.sourceflow.io/storage/images/no-image-thumbnail.png';
+            $buylist = LineItem::whereIn('lead_id', [$lead->id])
+                ->whereNotNull('buylist_id')
+                ->get();
+
+            $buylistIds = $buylist->pluck('buylist_id')->toArray();
 
             return response()->json([
                 'success' => true,
-                'lead' => $lead
+                'lead' => $lead,
+                'buylist_ids' => $buylistIds
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Lead not found.'
             ], 404);
+        }
+    }
+
+    public function addItem(Request $request)
+    {
+        // dd($request->all());
+        $lead = Lead::where('id', $request->lead_id)->first();
+        try {
+            foreach ($request->buylist_ids as $buylistId) {
+                LineItem::create([
+                    'lead_id' => $request->lead_id,
+                    'is_buylist' => 1,
+                    'buylist_id' => $buylistId,
+                    'name' => $request->name,
+                    'asin' => $request->asin,
+                    'buy_cost' => $request->buy_cost,
+                    'selling_price' => $request->est_selling_price,
+                    'unit_purchased' => $request->purchaseQty,
+                    'msku' => $request->msku,
+                    'list_price' => $request->list_price,
+                    'min' => $request->min,
+                    'max' => $request->max,
+                    'net_profit' => $request->net_profit,
+                    'bsr' => $request->bsr_ninety,
+                    'source_url' => $request->source_url,
+                    'supplier' => $request->supplier,
+                    'promo' => $request->promo,
+                    'coupon_code' => $request->coupon_code,
+                    'product_buyer_notes' => $request->buyer_note,
+                    'order_note' => $request->product_note,
+
+                    'category' => $lead->category,
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => count($request->buylist_ids) . ' Buy List(s) updated successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
         }
     }
 

@@ -9,6 +9,7 @@ class LineItem extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'lead_id',
         'order_id',
         'buylist_id',
         'is_buylist',
