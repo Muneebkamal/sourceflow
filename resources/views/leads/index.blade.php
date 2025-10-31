@@ -180,7 +180,8 @@
                                         <th>Latest Updated</th>
                                         <th>Parent ASIN</th>
                                         <th>Note</th>
-                                        <th class="sticky-col text-center">Actions</th>
+                                        <th>Actions</th>
+                                        {{-- <th class="sticky-col">Actions</th> --}}
                                     </tr>
                                     </thead>
 
@@ -412,7 +413,6 @@
                     name: 'actions',
                     orderable: false,
                     searchable: false,
-                    className: 'text-center sticky-col',
                     title: 'Actions'
                 }
             ],
@@ -420,6 +420,10 @@
             initComplete: function () {
                 generateColumnList();
             }
+        });
+        table.on('draw.dt', function () {
+            // Force min-height when table is empty
+            $('.dataTables_scrollBody').css('min-height', '40vh');
         });
 
         // 🔹 Generate dynamic column list
@@ -435,11 +439,17 @@
                 const title = $(col.header()).text().trim() || 'Column ' + index;
                 const checked = col.visible() ? 'checked' : '';
 
+                // Columns that must always be visible and disabled
+                const alwaysVisible = ['Product Title', 'ASIN', 'Cost', 'Selling Price'];
+
+                const isDisabled = alwaysVisible.includes(title);
+                const disableAttr = isDisabled ? 'disabled' : '';
+
                 columnList.append(`
                     <div class="d-flex justify-content-between align-items-center draggable-item" 
                         data-column-index="${index}">
                         <div>
-                            <input class="form-check-input col-toggle" type="checkbox" ${checked} id="col-${index}">
+                            <input class="form-check-input col-toggle" type="checkbox" ${checked} ${disableAttr} id="col-${index}">
                             <label class="form-check-label ms-2" for="col-${index}">${title}</label>
                         </div>
                         <i class="ti ti-grip-vertical grip-icon"></i>
@@ -841,7 +851,7 @@
                     success: function (response) {
                         if (response.success) {
                             toastr.success(response.message);
-                            setTimeout(() => location.reload(), 2000);
+                            $('#leads-table').DataTable().ajax.reload(null, false);
                         } else {
                             toastr.error(response.message || 'Something went wrong.');
                         }
@@ -885,7 +895,7 @@
                     success: function (response) {
                         if (response.success) {
                             toastr.success(response.message || 'Leads deleted successfully.');
-                            setTimeout(() => location.reload(), 1500);
+                            $('#leads-table').DataTable().ajax.reload(null, false);
                         } else {
                             toastr.error(response.message || 'Something went wrong.');
                         }
@@ -944,9 +954,7 @@
                     if (response.success) {
                         toastr.success(response.message);
                         $('#bulkMoveLeadModal').modal('hide');
-                        setTimeout(() => {
-                            location.reload();
-                        }, 2000);
+                        $('#leads-table').DataTable().ajax.reload(null, false);
                     } else {
                         toastr.error(response.message || 'Something went wrong.');
                     }
@@ -1007,10 +1015,7 @@
                     if (response.success) {
                         toastr.success(response.message);
                         $('#bulkPublishDateModal').modal('hide');
-
-                        setTimeout(() => {
-                            location.reload();
-                        }, 2000);
+                        $('#leads-table').DataTable().ajax.reload(null, false);
                     } else {
                         toastr.error(response.message || 'Something went wrong.');
                     }

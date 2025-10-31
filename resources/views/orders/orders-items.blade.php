@@ -93,7 +93,7 @@
 
                             <div class="card-body p-2">
                                 <!-- ✅ Sortable list -->
-                                <div class="column-list-draggable">
+                                {{-- <div class="column-list-draggable">
                                     <!-- Created -->
                                     <div class="d-flex justify-content-between align-items-center draggable-item">
                                         <div>
@@ -291,7 +291,8 @@
                                         </div>
                                         <i class="ti ti-grip-vertical grip-icon"></i>
                                     </div>
-                                </div>
+                                </div> --}}
+                                <div class="column-list-draggable"></div>
                             </div>
                         </div>
                     </div>
@@ -309,20 +310,43 @@
                             <thead class="table-light">
                                 <tr class="text-nowrap small">
                                     <th><input type="checkbox" class="form-check-input"></th>
+                                    <th>Supplier</th>
+                                    <th>Estimated Selling Price</th>
                                     <th>Order Date</th>
                                     <th>Order #</th>
+                                    <th>Bsr</th>
+                                    <th>Email</th>
                                     <th>Product Title</th>
+                                    <th>Asin</th>
+                                    <th>Variation Details</th>
+                                    <th>UCP Code</th>
+                                    <th>AsinRecord</th>
                                     <th>Cost per Unit</th>
                                     <th>SKU Total Cost</th>
+                                    <th>Subtotal</th>
                                     <th>Order Total</th>
+                                    <th>Card Used</th>
                                     <th>Order Status</th>
+                                    <th>Destination</th>
+                                    <th>Units Purchased</th>
+                                    <th>Units Recorded</th>
+                                    <th>Units Shipped</th>
+                                    <th>Units Fixed</th>
+                                    <th>Unit Errors</th>
                                     <th>O-R-L-E-F</th>
                                     <th>Order Note</th>
                                     <th>Item Events</th>
-                                    {{-- <th>Product Note</th>
-                                    <th>Parent Order Note</th> --}}
+                                    <th>Product Note</th>
+                                    <th>List Price</th>
+                                    <th>Min List Price</th>
+                                    <th>Max List Price</th>
+                                    <th>Parent Order Note</th>
+                                    <th>Buyer Note</th>
+                                    <th>Created</th>
+                                    <th>Last Update</th>
                                     <th>Image</th>
-                                    <th class="sticky-col text-center">Actions</th>
+                                    <th>Action</th>
+                                    {{-- <th class="sticky-col text-center">Actions</th> --}}
                                 </tr>
                             </thead>
                         </table>
@@ -340,6 +364,8 @@
         var table = $('#order-items-table').DataTable({
             processing: true,
             serverSide: true,
+            stateSave: true,
+            stateDuration: -1,
             ajax: {
                 url: '{{ route("data.orders.items") }}',
                 data: function(d) {
@@ -359,23 +385,101 @@
             searching: false,
             lengthChange: false,
             ordering: false,
+            colReorder: true,
             columns: [
-                { data: 'checkbox', orderable: false, searchable: false },
+                { data: 'checkbox', orderable: false, searchable: false }, // 0 ✅ DO NOT SHOW IN LIST
+
+                { data: 'supplier', name: 'supplier' },
+                { data: 'selling_price', name: 'estimated_selling_price' },
                 { data: 'date', name: 'date' },
                 { data: 'order_id', name: 'order_id' },
+                { data: 'bsr', name: 'bsr' },
+                { data: 'email', name: 'email' },
                 { data: 'name', name: 'name' },
+                { data: 'asin', name: 'asin' },
+                { data: 'variation_details', defaultContent: '--', name: 'variation_details' },
+                { data: 'upc', name: 'upc' },
+                { data: 'asin', name: 'asin' },
                 { data: 'buy_cost', name: 'buy_cost' },
                 { data: 'sku_total', name: 'sku_total' },
-                { data: 'sku_total', name: 'sku_total' },
+                { data: 'subtotal', name: 'subtotal' },
+                { data: 'order_total', name: 'order_total' },
+                { data: 'card_used', name: 'card_used' },
                 { data: 'status', name: 'status' },
+                { data: 'destination', name: 'destination' },
+                { data: 'total_units_purchased', name: 'total_units_purchased' },
+                { data: 'total_units_received', name: 'total_units_received' },
+                { data: 'total_units_shipped', name: 'total_units_shipped' },
+                { data: 'total_units_fixed', defaultContent: '--', name: 'total_units_fixed' },
+                { data: 'unit_errors', name: 'unit_errors' },
                 { data: 'order_item_count', name: 'order_item_count' },
                 { data: 'order_note', name: 'order_note' },
-                { data: 'event', name: 'event' },
-                // { data: 'total', name: 'total' },
-                // { data: 'note', name: 'note' },
+                { data: 'item_events', defaultContent: '--', name: 'item_events' },
+                { data: 'order_note', name: 'order_note' },
+                { data: 'list_price', name: 'list_price' },
+                { data: 'min', name: 'min' },
+                { data: 'max', name: 'max' },
+                { data: 'parent_order_note', name: 'parent_order_note' },
+                { data: 'product_buyer_notes', name: 'product_buyer_notes' },
+                { data: 'created_at', name: 'created_at' },
+                { data: 'updated_at', name: 'updated_at' },
                 { data: 'image', name: 'image' },
-                { data: 'actions', orderable: false, searchable: false }
+
+                { data: 'actions', orderable: false, searchable: false } // 36 ✅ DO NOT SHOW IN LIST
             ]
+        });
+
+        function generateColumnList() {
+            const list = $('.column-list-draggable');
+            list.find(".dynamic-col").remove(); // remove old
+
+            table.columns().every(function (index) {
+                if (index === 0 || index === table.columns().count() - 1) return; // skip first & last
+
+                const col = table.column(index);
+                const title = $(col.header()).text().trim() || `Column ${index}`;
+                const visible = col.visible() ? "checked" : "";
+                let disabled = '';
+                if (title.toLowerCase() === 'product title') {
+                    disabled = 'disabled checked';
+                }
+
+                list.append(`
+                    <div class="d-flex justify-content-between align-items-center draggable-item dynamic-col" data-col="${index}">
+                        <div>
+                            <input class="form-check-input column-toggle" type="checkbox" data-col="${index}" ${visible} ${disabled}>
+                            <label class="form-check-label ms-2">${title}</label>
+                        </div>
+                        <i class="ti ti-grip-vertical grip-icon"></i>
+                    </div>
+                `);
+            });
+
+            enableDrag();
+        }
+
+        function enableDrag() {
+            $(".column-list-draggable").sortable({
+                handle: ".grip-icon",
+                update: function () {
+                    let newOrder = [];
+
+                    $(".dynamic-col").each(function () {
+                        newOrder.push($(this).data("col"));
+                    });
+
+                    table.colReorder.order([0, ...newOrder, 36]); // keep first & last fixed
+                }
+            });
+        }
+
+        $(document).on("change", ".column-toggle", function () {
+            const index = $(this).data("col");
+            table.column(index).visible(this.checked);
+        });
+
+        table.on("init", function () {
+            generateColumnList();
         });
 
         // Reload table when search or status changes

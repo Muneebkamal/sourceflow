@@ -599,7 +599,7 @@
                     { data: 'name', title: 'Product Title', defaultContent: '--' },
                     { data: 'variations', title: 'Variation Details', defaultContent: '--' },
                     { data: 'supplier', title: 'Supplier', defaultContent: '--' },
-                    { data: 'cost', title: 'Buy Cost', defaultContent: '--' },
+                    { data: 'buy_cost', title: 'Buy Cost', defaultContent: '--' },
                     { data: 'selling_price', title: 'Estimated Selling Price', defaultContent: '$0.00', render: d => d ? `$${parseFloat(d).toFixed(2)}` : '$0.00' },
                     { data: 'unit_purchased', title: 'Quantity (To Purchase)', defaultContent: '--' },
                     { data: 'bsr', title: 'BSR 90D Avg', defaultContent: '--' },

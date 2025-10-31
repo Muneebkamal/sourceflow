@@ -58,7 +58,7 @@ class BuylistController extends Controller
                 $fullName = e($b->name);
                 return "<div class='text-truncate-multiline' data-bs-toggle='tooltip' title='{$fullName}'>{$fullName}</div>";
             })
-            ->editColumn('cost', fn($b) => '$' . number_format((float)$b->cost, 2))
+            ->editColumn('buy_cost', fn($b) => '$' . number_format((float)$b->buy_cost, 2))
             ->addColumn('variations', function ($b) {
                 $badges = '';
                 if ($b->is_hot) $badges .= '<span class="badge bg-primary">Hot</span> ';

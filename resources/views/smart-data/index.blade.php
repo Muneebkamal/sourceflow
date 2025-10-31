@@ -1329,12 +1329,21 @@
                     if(response.success) {
                         const lead = response.lead;
 
+                        // Clear previous selections
+                        $('#multiBuyList').val([]).trigger('change');
+
+                        // Select related buy lists if any
+                        if (response.buylist_ids && response.buylist_ids.length > 0) {
+                            $('#multiBuyList').val(response.buylist_ids).trigger('change');
+                        }
+
                         // Fill modal fields
-                        $('#editItemsModalLabel').text(lead.name || 'Product Title');
-                        $('#editItemsModal img').attr('src', lead.image_url || 'https://app.sourceflow.io/storage/images/no-image-thumbnail.png');
+                        $('#addtoBuylistModalLabel').text(lead.name || 'Product Title');
+                        $('#addtoBuylistModal img').attr('src', lead.image_url || 'https://app.sourceflow.io/storage/images/no-image-thumbnail.png');
                         $('#est_selling_price').val(lead.sell_price);
 
                         $('#name').val(lead.name);
+                        $('#lead_id').val(lead.id);
                         $('#asin').val(lead.asin);
                         $('#category').val(lead.category);
                         $('#unitsPurchased').val(lead.quantity);
@@ -1366,7 +1375,7 @@
                         $('#supplier-link').attr('href', lead.url || '#');
 
                         // Show modal
-                        $('#editItemsModal').modal('show');
+                        $('#addtoBuylistModal').modal('show');
                     } else {
                         toastr.error('Failed to fetch lead data.');
                     }
@@ -1411,6 +1420,42 @@
                 width: '100%'
             });
         });
+
+        $(document).on('submit', '#add-to-buylist-form', function (e) {
+            e.preventDefault();
+
+            const form = $(this);
+            const submitBtn = $('button[form="add-to-buylist-form"]');
+            const selectedBuyLists = $('#multiBuyList').val();
+
+            if (!selectedBuyLists || selectedBuyLists.length === 0) {
+                toastr.error('Please select at least one Buy List.');
+                return;
+            }
+
+            submitBtn.prop('disabled', true).text('Adding...');
+
+            $.ajax({
+                url: "{{ route('buylist.addItem') }}",
+                method: "POST",
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        form[0].reset();
+                    } else {
+                        toastr.error(response.message || 'Something went wrong.');
+                    }
+                },
+                error: function () {
+                    toastr.error('Server error. Please try again.');
+                },
+                complete: function () {
+                    submitBtn.prop('disabled', false).text('Add to Buylist');
+                }
+            });
+        });
+
     </script>
 
 @endsection

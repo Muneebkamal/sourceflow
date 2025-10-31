@@ -306,7 +306,7 @@
 
                                 <div class="card-body p-2">
                                     <!-- ✅ Sortable list -->
-                                    <div class="column-list-draggable">
+                                    {{-- <div class="column-list-draggable">
                                         <!-- Publish Date -->
                                         <div class="d-flex justify-content-between align-items-center draggable-item">
                                             <div>
@@ -522,7 +522,8 @@
                                             </div>
                                             <i class="ti ti-grip-vertical grip-icon"></i>
                                         </div>
-                                    </div>
+                                    </div> --}}
+                                    <div class="column-list-draggable"></div>
                                 </div>
                             </div>
                         </div>
@@ -530,16 +531,31 @@
                 </div>
             </div>
 
+            <div id="select-count-section" class="d-flex mb-2 align-items-center d-none">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="true">
+                        <i class="ti ti-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item updateStatusBtn" href="#">Update Status</a></li>
+                        <li><a class="dropdown-item text-danger bulkDelBtn" href="#">Delete</a></li>
+                    </ul>
+                </div>
+                <span class="fw-bold ms-3">Selected: <span id="selectedCount">0</span></span>
+            </div>
             <div class="card mt-3">
-                <div class="card-body p-0">
+                <div class="card-body p-0"> 
                     <div class="table-responsive">
                         <table id="order-items-table" class="table align-middle w-100 mb-0 table-hover">
                             <thead class="table-light">
                                 <tr class="text-nowrap small">
-                                    <th><input type="checkbox" class="form-check-input"></th>
+                                    <th><input type="checkbox" id="selectAll" class="form-check-input"></th>
+                                    <th>Parent Order Note</th>
                                     <th>Image</th>
+                                    <th>Order Ref Number</th>
                                     <th>Product Title</th>
                                     <th>Variation Details</th>
+                                    <th>AsinRecord</th>
                                     <th>ASIN</th>
                                     <th>MSKU</th>
                                     <th>QTY</th>
@@ -547,8 +563,14 @@
                                     <th>SKU Total</th>
                                     <th>O-R-L-E-F</th>
                                     <th>Product Note</th>
+                                    <th>List Price</th>
+                                    <th>Min Price</th>
+                                    <th>Max price</th>
+                                    <th>Order Date</th>
+                                    <th>BSR Current</th>
                                     <th>Buyer Note</th>
-                                    <th class="sticky-col text-center">Actions</th>
+                                    <th>Actions</th>
+                                    {{-- <th class="sticky-col text-center">Actions</th> --}}
                                 </tr>
                             </thead>
                         </table>
@@ -565,195 +587,33 @@
 
 @section('scripts')
 <script>
-    // $(document).ready(function() {
-    //     let table = $('#order-items-table').DataTable({
-    //         processing: true,
-    //         serverSide: true,
-    //         ajax: '{{ route('order.items', $order->id) }}',
-    //         scrollY: '40vh',
-    //         scrollX: true,
-    //         scrollCollapse: true,
-    //         paging: true,
-    //         searching: false,
-    //         lengthChange: false,
-    //         ordering: false,
-    //         columns: [
-    //             { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false },
-    //             { data: 'image', name: 'image' },
-    //             { data: 'name', name: 'name' },
-    //             { data: 'variation_details', name: 'variation_details' },
-    //             { data: 'asin', name: 'asin' },
-    //             { data: 'msku', name: 'msku' },
-    //             { data: 'qty', name: 'qty' },
-    //             { data: 'cost', name: 'cost' },
-    //             { data: 'sku_total', name: 'sku_total' },
-    //             { data: 'orlef', name: 'orlef' },
-    //             { data: 'product_note', name: 'product_note' },
-    //             { data: 'buyer_note', name: 'buyer_note' },
-    //             { data: 'actions', name: 'actions', orderable: false, searchable: false },
-    //         ]
-    //     });
-
-    //     // Update count label
-    //     table.on('xhr.dt', function(e, settings, json, xhr) {
-    //         $('#items-count').text(json?.recordsTotal ?? 0);
-    //     });
-
-    //     // -------------------------------
-    //     // Modal & Data Handling
-    //     // -------------------------------
-    //     let itemsData = [];
-    //     let currentIndex = 0;
-
-    //     // ✅ Populate modal with item data
-    //     function populateModal(item) {
-    //         const data = item.raw || {};
-    //         const modal = $('#editItemsModal');
-
-    //         modal.find('#editItemsModalLabel').text(data.name ?? '-');
-    //         modal.find('img[alt="Product Image"]').attr('src', 'https://app.sourceflow.io/storage/images/no-image-thumbnail.png');
-
-    //         modal.find('#name').val(data.name ?? '');
-    //         modal.find('#asin').val(data.asin ?? '');
-    //         modal.find('#variation').val(data.variation_details ?? '');
-    //         modal.find('#msku').val(data.msku ?? '');
-    //         modal.find('#category').val(data.category ?? '');
-    //         modal.find('#supplier').val(data.supplier ?? '');
-    //         modal.find('#unitsPurchased').val(data.qty ?? '');
-    //         modal.find('#costPerUnit').val(data.cost ?? '');
-    //         modal.find('#sellingPrice').val(data.selling_price ?? '');
-    //         modal.find('#netProfit').val(data.net_profit ?? '');
-    //         modal.find('#listPrice').val(data.list_price ?? '');
-    //         modal.find('#minPrice').val(data.min ?? '');
-    //         modal.find('#maxPrice').val(data.max ?? '');
-    //         modal.find('#roi').val(data.roi ?? '');
-    //         modal.find('#bsr_ninety').val(data.bsr ?? '');
-    //         modal.find('#source_url').val(data.source_url ?? '');
-    //         modal.find('#promo').val(data.promo ?? '');
-    //         modal.find('#coupon_code').val(data.coupon_code ?? '');
-    //         modal.find('#product_note').val(data.product_note ?? '');
-    //         modal.find('#buyerNote').val(data.buyer_note ?? '');
-
-    //         // 🔹 Smart Info (your new section)
-    //         modal.find('#smart-date').text(data.create_at ?? '-');
-    //         modal.find('#smart-supplier').text(data.supplier ?? '-');
-    //         // Supplier link (open in new tab)
-    //         if (data.source_url) {
-    //             modal.find('#supplier-link')
-    //                 .attr('href', data.source_url)
-    //                 .show();
-    //         } else {
-    //             modal.find('#supplier-link')
-    //                 .attr('href', '#')
-    //                 .hide();
-    //         }
-
-    //         modal.find('#smart-buy-cost').text(data.buy_cost ? `$${parseFloat(data.buy_cost).toFixed(2)}` : '$0');
-    //         modal.find('#smart-net-cost').text(data.net_cost ? `$${parseFloat(data.net_cost).toFixed(2)}` : '$0');
-    //         modal.find('#smart-roi').text(data.roi ? `${data.roi}%` : '0%');
-    //         modal.find('#smart-bsr').text(data.bsr ?? '-');
-
-    //         // ✅ Update counter & button states
-    //         modal.find('#item-position').text(`${currentIndex + 1} of ${itemsData.length}`);
-    //         modal.find('#prev-item').prop('disabled', currentIndex === 0);
-    //         modal.find('#next-item').prop('disabled', currentIndex === itemsData.length - 1);
-    //     }
-
-    //     // ✅ Edit button inside DataTable rows
-    //     $(document).on('click', '.edit-item', function(e) {
-    //         e.preventDefault();
-
-    //         const id = $(this).data('id');
-    //         itemsData = table.rows({ page: 'current' }).data().toArray();
-    //         currentIndex = itemsData.findIndex(item => item.id == id);
-
-    //         if (currentIndex >= 0) {
-    //             populateModal(itemsData[currentIndex]);
-    //             $('#editItemsModal').modal('show');
-    //         } else {
-    //             console.error('Item not found for ID:', id);
-    //         }
-    //     });
-
-    //     // ✅ Next button
-    //     $(document).on('click', '#next-item', function() {
-    //         if (currentIndex < itemsData.length - 1) {
-    //             currentIndex++;
-    //             populateModal(itemsData[currentIndex]);
-    //         }
-    //     });
-
-    //     // ✅ Previous button
-    //     $(document).on('click', '#prev-item', function() {
-    //         if (currentIndex > 0) {
-    //             currentIndex--;
-    //             populateModal(itemsData[currentIndex]);
-    //         }
-    //     });
-
-    //     // ✅ “Edit Items” main button (first item)
-    //     $(document).on('click', '#openEditItems', function() {
-    //         itemsData = table.rows({ page: 'current' }).data().toArray();
-    //         if (itemsData.length > 0) {
-    //             currentIndex = 0;
-    //             populateModal(itemsData[currentIndex]);
-    //             $('#editItemsModal').modal('show');
-    //         } else {
-    //             alert('No items found in this order.');
-    //         }
-    //     });
-    // });
-
-    // // ✅ Handle "Save Changes" in the Edit Modal
-    // $(document).on('submit', '#edit-items-form', function (e) {
-    //     e.preventDefault();
-
-    //     const currentItem = itemsData[currentIndex];
-    //     if (!currentItem || !currentItem.id) {
-    //         toastr.error('No item selected.');
-    //         return;
-    //     }
-
-    //     const formData = $(this).serializeArray();
-    //     formData.push({ name: 'id', value: currentItem.id });
-
-    //     $.ajax({
-    //         url: '{{ route("orders.updateItem") }}',
-    //         method: 'POST',
-    //         data: formData,
-    //         success: function (response) {
-    //             if (response.success) {
-    //                 toastr.success(response.message ?? 'Item updated successfully');
-    //                 $('#editItemsModal').modal('hide');
-    //                 $('#order-items-table').DataTable().ajax.reload(null, false);
-    //             } else {
-    //                 toastr.error(response.message ?? 'Failed to update item');
-    //             }
-    //         },
-    //         error: function (xhr) {
-    //             console.error(xhr.responseText);
-    //             toastr.error('Server error. Please try again.');
-    //         }
-    //     });
-    // });
     $(document).ready(function () {
         const modal = $('#editItemsModal');
         let table = $('#order-items-table').DataTable({
             processing: true,
             serverSide: true,
             ajax: '{{ route('order.items', $order->id) }}',
+            drawCallback: function () {
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function (el) {
+                    return new bootstrap.Tooltip(el);
+                });
+            },
             scrollY: '40vh',
             scrollX: true,
-            scrollCollapse: true,
-            paging: true,
-            searching: false,
-            lengthChange: false,
+            paging: false,
             ordering: false,
+            searching: false,
+            colReorder: true,
+            stateSave: true,
             columns: [
-                { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false },
+                { data: 'checkbox', orderable: false, searchable: false },   // index 0 (IGNORE)
+                { data: 'parent_order_note', name: 'parent_order_note' },
                 { data: 'image', name: 'image' },
+                { data: 'order_id', name: 'order_id' },
                 { data: 'name', name: 'name' },
                 { data: 'variation_details', name: 'variation_details' },
+                { data: 'asin_record', defaultContent: '', name: 'asin_record' },
                 { data: 'asin', name: 'asin' },
                 { data: 'msku', name: 'msku' },
                 { data: 'qty', name: 'qty' },
@@ -761,10 +621,93 @@
                 { data: 'sku_total', name: 'sku_total' },
                 { data: 'orlef', name: 'orlef' },
                 { data: 'order_note', name: 'order_note' },
+                { data: 'list_price', name: 'list_price' },
+                { data: 'min', name: 'min' },
+                { data: 'max', name: 'max' },
+                { data: 'order_date', name: 'order_date' },
+                { data: 'bsr', name: 'bsr' },
                 { data: 'buyer_note', name: 'buyer_note' },
-                { data: 'actions', name: 'actions', orderable: false, searchable: false },
+                { data: 'actions', orderable: false, searchable: false }     // LAST (IGNORE)
             ]
         });
+
+        generateColumnList();
+        function generateColumnList() {
+            const list = $('.column-list-draggable');
+            list.empty();
+
+            const disabledCols = ['image', 'name', 'msku', 'cost', 'qty', 'sku_total'];
+
+            table.columns().every(function (index) {
+                // ✅ skip first & last column
+                if (index === 0 || index === table.columns().count() - 1) return;
+
+                const col = table.column(index);
+                const colDataKey = table.settings()[0].aoColumns[index].data;
+                const title = $(col.header()).text().trim() || colDataKey;
+
+                const checked = col.visible() ? 'checked' : '';
+                const disabled = disabledCols.includes(colDataKey) ? 'disabled' : '';
+
+                list.append(`
+                    <div class="d-flex justify-content-between align-items-center draggable-item" data-col="${index}">
+                        <div>
+                            <input class="form-check-input col-toggle" 
+                                type="checkbox" 
+                                data-col="${index}" 
+                                ${checked} ${disabled}>
+                            <label class="form-check-label ms-2">${title}</label>
+                        </div>
+                        <i class="ti ti-grip-vertical grip-icon"></i>
+                    </div>
+                `);
+            });
+
+            attachToggleEvents();
+            enableDragSort();
+        }
+
+        function attachToggleEvents() {
+            $('.col-toggle').on('change', function () {
+                const index = $(this).data('col');
+                table.column(index).visible(this.checked);
+            });
+        }
+
+        function enableDragSort() {
+            $(".column-list-draggable").sortable({
+                handle: ".grip-icon",
+                update: function () {
+
+                    let reordered = [];
+
+                    const totalCols = table.columns().count();
+
+                    // ✅ 1) Start with default order [0,1,2,3...]
+                    for (let i = 0; i < totalCols; i++) {
+                        reordered[i] = i;
+                    }
+
+                    // ✅ 2) Get ONLY draggable middle columns
+                    let dragCols = [];
+                    $(".draggable-item").each(function () {
+                        dragCols.push($(this).data("col"));
+                    });
+
+                    // ✅ 3) Apply new order to middle columns only
+                    // index 0 (checkbox) stays same
+                    // last column (actions) stays same
+                    let j = 0;
+                    for (let i = 1; i < totalCols - 1; i++) {
+                        reordered[i] = dragCols[j];
+                        j++;
+                    }
+
+                    // ✅ 4) Apply to DataTable (NO WARNING)
+                    table.colReorder.order(reordered);
+                }
+            });
+        }
 
         // ✅ Update count label
         table.on('xhr.dt', function (e, settings, json, xhr) {
@@ -898,6 +841,204 @@
                     toastr.error('Server error. Please try again.');
                 }
             });
+        });
+    });
+
+    // order item duplicate
+    $(document).on('click', '.order-item-duplicate', function (e) {
+        e.preventDefault();
+
+        let id = $(this).data('id');
+
+        $.ajax({
+            url: "{{ route('order.items.duplicate', '') }}/" + id,
+            method: "POST",
+            data: {
+                _token: "{{ csrf_token() }}"
+            },
+            success: function (res) {
+                toastr.success("Item duplicated");
+
+                // ✅ Redraw DataTable without resetting pagination
+                $('#order-items-table').DataTable().ajax.reload(null, false);
+            },
+            error: function (err) {
+                toastr.error("Error duplicating item");
+                console.error(err.responseText);
+            }
+        });
+    });
+
+    // order item delete
+    $(document).on('click', '.delete-order-item', function (e) {
+        e.preventDefault();
+
+        let id = $(this).data('id');
+        let buylist_id = $(this).data('buylist_id');
+
+        Swal.fire({
+            title: "Are you sure?",
+            html: `
+                Are you sure you want to delete this order item?<br><br>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="moveToBuylist">
+                    <label class="form-check-label" for="moveToBuylist">
+                        Move item back to buylist?
+                    </label>
+                </div>
+            `,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes",
+            cancelButtonText: "Cancel"
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            let moveBack = $("#moveToBuylist").is(":checked");
+
+            // ✅ If checked but buylist_id is missing → show error
+            if (moveBack && (!buylist_id || buylist_id === "")) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Missing Buylist ID",
+                    text: "This item has no buylist_id — cannot move to buylist."
+                });
+                return;
+            }
+
+            // ✅ AJAX request
+            $.ajax({
+                url: "{{ route('order.items.delete', '') }}/" + id,
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    move_back: moveBack ? 1 : 0,
+                },
+                success: function (res) {
+                    toastr.success(res.message);
+                    $('#order-items-table').DataTable().ajax.reload(null, false);
+                },
+                error: function (err) {
+                    toastr.error("Something went wrong");
+                    console.log(err.responseText);
+                }
+            });
+        });
+    });
+
+    // bulk delete items
+    $(document).on('click', '.bulkDelBtn', function (e) {
+        e.preventDefault();
+
+        let selected = [];
+        let missingBuylist = false;
+
+        // ✅ collect IDs + detect missing buylist_id
+        $('.item-checkbox:checked').each(function () {
+            let id = $(this).data('id');
+            let buylist_id = $(this).data('buylist_id');
+
+            selected.push({ id, buylist_id });
+
+            if (!buylist_id || buylist_id === "") {
+                missingBuylist = true;
+            }
+        });
+
+        if (selected.length === 0) {
+            return toastr.warning("No items selected");
+        }
+
+        Swal.fire({
+            title: `Delete ${selected.length} Items?`,
+            html: `
+                <div>Are you sure you want to delete selected ${selected.length} items?</div>
+                <br>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="bulkMoveToBuylist">
+                    <label class="form-check-label" for="bulkMoveToBuylist">
+                        Move items back to buylist?
+                    </label>
+                </div>
+            `,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes",
+            cancelButtonText: "Cancel",
+        }).then((result) => {
+
+            if (!result.isConfirmed) return;
+
+            let moveBack = $("#bulkMoveToBuylist").is(":checked");
+
+            // ✅ If moveBack checked BUT some rows have no buylist_id → STOP
+            if (moveBack && missingBuylist) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Missing Buylist ID",
+                    text: "Some selected items have no buylist_id — cannot move these items to buylist."
+                });
+                return;
+            }
+
+            // ✅ Send AJAX
+            $.ajax({
+                url: "{{ route('order.items.bulk.delete') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    items: selected,
+                    move_back: moveBack ? 1 : 0
+                },
+                success: function (res) {
+                    toastr.success(res.message);
+                    $("#select-count-section").addClass("d-none");
+                    $('#order-items-table').DataTable().ajax.reload(null, false);
+                },
+                error: function (err) {
+                    toastr.error("Something went wrong");
+                    console.log(err.responseText);
+                }
+            });
+
+        });
+
+    });
+
+    $(document).ready(function () {
+
+        // Select all
+        $(document).on('change', '#selectAll', function () {
+            const checked = $(this).is(':checked');
+            $('#order-items-table tbody .item-checkbox').prop('checked', checked);
+            updateSelectedCount();
+        });
+
+        // Single checkbox change
+        $(document).on('change', '#order-items-table tbody .item-checkbox', function () {
+            const allChecked =
+                $('#order-items-table tbody .item-checkbox').length ===
+                $('#order-items-table tbody .item-checkbox:checked').length;
+
+            $('#selectAll').prop('checked', allChecked);
+            updateSelectedCount();
+        });
+
+        // Update counter and bar
+        function updateSelectedCount() {
+            const count = $('#order-items-table tbody .item-checkbox:checked').length;
+            $('#selectedCount').text(count);
+            if (count > 0) {
+                $('#select-count-section').removeClass('d-none');
+            } else {
+                $('#select-count-section').addClass('d-none');
+            }
+        }
+
+        // Reset on table redraw
+        $('#order-items-table').on('draw.dt', function () {
+            $('#selectAll').prop('checked', false);
+            updateSelectedCount();
         });
     });
 

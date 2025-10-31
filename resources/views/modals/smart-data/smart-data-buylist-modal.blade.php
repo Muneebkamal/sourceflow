@@ -1,5 +1,5 @@
 <!-- Modal -->
-<div class="modal fade" id="editItemsModal" tabindex="-1" aria-labelledby="editItemsModalLabel" aria-hidden="true">
+<div class="modal fade" id="addtoBuylistModal" tabindex="-1" aria-labelledby="addtoBuylistModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content h-100">
       
@@ -13,7 +13,7 @@
 
           <div class="flex-grow-1">
             <div class="d-flex justify-content-between align-items-start">
-              <h3 class="modal-title mb-2" id="editItemsModalLabel">Product Title</h3>
+              <h3 class="modal-title mb-2" id="addtoBuylistModalLabel">Product Title</h3>
               <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
@@ -63,14 +63,14 @@
 
         <div class="tab-content">
           <div class="tab-pane show active" id="add-buylist-tab">
-            <form id="edit-items-form">
+            <form id="add-to-buylist-form">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <div class="row">
                     <div class="col-md-4">
                         <label for="purchaseQty" class="form-label"># to Purchase</label>
                         <div class="input-group">
                             <button class="btn btn-outline-secondary btn-minus" type="button">−</button>
-                            <input type="number" id="purchaseQty" class="form-control text-center" value="1" min="1">
+                            <input type="number" id="purchaseQty" name="purchaseQty" class="form-control text-center" value="1" min="1">
                             <button class="btn btn-outline-secondary btn-plus" type="button">+</button>
                         </div>
                     </div>
@@ -80,14 +80,14 @@
                     </div>
                 </div>
                 <div class="row mt-2">
-                    <div class="col-md-12">
-                        <label for="multiBuyList" class="form-label">Buy List *</label>
-                        <select id="multiBuyList" class="form-select" data-choices-removeItem name="choices-multiple-remove-button" multiple>
-                            @foreach ($buylist as $list)
-                                <option value="{{ $list->id }}">{{ $list->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                  <div class="col-md-12">
+                      <label for="multiBuyList" class="form-label">Buy List *</label>
+                      <select id="multiBuyList" class="form-select" data-choices-removeItem name="buylist_ids[]" multiple>
+                          @foreach ($buylist as $list)
+                              <option value="{{ $list->id }}">{{ $list->name }}</option>
+                          @endforeach
+                      </select>
+                  </div>
                 </div>
                 <div class="mt-2">
                     <label for="buyerNote" class="form-label">Buyer Note</label>
@@ -117,6 +117,7 @@
                     </div>
                     <hr>
                     <h4>Edit Buy List Item</h4>
+                    <input type="hidden" id="lead_id" name="lead_id">
                     <div class="my-2">
                         <label for="name" class="form-label">Product Title</label>
                         <input type="text" class="form-control" id="name" name="name">
@@ -124,16 +125,16 @@
 
                     <div class="row g-2">
                         <div class="col-md-4">
-                        <label for="asin" class="form-label">ASIN</label>
-                        <input type="text" class="form-control" id="asin" name="asin">
-                        </div>
-                        <div class="col-md-4">
                         <label for="category" class="form-label">Category</label>
                         <input type="text" class="form-control" id="category" name="category">
                         </div>
                         <div class="col-md-4">
-                        <label for="unitsPurchased" class="form-label">Quantity</label>
-                        <input type="number" class="form-control" id="unitsPurchased" name="unit_purchased">
+                        <label for="asin" class="form-label">ASIN</label>
+                        <input type="text" class="form-control" id="asin" name="asin">
+                        </div>
+                        <div class="col-md-4">
+                        <label for="parent_asin" class="form-label">Parent Asin</label>
+                        <input type="number" class="form-control" id="parent_asin" name="parent_asin">
                         </div>
                     </div>
 
@@ -228,7 +229,7 @@
 
       <div class="modal-footer">
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-        <button type="submit" form="edit-items-form" class="btn btn-primary">Save Changes</button>
+        <button type="submit" form="add-to-buylist-form" class="btn btn-primary">Add to Buylist</button>
       </div>
     </div>
   </div>
