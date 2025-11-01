@@ -252,7 +252,7 @@
                             <div class="card-footer">
                                 <div class="d-flex">
                                     <button class="btn btn-soft-primary me-2" data-bs-toggle="modal" data-bs-target="#tagModal">Create Tag</button>
-                                    <button class="btn btn-light me-1">Close</button>
+                                    <button class="btn btn-light me-1 close-tag-dropdown">Close</button>
                                     <button class="btn btn-primary">Apply</button>
                                 </div>
                             </div>
@@ -365,223 +365,6 @@
 
                             <div class="card-body p-2">
                                 <!-- ✅ Sortable list -->
-                                {{-- <div class="column-list-draggable">
-                                    <!-- Publish Date -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-publish_time" checked>
-                                            <label class="form-check-label ms-2" for="col-publish_time">Publish Date</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Image -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-image" checked>
-                                            <label class="form-check-label ms-2" for="col-image">Image</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Type -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-type" checked>
-                                            <label class="form-check-label ms-2" for="col-type">Type</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Tags -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-tags" checked>
-                                            <label class="form-check-label ms-2" for="col-tags">Tags</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Last Updated -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-latest_updated_at" checked>
-                                            <label class="form-check-label ms-2" for="col-latest_updated_at">Last Updated</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Product Title -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-name" checked>
-                                            <label class="form-check-label ms-2" for="col-name">Product Title</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- ASIN -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-asin" checked>
-                                            <label class="form-check-label ms-2" for="col-asin">ASIN</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Supplier -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-supplier" checked>
-                                            <label class="form-check-label ms-2" for="col-supplier">Supplier</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Brand -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-brand">
-                                            <label class="form-check-label ms-2" for="col-brand">Brand</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Cost -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-cost" checked>
-                                            <label class="form-check-label ms-2" for="col-cost">Cost</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Sale Price -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-selling_price" checked>
-                                            <label class="form-check-label ms-2" for="col-selling_price">Sale Price</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Net Profit -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-net_profit_input" checked>
-                                            <label class="form-check-label ms-2" for="col-net_profit_input">Net Profit</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- ROI -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-roi_input" checked>
-                                            <label class="form-check-label ms-2" for="col-roi_input">ROI</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- BSR 90D Avg -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-bsr_ninety" checked>
-                                            <label class="form-check-label ms-2" for="col-bsr_ninety">BSR 90D Avg</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Category -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-category" checked>
-                                            <label class="form-check-label ms-2" for="col-category">Category</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Promo -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-promo" checked>
-                                            <label class="form-check-label ms-2" for="col-promo">Promo</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Coupon Code -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-coupon_code" checked>
-                                            <label class="form-check-label ms-2" for="col-coupon_code">Coupon Code</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Lead Note -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-list_item_note" checked>
-                                            <label class="form-check-label ms-2" for="col-list_item_note">Lead Note</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- New Offers -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-new_offers_count">
-                                            <label class="form-check-label ms-2" for="col-new_offers_count">New Offers</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Rating -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-rating">
-                                            <label class="form-check-label ms-2" for="col-rating">Rating</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Reviews -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-review_count">
-                                            <label class="form-check-label ms-2" for="col-review_count">Reviews</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- BSR Current -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-bsr_current" checked>
-                                            <label class="form-check-label ms-2" for="col-bsr_current">BSR Current</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Lead Source -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-list_group_id">
-                                            <label class="form-check-label ms-2" for="col-list_group_id">Lead Source</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Variations -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-variations">
-                                            <label class="form-check-label ms-2" for="col-variations">Variations</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-                                </div> --}}
                                 <div class="column-list-draggable"></div>
                             </div>
                         </div>
@@ -599,7 +382,7 @@
                     <i class="ti ti-dots-vertical"></i>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">Add Tags</a></li>
+                    <li><a class="dropdown-item bulkTags" href="#">Add Tags</a></li>
                 </ul>
             </div>
             <span class="fw-bold ms-3">Selected: <span id="selectedCount">0</span></span>
@@ -659,6 +442,7 @@
 
     @include('modals.smart-data.tag-modal')
     @include('modals.smart-data.smart-data-buylist-modal')
+    @include('modals.smart-data.bulk-tags-to-item')
 @endsection
 
 @section('scripts')
@@ -668,6 +452,7 @@
                 $('#table-section').addClass('d-none');  
                 $('#cards-section').removeClass('d-none');
                 $('.customize-btn').addClass('d-none');
+                $('.actions-buttons').addClass('flex-column');
 
                 // Button active state
                 $('#show-cards').removeClass('btn-light').addClass('btn-primary');
@@ -678,6 +463,7 @@
                 $('#cards-section').addClass('d-none');  
                 $('#table-section').removeClass('d-none'); 
                 $('.customize-btn').removeClass('d-none');
+                 $('.actions-buttons').removeClass('flex-column');
 
                 // Button active state
                 $('#show-table').removeClass('btn-light').addClass('btn-primary');
@@ -862,21 +648,20 @@
 
                 data.forEach(item => {
                     let card = `
+                    <div class="form-check mb-3 ms-2">
+                        <input id="SelectAll-cards" class="form-check-input" type="checkbox">
+                        <label for="SelectAll-cards"> Select All</label>
+                    </div>
                     <div class="card">
                         <div class="mb-3 card-body">
                             <div class="row g-3 align-items-start">
                                 <!-- Left Column (Image / Info) -->
                                 <div class="col-md-5">
-                                    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap mb-1">
                                         <div class="d-flex align-items-center gap-2">
-                                            <div class="d-flex align-items-center gap-2">
-                                                <i class="ti ti-trophy text-warning fs-3"></i>
-                                                <i class="ti ti-user-plus text-warning fs-3"></i>
+                                            <div class="lead-type-icons-card-${item.id}">
+                                                ${item.type ?? ''}
                                             </div>
-                                            <button class="btn btn-sm btn-soft-primary d-flex align-items-center gap-1">
-                                                <span>Add Type</span>
-                                                <i class="ti ti-plus"></i>
-                                            </button>
                                             <div class="vr mx-1"></div>
                                             <small><b>Last Updated:</b> <span>${item.updated_at ?? '-'}</span></small>
                                         </div>
@@ -884,14 +669,14 @@
 
                                     <div class="d-flex align-items-start gap-3">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox">
+                                            <input class="form-check-input smart-data-checkbox"
+                                            type="checkbox"
+                                            data-id="${item.id}">
                                         </div>
-                                        <img src=""
-                                            alt="Product" class="img-fluid rounded" style="max-width:100px;">
+                                        ${item.image ?? ''}
                                         <div>
-                                            <h5 class="fw-semibold mb-1">${item.name ?? '-'}</h5>
-                                            <span class="">${item.type ?? ''}</span>
-                                            <a href="#" class="d-block text-decoration-none text-primary mt-1 small fw-semibold">Manage Tags</a>
+                                            <h5 class="fw-semibold mb-3">${item.name ?? '-'}</h5>
+                                            <span class="">${item.tags ?? ''}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -917,20 +702,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="d-flex flex-column align-items-end gap-2">
-                                            <div class="dropdown">
-                                                <button class="btn btn-light p-2" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="ti ti-dots-vertical fs-5"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy to Clipboard</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit Item Details</a></li>
-                                                    <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete Lead</a></li>
-                                                </ul>
-                                            </div>
-                                            <button class="btn btn-light p-2"><i class="ti ti-external-link fs-5"></i></button>
-                                            <button class="btn btn-soft-success p-2"><i class="ti ti-cash fs-5"></i></button>
-                                        </div>
+                                        ${item.actions ?? ''}
                                     </div>
                                 </div>
                             </div>
@@ -1101,10 +873,15 @@
 
             // ❌ Close Filter
             $('#btnCloseFilter').on('click', function () {
-                let dropdownMenu = $(this).closest('.dropdown-menu');
-                let dropdownToggle = dropdownMenu.prev('.dropdown-toggle');
-                let dropdownInstance = bootstrap.Dropdown.getInstance(dropdownToggle[0]);
-                if (dropdownInstance) dropdownInstance.hide();
+                // let dropdownMenu = $(this).closest('.dropdown-menu');
+                // let dropdownToggle = dropdownMenu.prev('.dropdown-toggle');
+                // let dropdownInstance = bootstrap.Dropdown.getInstance(dropdownToggle[0]);
+                // if (dropdownInstance) dropdownInstance.hide();
+                $(this).closest(".dropdown-menu").removeClass("show");
+            });
+
+            $('.close-tag-dropdown').on('click', function () {
+                $(this).closest(".dropdown-menu").removeClass("show");
             });
 
             // 🔄 Reset Filters
@@ -1133,6 +910,21 @@
             });
         });
         
+        // Fix checked states whenever dropdown menu is shown
+        $(document).on('shown.bs.dropdown', '.dropdown', function () {
+
+            const dropdown = $(this);
+
+            dropdown.find('input[type="radio"], input[type="checkbox"]').each(function () {
+
+                // If HTML attribute 'checked' exists → force the property
+                if ($(this).is('[checked]')) {
+                    $(this).prop('checked', true);
+                }
+
+            });
+        });
+
         // for tags store and update delete
         $(document).ready(function() {
             let editMode = false;
@@ -1271,40 +1063,148 @@
             });
         });
 
+        // $(document).ready(function () {
+        //     // Select all
+        //     $(document).on('change', '#selectAll', function () {
+        //         const checked = $(this).is(':checked');
+        //         $('#smart-data-table tbody .smart-data-checkbox').prop('checked', checked);
+        //         updateSelectedCount();
+        //     });
+
+        //     // Single checkbox change
+        //     $(document).on('change', '#smart-data-table tbody .smart-data-checkbox', function () {
+        //         const allChecked =
+        //             $('#smart-data-table tbody .smart-data-checkbox').length ===
+        //             $('#smart-data-table tbody .smart-data-checkbox:checked').length;
+
+        //         $('#selectAll').prop('checked', allChecked);
+        //         updateSelectedCount();
+        //     });
+
+        //     // Update counter and bar
+        //     function updateSelectedCount() {
+        //         const count = $('#smart-data-table tbody .smart-data-checkbox:checked').length;
+        //         $('#selectedCount').text(count);
+        //         if (count > 0) {
+        //             $('#select-count-section').removeClass('d-none');
+        //         } else {
+        //             $('#select-count-section').addClass('d-none');
+        //         }
+        //     }
+
+        //     // Reset on table redraw
+        //     $('#smart-data-table').on('draw.dt', function () {
+        //         $('#selectAll').prop('checked', false);
+        //         updateSelectedCount();
+        //     });
+        // });
         $(document).ready(function () {
-            // Select all
-            $(document).on('change', '#selectAll', function () {
-                const checked = $(this).is(':checked');
-                $('#smart-data-table tbody .smart-data-checkbox').prop('checked', checked);
+
+            /* -----------------------------
+            ✅ SINGLE CHECKBOX CHANGE
+            ------------------------------*/
+            $(document).on("change", ".smart-data-checkbox", function () {
+                let id = $(this).data("id");
+                let checked = $(this).is(":checked");
+
+                // ✅ Sync table + card checkbox for same lead ID
+                $(`.smart-data-checkbox[data-id="${id}"]`).prop("checked", checked);
+
+                updateSelectAllStatus();
                 updateSelectedCount();
             });
 
-            // Single checkbox change
-            $(document).on('change', '#smart-data-table tbody .smart-data-checkbox', function () {
-                const allChecked =
-                    $('#smart-data-table tbody .smart-data-checkbox').length ===
-                    $('#smart-data-table tbody .smart-data-checkbox:checked').length;
+            /* -----------------------------
+            ✅ SELECT ALL (TABLE HEADER)
+            ------------------------------*/
+            $(document).on("change", "#selectAll", function () {
+                let checked = $(this).is(":checked");
 
-                $('#selectAll').prop('checked', allChecked);
+                // ✅ Sync both select-all checkboxes
+                $("#selectAll, #SelectAll-cards").prop("checked", checked);
+
+                // ✅ Check/uncheck all table + card checkboxes
+                $(".smart-data-checkbox").prop("checked", checked);
+
                 updateSelectedCount();
             });
 
-            // Update counter and bar
+            /* -----------------------------
+            ✅ SELECT ALL (CARDS SECTION)
+            ------------------------------*/
+            $(document).on("change", "#SelectAll-cards", function () {
+                let checked = $(this).is(":checked");
+
+                // ✅ Sync both select-all checkboxes
+                $("#selectAll, #SelectAll-cards").prop("checked", checked);
+
+                // ✅ Check/uncheck all table + card checkboxes
+                $(".smart-data-checkbox").prop("checked", checked);
+
+                updateSelectedCount();
+            });
+
+            /* -----------------------------
+            ✅ UNIQUE COUNT UPDATE
+            ------------------------------*/
             function updateSelectedCount() {
-                const count = $('#smart-data-table tbody .smart-data-checkbox:checked').length;
-                $('#selectedCount').text(count);
+                let selectedIds = new Set();
+
+                $(".smart-data-checkbox:checked").each(function () {
+                    selectedIds.add($(this).data("id"));
+                });
+
+                let count = selectedIds.size;
+
+                $("#selectedCount").text(count);
+
                 if (count > 0) {
-                    $('#select-count-section').removeClass('d-none');
+                    $("#select-count-section").removeClass("d-none");
                 } else {
-                    $('#select-count-section').addClass('d-none');
+                    $("#select-count-section").addClass("d-none");
                 }
             }
 
-            // Reset on table redraw
-            $('#smart-data-table').on('draw.dt', function () {
-                $('#selectAll').prop('checked', false);
+            /* -----------------------------
+            ✅ UPDATE SELECT ALL STATUS
+            (Handles auto-check select all)
+            ------------------------------*/
+            function updateSelectAllStatus() {
+                let ids = new Set();
+                let selectedIds = new Set();
+
+                $(".smart-data-checkbox").each(function () {
+                    ids.add($(this).data("id"));
+                });
+
+                $(".smart-data-checkbox:checked").each(function () {
+                    selectedIds.add($(this).data("id"));
+                });
+
+                let allChecked = ids.size > 0 && ids.size === selectedIds.size;
+
+                $("#selectAll, #SelectAll-cards").prop("checked", allChecked);
+            }
+
+            /* -----------------------------
+            ✅ DATATABLE RE-DRAW SYNC
+            ------------------------------*/
+            $("#smart-data-table").on("draw.dt", function () {
+                // Re-sync all checked IDs after table reload
+                let selectedIds = new Set();
+
+                $(".smart-data-checkbox:checked").each(function () {
+                    selectedIds.add($(this).data("id"));
+                });
+
+                selectedIds.forEach(id => {
+                    $(`.smart-data-checkbox[data-id="${id}"]`).prop("checked", true);
+                });
+
+                updateSelectAllStatus();
                 updateSelectedCount();
             });
+
         });
 
         $(document).on('click', '.copyNameBtn', function(e) {
@@ -1320,8 +1220,10 @@
             });
         });
 
-        $(document).on('click', '.movetobuylist', function() {
+        $(document).on('click', '.movetobuylist, .edit-lead-modal', function() {
             const leadId = $(this).data('id');
+            const isBuylist = $(this).hasClass('movetobuylist');
+
             $.ajax({
                 url: '/smart-data/lead/' + leadId,
                 type: 'GET',
@@ -1337,11 +1239,32 @@
                             $('#multiBuyList').val(response.buylist_ids).trigger('change');
                         }
 
+                        $('#asin-label').text(lead.asin);
+                        $('#open-links-btn').data('url', lead.url);
+
                         // Fill modal fields
                         $('#addtoBuylistModalLabel').text(lead.name || 'Product Title');
                         $('#addtoBuylistModal img').attr('src', lead.image_url || 'https://app.sourceflow.io/storage/images/no-image-thumbnail.png');
                         $('#est_selling_price').val(lead.sell_price);
 
+                        // leads edit
+                        $('#e_l_name').val(lead.name);
+                        $('#e_lead_id').val(lead.id);
+                        $('#e_l_asin').val(lead.asin);
+                        $('#e_l_category').val(lead.category);
+                        $('#e_l_unitsPurchased').val(lead.quantity);
+                        $('#e_l_costPerUnit').val(lead.cost);
+                        $('#e_l_sellingPrice').val(lead.sell_price);
+                        $('#e_l_netProfit').val(lead.net_profit);
+                        $('#e_l_roi').val(lead.roi);
+                        $('#e_l_bsr_ninety').val(lead.bsr);
+                        $('#e_l_supplier').val(lead.supplier);
+                        $('#e_l_source_url').val(lead.url);
+                        $('#e_l_promo').val(lead.promo);
+                        $('#e_l_coupon_code').val(lead.coupon);
+                        $('#e_l_product_note').val(lead.notes);
+
+                        // add to buylist 
                         $('#name').val(lead.name);
                         $('#lead_id').val(lead.id);
                         $('#asin').val(lead.asin);
@@ -1374,6 +1297,19 @@
                         $('#smart-bsr').text(lead.bsr || '-');
                         $('#supplier-link').attr('href', lead.url || '#');
 
+                        // Activate correct tab
+                        if(isBuylist){
+                            // Activate "Add to Buy List" tab
+                            new bootstrap.Tab($('#add-buylist-tab-tab')[0]).show();
+                        } else {
+                            // Activate "Edit Lead" tab
+                            new bootstrap.Tab($('#edit-lead-tab-tab')[0]).show();
+                        }
+
+                        populateLeadTypeDropdown(lead); // Set the inputs
+                        // Render icons
+                        renderLeadIcons('#edit-lead-tab', lead.type, lead.is_replenishable, lead.is_hazmat, lead.is_caution);
+
                         // Show modal
                         $('#addtoBuylistModal').modal('show');
                     } else {
@@ -1382,6 +1318,249 @@
                 },
                 error: function() {
                     toastr.error('Something went wrong!');
+                }
+            });
+        });
+
+        // Open the URL in a new tab when the button is clicked
+        $('#open-links-btn').on('click', function() {
+            const url = $(this).data('url');
+            if(url) {
+                window.open(url, '_blank');
+            } else {
+                toastr.error('No URL available for this lead.');
+            }
+        });
+
+        $(document).on('click', '#asin-label + .asin-copy-icon', function() {
+            // Get the ASIN text
+            const asin = $('#asin-label').text().trim();
+
+            if(asin && asin !== '-') {
+                // Use the Clipboard API
+                navigator.clipboard.writeText(asin).then(() => {
+                    // Optional: show a small success message
+                    toastr.success('ASIN copied: ' + asin);
+                }).catch(err => {
+                    console.error('Failed to copy ASIN: ', err);
+                });
+            }
+        });
+
+        function populateLeadTypeDropdown(lead) {
+            $('#modal-type-normal').prop('checked', lead.type === 'normal');
+            $('#modal-type-bonus').prop('checked', lead.type === 'bonus');
+            $('#modal-type-replenishable').prop('checked', lead.is_replenishable);
+            $('#modal-type-hazmat').prop('checked', lead.is_hazmat);
+            $('#modal-type-caution').prop('checked', lead.is_caution);
+        }
+
+        // Function to render icons dynamically in the modal
+        function renderLeadIcons(modal, type, isReplenishable, isHazmat, isCaution) {
+            let icons = '';
+
+            if(type === 'normal') {
+                icons += '<i class="ti ti-trophy text-warning fs-4 me-1" data-bs-toggle="tooltip" title="Normal"></i>';
+            } else if(type === 'bonus') {
+                icons += '<i class="ti ti-sparkles text-primary fs-4 me-1" data-bs-toggle="tooltip" title="Bonus"></i>';
+            }
+
+            if(isReplenishable) {
+                icons += '<i class="ti ti-leaf text-success fs-4 me-1" data-bs-toggle="tooltip" title="Replenishable"></i>';
+            }
+            if(isHazmat) {
+                icons += '<i class="ti ti-alert-triangle text-danger fs-4 me-1" data-bs-toggle="tooltip" title="Hazmat"></i>';
+            }
+            if(isCaution) {
+                icons += '<i class="ti ti-circle-minus text-danger fs-4 me-1" data-bs-toggle="tooltip" title="Caution"></i>';
+            }
+
+            $(modal).find('#lead-type-icons').html(icons);
+        }
+
+        // Radio buttons
+        $('#edit-lead-tab').on('change', '.lead-type-radio', function() {
+            const type = $(this).val();
+            const isReplenishable = $('#modal-type-replenishable').is(':checked');
+            const isHazmat = $('#modal-type-hazmat').is(':checked');
+            const isCaution = $('#modal-type-caution').is(':checked');
+
+            renderLeadIcons('#edit-lead-tab', type, isReplenishable, isHazmat, isCaution);
+        });
+
+        // Checkboxes
+        $('#edit-lead-tab').on('change', '.lead-type-check', function() {
+            const type = $('#modal-type-normal').is(':checked') ? 'normal' : 
+                        ($('#modal-type-bonus').is(':checked') ? 'bonus' : '');
+            const isReplenishable = $('#modal-type-replenishable').is(':checked');
+            const isHazmat = $('#modal-type-hazmat').is(':checked');
+            const isCaution = $('#modal-type-caution').is(':checked');
+
+            renderLeadIcons('#edit-lead-tab', type, isReplenishable, isHazmat, isCaution);
+        });
+
+        $(document).ready(function() {
+            // Submit Edit Lead form via AJAX
+            $('#lead-edit-form').on('submit', function(e) {
+                e.preventDefault();
+
+                // Serialize form fields
+                let formData = $(this).serializeArray(); // use array to add extra fields easily
+
+                // Add type and checkboxes dynamically
+                let type = $('#modal-type-normal').is(':checked') ? 'normal' :
+                        ($('#modal-type-bonus').is(':checked') ? 'bonus' : '');
+                let isReplenishable = $('#modal-type-replenishable').is(':checked') ? 1 : 0;
+                let isHazmat = $('#modal-type-hazmat').is(':checked') ? 1 : 0;
+                let isCaution = $('#modal-type-caution').is(':checked') ? 1 : 0;
+
+                // Push extra fields to formData
+                formData.push({ name: 'type', value: type });
+                formData.push({ name: 'is_replenishable', value: isReplenishable });
+                formData.push({ name: 'is_hazmat', value: isHazmat });
+                formData.push({ name: 'is_caution', value: isCaution });
+
+                $.ajax({
+                    url: '/smart-data/lead/update',
+                    type: 'POST',
+                    data: $.param(formData), // convert back to query string
+                    success: function(response) {
+                        if(response.success) {
+                            $('#addtoBuylistModal').modal('hide');
+                            toastr.success('Lead updated successfully!');
+                            $('#smart-data-table').DataTable().ajax.reload(null, false); // reload table
+                        } else {
+                            toastr.error(response.message || 'Failed to update lead.');
+                        }
+                    },
+                    error: function(xhr) {
+                        if(xhr.status === 422) {
+                            const errors = xhr.responseJSON.errors;
+                            let errorMessages = '';
+                            $.each(errors, function(key, value) {
+                                errorMessages += value[0] + '<br>';
+                            });
+                            toastr.error(errorMessages);
+                        } else {
+                            toastr.error('Something went wrong. Please try again.');
+                        }
+                    }
+                });
+            });
+        });
+
+        // DELETE Single Smart Data Lead (SweetAlert2)
+        $(document).on("click", ".delSingleSmartData", function (e) {
+            e.preventDefault();
+
+            let id = $(this).data("id");
+
+            Swal.fire({
+                title: "Delete Lead?",
+                text: "This action cannot be undone!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        url: "/smart-data/" + id,
+                        type: "DELETE",
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function (res) {
+
+                            if (res.status === "success") {
+
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Deleted!",
+                                    text: "Lead has been removed.",
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+
+                                // ✅ Remove row from DataTable
+                                $("#smart-data-table").DataTable().ajax.reload(null, false);
+
+                                // ✅ Remove card from card layout
+                                $(".card-smartdata-" + id).remove();
+                            }
+                        },
+                        error: function () {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error",
+                                text: "Could not delete lead."
+                            });
+                        }
+                    });
+
+                }
+            });
+        });
+
+        // Open modal on bulkTags button click
+        $(document).on('click', '.bulkTags', function(e) {
+            e.preventDefault();
+            
+            // Get selected leads IDs
+            let selectedIds = [];
+            $('.smart-data-checkbox:checked').each(function() {
+                selectedIds.push($(this).data('id'));
+            });
+
+            // Remove duplicates
+            selectedIds = [...new Set(selectedIds)];
+
+            if (selectedIds.length === 0) {
+                alert('Please select at least one lead.');
+                return;
+            }
+
+            // Store selected IDs in modal
+            $('#bulkTagsModal').data('lead-ids', selectedIds);
+
+            // Clear all checkboxes inside modal
+            $('#bulkTagsModal .tag-checkbox').prop('checked', false);
+            // Show modal
+            $('#bulkTagsModal').modal('show');
+        });
+
+        // Apply tags button click
+        $('#applyTagsBtn').on('click', function() {
+            let selectedIds = $('#bulkTagsModal').data('lead-ids');
+            let selectedTags = [];
+
+            // Get checked tag checkboxes
+            $('#bulkTagsModal .tag-checkbox:checked').each(function() {
+                selectedTags.push($(this).val());
+            });
+
+            $.ajax({
+                url: "{{ route('save.bulk.tags') }}",
+                type: "POST",
+                data: {
+                    lead_ids: selectedIds,
+                    tags: selectedTags.join(','), // store as comma-separated
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(res) {
+                    if(res.success){
+                        $('#bulkTagsModal').modal('hide');
+                        toastr.success(res.message);
+
+                        // Optional: re-draw table / re-render cards
+                        $('#smart-data-table').DataTable().ajax.reload();
+                    }
+                },
+                error: function(err) {
+                    console.log(err);
                 }
             });
         });
@@ -1456,6 +1635,119 @@
             });
         });
 
+        $(document).on('click', '.close-dropdown-btn', function () {
+            $(this).closest(".dropdown-menu").removeClass("show");
+        });
+
+        $(document).on('click', '#modal-type-close', function () {
+            $(this).closest(".dropdown-menu").removeClass("show");
+        });
+
+        $(document).on('click', '.save-tags-btn', function () {
+            const leadId = $(this).data('id');
+
+            let selected = [];
+            $('#tag_' + leadId + '_').closest('.dropdown')
+            $(this).closest('.dropdown-menu')
+                .find('.lead-tag-checkbox:checked')
+                .each(function () {
+                    selected.push($(this).val());
+                });
+
+            $.ajax({
+                url: "{{ route('lead.save.tags') }}",
+                type: "POST",
+                data: {
+                    lead_id: leadId,
+                    tags: selected.join(','),  // ✅ comma separated
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function () {
+                    toastr.success("Tags updated!");
+
+                    // ✅ reload datatable to show updated tag badges
+                    $('#smart-data-table').DataTable().ajax.reload(null, false);
+                }
+            });
+        });
+
+        $(document).on('click', '.save-type-btn', function () {
+            let leadId = $(this).data('id');
+            let parent = $(this).closest('.dropdown-menu');
+
+            let type = parent.find('.lead-type-radio:checked').val();
+
+            let is_replenishable = parent.find('input[data-field="is_replenishable"]').is(':checked') ? 1 : 0;
+            let is_hazmat = parent.find('input[data-field="is_hazmat"]').is(':checked') ? 1 : 0;
+            let is_caution = parent.find('input[data-field="is_caution"]').is(':checked') ? 1 : 0;
+
+            $.ajax({
+                url: "{{ route('leads.saveType') }}",
+                type: "POST",
+                data: {
+                    lead_id: leadId,
+                    type: type,
+                    is_replenishable,
+                    is_hazmat,
+                    is_caution,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function () {
+                    toastr.success("Type updated!");
+
+                    // ✅ Reload only this row
+                    // $('#smart-data-table').DataTable().ajax.reload(null, false);
+
+                    // ✅ Close dropdown
+                    parent.removeClass("show");
+                }
+            });
+        });
+
+        // ✅ Live update icons when radio or checkbox changes
+        $(document).on('change', '.lead-type-radio, .lead-type-check', function () {
+
+            let dropdown = $(this).closest('.dropdown');
+            let leadId = dropdown.find('.add-type-btn').data('id');
+
+            let selectedType = dropdown.find('.lead-type-radio:checked').val();
+
+            let isRepl = dropdown.find('input[data-field="is_replenishable"]').is(':checked');
+            let isHazmat = dropdown.find('input[data-field="is_hazmat"]').is(':checked');
+            let isCaution = dropdown.find('input[data-field="is_caution"]').is(':checked');
+
+            let icons = "";
+
+            // ✅ Radio icons
+            if (selectedType === "normal") {
+                icons += `<i class="ti ti-trophy text-warning fs-4 me-1" data-bs-toggle="tooltip"
+                        title="Normal"></i>`;
+            }
+            if (selectedType === "bonus") {
+                icons += `<i class="ti ti-sparkles text-primary fs-4 me-1" data-bs-toggle="tooltip"
+                        title="Bouns"></i>`;
+            }
+
+            // ✅ Checkbox icons
+            if (isRepl) {
+                icons += `<i class="ti ti-leaf text-success fs-4 me-1" data-bs-toggle="tooltip"
+                        title="Replenishable"></i>`;
+            }
+            if (isHazmat) {
+                icons += `<i class="ti ti-alert-triangle text-danger fs-4 me-1" data-bs-toggle="tooltip"
+                        title="Hazmat"></i>`;
+            }
+            if (isCaution) {
+                icons += `<i class="ti ti-circle-minus text-danger fs-4 me-1" data-bs-toggle="tooltip"
+                        title="Caution"></i>`;
+            }
+
+            // ✅ Update the icon container immediately
+            $(".lead-type-icons-" + leadId).html(icons);
+            $(".lead-type-icons-" + leadId + " [data-bs-toggle='tooltip']").each(function () {
+                new bootstrap.Tooltip(this);
+            });
+        });
     </script>
 
 @endsection

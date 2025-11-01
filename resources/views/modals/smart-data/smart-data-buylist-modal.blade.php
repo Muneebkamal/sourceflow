@@ -1,7 +1,7 @@
 <!-- Modal -->
 <div class="modal fade" id="addtoBuylistModal" tabindex="-1" aria-labelledby="addtoBuylistModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content h-100">
+    <div class="modal-content">
       
       <div class="modal-header flex-column align-items-start">
         <div class="d-flex align-items-start w-100 gap-3">
@@ -27,12 +27,12 @@
                   Amazon
                 </div>
 
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center gap-1">
                   <label class="form-label mb-0 fw-medium" id="asin-label">-</label>
-                  <i class="ti ti-clipboard-text text-primary fs-5"></i>
+                  <i class="ti ti-clipboard-text text-primary asin-copy-icon fs-5"></i>
                 </div>
 
-                <button type="button" class="btn btn-link text-primary fw-semibold p-0 d-flex align-items-center gap-2" id="open-links-btn">
+                <button type="button" class="btn btn-link text-primary fw-semibold p-0 d-flex align-items-center gap-1" id="open-links-btn">
                   Open Links <i class="ti ti-external-link fs-5"></i>
                 </button>
               </div>
@@ -54,7 +54,10 @@
       <div class="modal-body">
         <ul class="nav nav-tabs nav-justified card-header-tabs nav-bordered w-50 mb-3">
           <li class="nav-item">
-            <a href="#add-buylist-tab" data-bs-toggle="tab" class="nav-link active">Add to Buy List</a>
+            <a href="#edit-lead-tab" id="edit-lead-tab-tab" data-bs-toggle="tab" class="nav-link active">Edit Lead</a>
+          </li>
+          <li class="nav-item">
+            <a href="#add-buylist-tab" id="add-buylist-tab-tab" data-bs-toggle="tab" class="nav-link">Add to Buy List</a>
           </li>
           <li class="nav-item">
             <a href="#smart-data-tab" data-bs-toggle="tab" class="nav-link">Smart Data</a>
@@ -62,7 +65,141 @@
         </ul>
 
         <div class="tab-content">
-          <div class="tab-pane show active" id="add-buylist-tab">
+          <div class="tab-pane show active" id="edit-lead-tab">
+            <form id="lead-edit-form">
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                  <input type="hidden" id="e_lead_id" name="e_lead_id">
+                  <div class="row">
+                    <div class="col-md-8 my-2">
+                      <label for="e_l_name" class="form-label">Product Title</label>
+                      <input type="text" class="form-control" id="e_l_name" name="e_l_name">
+                    </div>
+                    <div class="col-md-4 my-2">
+                      <label for="type" class="form-label">Product Type</label>
+                      <div class="form-control form-control-sm">
+                          <div class="d-flex align-items-center justify-content-between gap-2">
+                            <!-- Left side: icons -->
+                            <div class="lead-type-icons" id="lead-type-icons">
+                                <!-- Icons will be injected here dynamically -->
+                            </div>
+
+                            <!-- Right side: dropdown -->
+                            <div class="position-relative">
+                                <button class="btn btn-sm btn-soft-primary dropdown-toggle drop-arrow-none" type="button"
+                                        id="lead-type-dropdown-btn" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="false">
+                                    <i class="ti ti-plus"></i> Add Type
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end p-0">
+                                    <div class="card mb-0">
+                                      <div class="card-header bg-light">
+                                        <h6 class="mb-0">Set Lead Type</h6>
+                                      </div>
+                                      <div class="card-body p-0 p-2">
+                                        <div class="form-check mb-1">
+                                            <input class="form-check-input lead-type-radio" type="radio" name="type" value="normal" id="modal-type-normal">
+                                            <label class="form-check-label" for="modal-type-normal">Normal</label>
+                                        </div>
+                                        <div class="form-check mb-1">
+                                            <input class="form-check-input lead-type-radio" type="radio" name="type" value="bonus" id="modal-type-bonus">
+                                            <label class="form-check-label" for="modal-type-bonus">Bonus</label>
+                                        </div>
+                                        <div class="form-check mb-1">
+                                            <input class="form-check-input lead-type-check" type="checkbox" data-field="is_replenishable" id="modal-type-replenishable">
+                                            <label class="form-check-label" for="modal-type-replenishable">Replenishable</label>
+                                        </div>
+                                        <div class="form-check mb-1">
+                                            <input class="form-check-input lead-type-check" type="checkbox" data-field="is_hazmat" id="modal-type-hazmat">
+                                            <label class="form-check-label" for="modal-type-hazmat">Hazmat</label>
+                                        </div>
+                                        <div class="form-check mb-1">
+                                            <input class="form-check-input lead-type-check" type="checkbox" data-field="is_caution" id="modal-type-caution">
+                                            <label class="form-check-label" for="modal-type-caution">Caution</label>
+                                        </div>
+                                      </div>
+                                      <div class="card-footer d-flex justify-content-end">
+                                        <button type="button" class="btn btn-sm btn-light" id="modal-type-close">Close</button>
+                                      </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row g-2">
+                    <div class="col-md-4">
+                      <label for="e_l_asin" class="form-label">ASIN</label>
+                      <input type="text" class="form-control" id="e_l_asin" name="e_l_asin">
+                      </div>
+                      <div class="col-md-4">
+                      <label for="e_l_parent_asin" class="form-label">Parent Asin</label>
+                      <input type="number" class="form-control" id="e_l_parent_asin" name="e_l_parent_asin">
+                      </div>
+                      <div class="col-md-4">
+                      <label for="e_l_category" class="form-label">Category</label>
+                      <input type="text" class="form-control" id="e_l_category" name="e_l_category">
+                      </div>
+                  </div>
+
+                  <div class="row g-2 mt-2">
+                      <div class="col">
+                      <label for="e_l_costPerUnit" class="form-label">Cost</label>
+                      <input type="number" step="0.001" value="0.00" class="form-control" id="e_l_costPerUnit" name="e_l_buy_cost">
+                      </div>
+                      <div class="col">
+                      <label for="e_l_sellingPrice" class="form-label">Selling Price</label>
+                      <input type="number" class="form-control" value="0.00" id="e_l_sellingPrice" name="e_l_selling_price">
+                      </div>
+                      <div class="col">
+                      <label for="e_l_netProfit" class="form-label">Net Profit</label>
+                      <input type="number" class="form-control" value="0.00" id="e_l_netProfit" name="e_l_net_profit">
+                      </div>
+                      <div class="col">
+                      <label for="e_l_roi" class="form-label">ROI (0.00%)</label>
+                      <input type="text" class="form-control" id="e_l_roi" name="e_l_roi">
+                      </div>
+                      <div class="col">
+                      <label for="e_l_bsr_ninety" class="form-label">90D BSR Avg.</label>
+                      <input type="text" class="form-control" id="e_l_bsr_ninety" name="e_l_bsr_ninety">
+                      </div>
+                  </div>
+
+                  <div class="row g-2 mt-2">
+                      <div class="col-md-6">
+                      <label for="e_l_supplier" class="form-label">Supplier</label>
+                      <input type="text" class="form-control" id="e_l_supplier" name="e_l_supplier">
+                      </div>
+                      <div class="col-md-6">
+                      <label for="e_l_source_url" class="form-label">Source URL</label>
+                      <input type="url" class="form-control" id="e_l_source_url" name="e_l_source_url">
+                      </div>
+                      <div class="col-md-6">
+                      <label for="e_l_brand" class="form-label">Brand</label>
+                      <input type="text" class="form-control" id="e_l_brand" name="e_l_brand">
+                      </div>
+
+                      <div class="col-md-6">
+                      <label for="e_l_promo" class="form-label">Promo</label>
+                      <input type="text" class="form-control" id="e_l_promo" name="e_l_promo">
+                      </div>
+                      <div class="col-md-6">
+                      <label for="e_l_coupon_code" class="form-label">Coupon Code</label>
+                      <input type="text" class="form-control" id="e_l_coupon_code" name="e_l_coupon_code">
+                      </div>
+                  </div>
+
+                  <div class="mt-3">
+                      <label for="e_l_product_note" class="form-label">Product Note</label>
+                      <textarea id="e_l_product_note" rows="3" class="form-control" name="e_l_product_note"></textarea>
+                  </div>
+            </form>
+            <div class="modal-footer mt-2">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+              <button type="submit" form="lead-edit-form" class="btn btn-primary">Save</button>
+            </div>
+          </div>
+          <div class="tab-pane" id="add-buylist-tab">
             <form id="add-to-buylist-form">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <div class="row">
@@ -139,23 +276,23 @@
                     </div>
 
                     <div class="row g-2 mt-2">
-                        <div class="col-md-2">
+                        <div class="col">
                         <label for="costPerUnit" class="form-label">Cost</label>
                         <input type="number" step="0.001" value="0.00" class="form-control" id="costPerUnit" name="buy_cost">
                         </div>
-                        <div class="col-md-2">
+                        <div class="col">
                         <label for="sellingPrice" class="form-label">Selling Price</label>
                         <input type="number" class="form-control" value="0.00" id="sellingPrice" name="selling_price">
                         </div>
-                        <div class="col-md-2">
+                        <div class="col">
                         <label for="netProfit" class="form-label">Net Profit</label>
                         <input type="number" class="form-control" value="0.00" id="netProfit" name="net_profit">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col">
                         <label for="roi" class="form-label">ROI (0.00%)</label>
                         <input type="text" class="form-control" id="roi" name="roi">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col">
                         <label for="bsr_ninety" class="form-label">90D BSR Avg.</label>
                         <input type="text" class="form-control" id="bsr_ninety" name="bsr_ninety">
                         </div>
@@ -197,6 +334,10 @@
                     </div>
                 </div>
             </form>
+            <div class="modal-footer mt-2">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+              <button type="submit" form="add-to-buylist-form" class="btn btn-primary">Add to Buylist</button>
+            </div>
           </div>
 
           <div class="tab-pane" id="smart-data-tab">
@@ -227,10 +368,7 @@
         </div>
       </div>
 
-      <div class="modal-footer">
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-        <button type="submit" form="add-to-buylist-form" class="btn btn-primary">Add to Buylist</button>
-      </div>
+      
     </div>
   </div>
 </div>

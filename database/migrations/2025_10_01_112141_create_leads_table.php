@@ -32,6 +32,9 @@ return new class extends Migration
             $table->string('coupon')->nullable();
             $table->boolean('is_hazmat')->default(0);
             $table->boolean('is_disputed')->default(0);
+            $table->string('type')->default('normal');
+            $table->boolean('is_caution')->default(0);
+            $table->boolean('is_replenishable')->default(0);
             $table->text('tags')->nullable();
             $table->boolean('is_rejected')->default(0);
             $table->text('reason')->nullable();
