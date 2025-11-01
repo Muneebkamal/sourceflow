@@ -45,6 +45,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tags/{id}/delete', [TagController::class, 'destroy'])->name('tags.delete');
     Route::get('smart-data/lead/{id}', [SmartDataController::class, 'showSmartData'])->name('smart.data.lead');
     Route::post('/buylist/add-item', [SmartDataController::class, 'addItem'])->name('buylist.addItem');
+    Route::post('/lead/save-tags', [SmartDataController::class, 'saveTags'])->name('lead.save.tags');
+    Route::post('/leads/save-type', [SmartDataController::class, 'saveType'])->name('leads.saveType');
+    Route::delete('/smart-data/{id}', [SmartDataController::class, 'destroy'])
+    ->name('smart-data.destroy');
+    Route::post('/leads/bulk-tags', [SmartDataController::class, 'bulkTags'])->name('save.bulk.tags');
+    Route::post('/smart-data/lead/update', [SmartDataController::class, 'updateLead'])->name('smartdata.leads.update');
 
 
     // Buylists route

@@ -90,49 +90,119 @@ class SmartDataController extends Controller
             $leads->orderByDesc('date');
 
             return DataTables::of($leads)
-                ->addColumn('checkbox', fn($lead) => '<input type="checkbox" class="form-check-input smart-data-checkbox">')
+                ->addColumn('checkbox', fn($lead) => '<input type="checkbox" class="form-check-input smart-data-checkbox" data-id="'.$lead->id.'">')
 
                 // 🖼️ Static image (no image column in DB)
                 ->addColumn('image', fn() => '<img src="https://images-na.ssl-images-amazon.com/images/I/61lABmqUxRL.jpg" class="img-thumbnail" width="60">')
 
                 ->addColumn('type', function ($lead) {
+                    // ICON + COLOR BASED ON TYPE
+                    $typeIcon = '';
+
+                    if ($lead->type == 'normal') {
+                        $typeIcon = '<i class="ti ti-trophy text-warning fs-4 me-1" data-bs-toggle="tooltip"
+                        title="Normal"></i>';
+                    } elseif ($lead->type == 'bonus') {
+                        $typeIcon = '<i class="ti ti-sparkles text-primary fs-4 me-1" data-bs-toggle="tooltip"
+                        title="Bouns"></i>';
+                    }
+
+                    if ($lead->is_replenishable) {
+                        $typeIcon .= '<i class="ti ti-leaf text-success fs-4 me-1" data-bs-toggle="tooltip"
+                        title="Replenishable"></i>';
+                    }
+
+                    if ($lead->is_hazmat) {
+                        $typeIcon .= '<i class="ti ti-alert-triangle fs-4 text-danger me-1" data-bs-toggle="tooltip"
+                        title="Hazmat"></i>';
+                    }
+
+                    if ($lead->is_caution) {
+                        $typeIcon .= '<i class="ti ti-circle-minus fs-4 text-danger me-1" data-bs-toggle="tooltip"
+                        title="Caution"></i>';
+                    }
+
+
                     return '
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-primary dropdown-toggle drop-arrow-none" type="button" data-bs-auto-close="outside" id="typeDropdown' . $lead->id . '" data-bs-toggle="dropdown" aria-expanded="false" data-bs-tooltip="tooltip"
-                            data-bs-placement="top" title="Add Type">
-                                <i class="ti ti-plus"></i>
-                            </button>
-                            <div class="dropdown-menu p-0" aria-labelledby="typeDropdown' . $lead->id . '" style="min-width: 250px;">
-                                <div class="card m-0 border-0">
-                                    <div class="card-header py-2 bg-light">
-                                        <h6 class="mb-0">Lead Type</h6>
-                                    </div>
-                                    <div class="card-body p-2">
-                                        <div class="form-check mb-1">
-                                            <input class="form-check-input" type="radio" name="type_' . $lead->id . '" id="normal_' . $lead->id . '" value="normal">
-                                            <label class="form-check-label" for="normal_' . $lead->id . '">Normal</label>
-                                        </div>
-                                        <div class="form-check mb-1">
-                                            <input class="form-check-input" type="radio" name="type_' . $lead->id . '" id="bonus_' . $lead->id . '" value="bonus">
-                                            <label class="form-check-label" for="bonus_' . $lead->id . '">Bonus</label>
+                        <div class="d-flex align-items-center flex-wrap gap-1">
+
+                            <!-- ✅ SHOW ICONS BEFORE BUTTON -->
+                            <div class="lead-type-icons-'.$lead->id.'">'.$typeIcon.'</div>
+
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-soft-primary dropdown-toggle drop-arrow-none add-type-btn"
+                                    type="button"
+                                    data-id="' . $lead->id . '"
+                                    data-bs-auto-close="outside"
+                                    data-bs-toggle="dropdown">
+                                    <i class="ti ti-plus"></i> Add Type
+                                </button>
+
+                                <div class="dropdown-menu p-0" style="min-width:250px;">
+
+                                    <div class="card m-0 border-0">
+                                        <div class="card-header py-2 bg-light">
+                                            <h6 class="mb-0">Lead Type</h6>
                                         </div>
 
-                                        <div class="form-check mb-1">
-                                            <input class="form-check-input" type="checkbox" id="replenishable_' . $lead->id . '">
-                                            <label class="form-check-label" for="replenishable_' . $lead->id . '">Replenishable</label>
+                                        <div class="card-body p-2">
+
+                                            <!-- Normal -->
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input lead-type-radio"
+                                                    type="radio"
+                                                    id="normal_'.$lead->id.'"
+                                                    name="type_'.$lead->id.'"
+                                                    value="normal"
+                                                    '.($lead->type == "normal" ? "checked" : "").'>
+                                                <label class="form-check-label" for="normal_'.$lead->id.'">Normal</label>
+                                            </div>
+
+                                            <!-- Bonus -->
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input lead-type-radio"
+                                                    type="radio"
+                                                    id="bonus_'.$lead->id.'"
+                                                    name="type_'.$lead->id.'"
+                                                    value="bonus"
+                                                    '.($lead->type == "bonus" ? "checked" : "").'>
+                                                <label class="form-check-label" for="bonus_'.$lead->id.'">Bonus</label>
+                                            </div>
+
+                                            <!-- Replenishable -->
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input lead-type-check"
+                                                    type="checkbox"
+                                                    data-field="is_replenishable"
+                                                    '.($lead->is_replenishable ? "checked" : "").'>
+                                                <label class="form-check-label">Replenishable
+                                                </label>
+                                            </div>
+
+                                            <!-- Hazmat -->
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input lead-type-check"
+                                                    type="checkbox"
+                                                    data-field="is_hazmat"
+                                                    '.($lead->is_hazmat ? "checked" : "").'>
+                                                <label class="form-check-label">Hazmat</label>
+                                            </div>
+
+                                            <!-- Caution -->
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input lead-type-check"
+                                                    type="checkbox"
+                                                    data-field="is_caution"
+                                                    '.($lead->is_caution ? "checked" : "").'>
+                                                <label class="form-check-label">Caution</label>
+                                            </div>
+
                                         </div>
-                                        <div class="form-check mb-1">
-                                            <input class="form-check-input" type="checkbox" id="hazmat_' . $lead->id . '">
-                                            <label class="form-check-label" for="hazmat_' . $lead->id . '">Hazmat</label>
+
+                                        <div class="card-footer d-flex justify-content-end gap-2 py-2">
+                                            <button type="button" class="btn btn-sm btn-light close-dropdown-btn">Close</button>
+                                            <button type="button" class="btn btn-sm btn-primary save-type-btn" data-id="' . $lead->id . '">Save</button>
                                         </div>
-                                        <div class="form-check mb-1">
-                                            <input class="form-check-input" type="checkbox" id="disputed_' . $lead->id . '">
-                                            <label class="form-check-label" for="disputed_' . $lead->id . '">Caution</label>
-                                        </div>
-                                    </div>
-                                    <div class="card-footer d-flex justify-content-end gap-2 py-2">
-                                        <button type="button" class="btn btn-sm btn-light" data-bs-toggle="dropdown">Close</button>
-                                        <button type="button" class="btn btn-sm btn-primary save-type-btn" data-id="' . $lead->id . '">Save</button>
                                     </div>
                                 </div>
                             </div>
@@ -141,59 +211,76 @@ class SmartDataController extends Controller
                 })
 
                 ->addColumn('tags', function ($lead) {
-                    $badges = [];
-                    if ($lead->is_hazmat) {
-                        $badges[] = '<span class="badge bg-danger">Hazmat</span>';
-                    }
-                    if ($lead->is_disputed) {
-                        $badges[] = '<span class="badge bg-warning text-dark">Disputed</span>';
+                    $tags = Tag::all();
+                    $leadTagIds = $lead->tags 
+                    ? explode(',', $lead->tags) 
+                    : [];
+                    
+                    $selectedBadges = '';
+                    if (!empty($leadTagIds)) {
+                        foreach ($leadTagIds as $tagId) {
+                            $t = $tags->where('id', $tagId)->first();
+                            if ($t) {
+                                $selectedBadges .= '<span class="badge bg-'.$t->color.'-subtle text-'.$t->color.' fw-semibold me-1 mb-1">'
+                                                . $t->name . '</span>';
+                            }
+                        }
                     }
 
-                    if (!empty($badges)) {
-                        return implode(' ', $badges);
+                    $buttonText = empty($leadTagIds) 
+                        ? '<i class="ti ti-plus"></i> Add Tags' 
+                        : 'Manage Tags';
+
+                    $html = '
+                        <div>
+                            <div class="mb-1">'.$selectedBadges.'</div> 
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-soft-primary dropdown-toggle drop-arrow-none add-tag-btn"
+                                        type="button"
+                                        data-id="' . $lead->id . '"
+                                        data-bs-auto-close="outside"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                    '.$buttonText.'
+                                </button>
+
+                                <div class="dropdown-menu p-0" style="min-width:250px;">
+                                    <div class="card m-0 border-0">
+                                        <div class="card-header py-2 bg-light">
+                                            <h6 class="mb-0">Lead Tags</h6>
+                                        </div>
+                                        <div class="card-body p-2">
+                    ';
+
+                    foreach ($tags as $tag) {
+                        $checked = in_array($tag->id, $leadTagIds) ? 'checked' : '';
+                        $html .= '
+                            <div class="form-check mb-1">
+                                <input class="form-check-input lead-tag-checkbox"
+                                    type="checkbox" '.$checked.'
+                                    id="tag_'.$tag->id.'_'.$lead->id.'"
+                                    value="'.$tag->id.'">
+                                <label class="form-check-label badge bg-'.$tag->color.'-subtle text-'.$tag->color.' fw-semibold"
+                                    for="tag_'.$tag->id.'_'.$lead->id.'">
+                                    '.$tag->name.'
+                                </label>
+                            </div>
+                        ';
                     }
 
-                    return '
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-primary dropdown-toggle drop-arrow-none" type="button" data-bs-auto-close="outside" id="typeDropdown' . $lead->id . '" data-bs-toggle="dropdown" aria-expanded="false" data-bs-tooltip="tooltip"
-                            data-bs-placement="top" title="Add Tags">
-                                <i class="ti ti-plus"></i>
-                            </button>
-                            <div class="dropdown-menu p-0" aria-labelledby="typeDropdown' . $lead->id . '" style="min-width: 250px;">
-                                <div class="card m-0 border-0">
-                                    <div class="card-header py-2 bg-light">
-                                        <h6 class="mb-0">Lead Tags</h6>
-                                    </div>
-                                    <div class="card-body p-2">
-                                        <div class="form-check mb-1">
-                                            <input class="form-check-input" type="checkbox" id="addedToBuyList_{{ $lead->id }}">
-                                            <label class="form-check-label badge bg-primary-subtle text-primary fw-semibold" for="addedToBuyList_{{ $lead->id }}">Added to Buy List</label>
+                    $html .= '
                                         </div>
-                                        <div class="form-check mb-1">
-                                            <input class="form-check-input" type="checkbox" id="ann_{{ $lead->id }}">
-                                            <label class="form-check-label badge bg-primary-subtle text-primary fw-semibold" for="ann_{{ $lead->id }}">ANN</label>
+                                        <div class="card-footer d-flex justify-content-end gap-2 py-2">
+                                            <button type="button" class="btn btn-sm btn-light close-dropdown-btn" data-id="' . $lead->id . '">Close</button>
+                                            <button type="button" class="btn btn-sm btn-primary save-tags-btn" data-id="' . $lead->id . '">Apply</button>
                                         </div>
-                                        <div class="form-check mb-1">
-                                            <input class="form-check-input" type="checkbox" id="ayadded_{{ $lead->id }}">
-                                            <label class="form-check-label badge bg-primary-subtle text-primary fw-semibold" for="ayadded_{{ $lead->id }}">AY ADDED</label>
-                                        </div>
-                                        <div class="form-check mb-1">
-                                            <input class="form-check-input" type="checkbox" id="duplicate_{{ $lead->id }}">
-                                            <label class="form-check-label badge bg-primary-subtle text-primary fw-semibold" for="duplicate_{{ $lead->id }}">Duplicate</label>
-                                        </div>
-                                        <div class="form-check mb-1">
-                                            <input class="form-check-input" type="checkbox" id="followup_{{ $lead->id }}">
-                                            <label class="form-check-label badge bg-danger-subtle text-danger fw-semibold" for="followup_{{ $lead->id }}">Followup</label>
-                                        </div>
-                                    </div>
-                                    <div class="card-footer d-flex justify-content-end gap-2 py-2">
-                                        <button type="button" class="btn btn-sm btn-light" data-bs-toggle="dropdown">Close</button>
-                                        <button type="button" class="btn btn-sm btn-primary save-type-btn" data-id="' . $lead->id . '">Apply</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     ';
+
+                    return $html;
                 })
                 // 🧮 Static bsr_current
                 ->addColumn('bsr_current', fn() => '--')
@@ -253,7 +340,7 @@ class SmartDataController extends Controller
                         $url = 'https://' . $lead->url;
                     }
                     return '
-                        <div class="d-flex justify-content-center gap-1">
+                        <div class="d-flex justify-content-center gap-1 actions-buttons">
                             <button class="btn btn-sm btn-success movetobuylist" data-id="' . $lead->id . '"><i class="ti ti-currency-dollar"></i></button>
                             <a href="' . e($url) . '" class="btn btn-sm btn-light"><i class="ti ti-external-link"></i></a>
                             <div class="dropdown">
@@ -261,6 +348,12 @@ class SmartDataController extends Controller
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li><a class="dropdown-item copyNameBtn" href="#" data-name="' . e($lead->name) . '">
                                         <i class="ti ti-copy me-2"></i> Copy to Clipboard
+                                    </a></li>
+                                    <li><a class="dropdown-item edit-lead-modal" data-id="' . $lead->id . '" href="#">
+                                        <i class="ti ti-edit me-2"></i> Edit Item Details
+                                    </a></li>
+                                    <li><a class="dropdown-item delSingleSmartData" data-id="'. $lead->id .'" href="#">
+                                        <i class="ti ti-trash text-danger me-2"></i> Delete Lead
                                     </a></li>
                                 </ul>
                             </div>
@@ -341,6 +434,90 @@ class SmartDataController extends Controller
         }
     }
 
+    public function saveTags(Request $request)
+    {
+        $lead = Lead::find($request->lead_id);
+
+        if (!$lead) {
+            return response()->json(['error' => 'Lead not found']);
+        }
+
+        // Save comma separated IDs directly
+        $lead->tags = $request->tags;
+        $lead->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function BulkTags(Request $request)
+    {
+        $leadIds = $request->lead_ids; // array of lead IDs
+        $tags = $request->tags;         // string like "1,3,5"
+
+        // Update all leads in one query
+        Lead::whereIn('id', $leadIds)->update(['tags' => $tags]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tags applied to selected leads.'
+        ]);
+    }
+
+    public function saveType(Request $request)
+    {
+        $lead = Lead::findOrFail($request->lead_id);
+
+        $lead->type = $request->type;
+        $lead->is_replenishable = $request->is_replenishable;
+        $lead->is_hazmat = $request->is_hazmat;
+        $lead->is_caution = $request->is_caution;
+
+        $lead->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function updateLead(Request $request)
+    {
+        try {
+            $lead = Lead::findOrFail($request->e_lead_id);
+
+            // Update lead fields
+            $lead->name = $request->e_l_name;
+            $lead->asin = $request->e_l_asin;
+            // $lead->parent_asin = $request->e_l_parent_asin;
+            $lead->category = $request->e_l_category;
+            $lead->cost = $request->e_l_buy_cost;
+            $lead->sell_price = $request->e_l_selling_price;
+            $lead->net_profit = $request->e_l_net_profit;
+            $lead->roi = $request->e_l_roi;
+            $lead->bsr = $request->e_l_bsr_ninety;
+            $lead->supplier = $request->e_l_supplier;
+            $lead->url = $request->e_l_source_url;
+            // $lead->brand = $request->e_l_brand;
+            $lead->promo = $request->e_l_promo;
+            $lead->coupon = $request->e_l_coupon_code;
+            $lead->notes = $request->e_l_product_note;
+
+            $lead->type = $request->type;
+            $lead->is_replenishable = $request->is_replenishable;
+            $lead->is_hazmat = $request->is_hazmat;
+            $lead->is_caution = $request->is_caution;
+            $lead->save();
+
+            return response()->json([
+                'success' => true,
+                'lead' => $lead,
+                'message' => 'Lead updated successfully!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating lead: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -386,6 +563,14 @@ class SmartDataController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+         $lead = Lead::find($id);
+
+        if (!$lead) {
+            return response()->json(['status' => 'error', 'message' => 'Lead not found'], 404);
+        }
+
+        $lead->delete();
+
+        return response()->json(['status' => 'success', 'message' => 'Lead deleted']);
     }
 }
