@@ -31,12 +31,12 @@
                             <div class="col-auto">
                                 <div class="border p-1 rounded d-flex align-items-center gap-1">
                                     <!-- Button 1: Show Table -->
-                                    <button id="show-table" class="btn btn-primary btn-sm">
+                                    <button id="show-table" class="btn btn-light btn-sm">
                                         <i class="ti ti-table fs-4"></i>
                                     </button>
 
                                     <!-- Button 2: Show Cards -->
-                                    <button id="show-cards" class="btn btn-light btn-sm">
+                                    <button id="show-cards" class="btn btn-primary btn-sm">
                                         <i class="ti ti-menu-2 fs-4"></i>
                                     </button>
                                 </div>
@@ -56,9 +56,9 @@
 
 
     <div class="row align-items-end mb-3">
-        <div class="col-md-6">
+        <div class="col-md-7">
             <div class="d-flex align-items-center gap-2">
-                <div class="d-flex w-100">
+                <div class="d-flex">
                     <div class="input-group">
                         <span class="input-group-text">
                             <i class="ti ti-search"></i>
@@ -193,10 +193,37 @@
                     <button class="btn btn-danger" id="btnResetFilters">Reset</button>
                 </div>
 
+                <div id="sorting-for-card" class="d-flex gap-1 d-none">
+                    <select id="card-sort-by" class="form-select">
+                        <option value="date">Publish Date</option>
+                        <option value="updated_at">Last Updated</option>
+                        <option value="name">Product Title</option>
+                        <option value="asin">ASIN</option>
+                        <option value="supplier">Supplier</option>
+                        <option value="brand">Brand</option>
+                        <option value="cost">Cost</option>
+                        <option value="sell_price">Sale Price</option>
+                        <option value="net_profit">Net Profit</option>
+                        <option value="roi">ROI</option>
+                        <option value="bsr">BSR 90D Avg</option>
+                        <option value="category">Category</option>
+                        <option value="promo">Promo</option>
+                        <option value="coupon">Coupon Code</option>
+                        <option value="notes">Lead Note</option>
+                        <option value="bsr_current">BSR Current</option>
+                    </select>
+
+                    <select id="card-sort-order" class="form-select">
+                        <option value="asc">Ascending</option>
+                        <option value="desc">Descending</option>
+                    </select>
+                </div>
+
+
             </div>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-5">
             <div class="d-flex align-items-end justify-content-md-end gap-1 flex-wrap mt-2 mt-md-0">
                 <div id="total-results" class="form-control fw-bold d-inline-block" style="width:auto;">
                     Total Results: 0
@@ -388,7 +415,7 @@
             <span class="fw-bold ms-3">Selected: <span id="selectedCount">0</span></span>
         </div>
         <div class="col-md-12">
-            <div id="table-section" class="card">
+            <div id="table-section" class="card d-none">
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table id="smart-data-table" class="table align-middle w-100 mb-0 table-hover">
@@ -432,7 +459,7 @@
                 </div>
             </div>
 
-            <div id="cards-section" class="d-none">
+            <div id="cards-section" class="">
                 <div class="cards-container">
                 </div>
                 <div id="card-pagination" class="pb-3 px-3"></div>
@@ -453,6 +480,7 @@
                 $('#cards-section').removeClass('d-none');
                 $('.customize-btn').addClass('d-none');
                 $('.actions-buttons').addClass('flex-column');
+                $('#sorting-for-card').removeClass('d-none');
 
                 // Button active state
                 $('#show-cards').removeClass('btn-light').addClass('btn-primary');
@@ -464,6 +492,7 @@
                 $('#table-section').removeClass('d-none'); 
                 $('.customize-btn').removeClass('d-none');
                  $('.actions-buttons').removeClass('flex-column');
+                 $('#sorting-for-card').addClass('d-none');
 
                 // Button active state
                 $('#show-table').removeClass('btn-light').addClass('btn-primary');
@@ -646,12 +675,16 @@
                     return;
                 }
 
-                data.forEach(item => {
-                    let card = `
+                // ✅ Select All checkbox (added only once)
+                $cardsSection.append(`
                     <div class="form-check mb-3 ms-2">
                         <input id="SelectAll-cards" class="form-check-input" type="checkbox">
                         <label for="SelectAll-cards"> Select All</label>
                     </div>
+                `);
+
+                data.forEach(item => {
+                    let card = `
                     <div class="card">
                         <div class="mb-3 card-body">
                             <div class="row g-3 align-items-start">
@@ -831,6 +864,98 @@
                 });
             }
 
+            // ---------------------------------------------
+            // ✅ 1. Mapping DataTable column index → card sort keys
+            // ---------------------------------------------
+            const tableToCardSortMap = {
+                1: 'date',
+                5: 'updated_at',
+                6: 'name',
+                7: 'asin',
+                8: 'supplier',
+                9: 'brand',
+                10: 'cost',
+                11: 'sell_price',
+                12: 'net_profit',
+                13: 'roi',
+                14: 'bsr',
+                15: 'category',
+                16: 'promo',
+                17: 'coupon',
+                18: 'notes',
+                22: 'bsr_current',
+            };
+
+            // ---------------------------------------------
+            // ✅ 2. MANUAL Sorting via select dropdowns
+            // ---------------------------------------------
+            $('#card-sort-by, #card-sort-order').on('change', function () {
+                sortCards();
+            });
+
+            // ---------------------------------------------
+            // ✅ 3. Main Card Sorting Function
+            // ---------------------------------------------
+            function sortCards() {
+                let sortBy = $('#card-sort-by').val();
+                let sortOrder = $('#card-sort-order').val();
+
+                let json = table.ajax.json();
+                if (!json || !json.data) return;
+
+                let data = [...json.data]; // clone array
+
+                // Helper: Normalize values for comparison
+                function getValue(item) {
+                    let val = item[sortBy];
+
+                    // numeric
+                    if (!isNaN(val) && val !== null && val !== '') {
+                        return parseFloat(val);
+                    }
+
+                    // date
+                    if (sortBy === 'date' || sortBy === 'updated_at') {
+                        return new Date(val);
+                    }
+
+                    // string
+                    return (val ?? '').toString().toLowerCase();
+                }
+
+                // Sorting
+                data.sort((a, b) => {
+                    let x = getValue(a);
+                    let y = getValue(b);
+
+                    if (x < y) return sortOrder === 'asc' ? -1 : 1;
+                    if (x > y) return sortOrder === 'asc' ? 1 : -1;
+                    return 0;
+                });
+
+                // Re-render cards
+                renderCards(data);
+            }
+
+            // ---------------------------------------------
+            // ✅ 4. AUTO-SYNC Card Sorting when Table is Sorted
+            // ---------------------------------------------
+            table.on('order.dt', function () {
+                let order = table.order();
+                let columnIndex = order[0][0];   // Which column was sorted
+                let direction = order[0][1];     // asc / desc
+
+                // Find matching card-sorting field
+                let sortBy = tableToCardSortMap[columnIndex];
+                if (!sortBy) return;  // ignore non-sortable card fields
+
+                // Update dropdowns to match table sort
+                $('#card-sort-by').val(sortBy);
+                $('#card-sort-order').val(direction);
+
+                // Sort cards now
+                sortCards();
+            });
 
             // 🔍 Auto search on typing
             $('#searchInput').on('keyup', function () {
@@ -1376,7 +1501,24 @@
             }
 
             $(modal).find('#lead-type-icons').html(icons);
+            
+            initTooltips('#lead-type-icons [data-bs-toggle="tooltip"]');
         }
+
+        function initTooltips(selector) {
+            // Destroy old tooltips to avoid duplicates
+            $(selector).each(function () {
+                if (bootstrap.Tooltip.getInstance(this)) {
+                    bootstrap.Tooltip.getInstance(this).dispose();
+                }
+            });
+
+            // Re-initialize tooltips
+            $(selector).each(function () {
+                new bootstrap.Tooltip(this);
+            });
+        }
+
 
         // Radio buttons
         $('#edit-lead-tab').on('change', '.lead-type-radio', function() {

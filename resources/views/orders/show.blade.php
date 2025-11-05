@@ -87,7 +87,7 @@
                     </h2>
                     <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                         <div class="accordion-body">
-                            <div class="row">
+                            <div class="row g-2">
                                 <div class="col-md-4">
                                     <div class="card h-100">
                                         <div class="card-header d-flex justify-content-between align-items-center border-bottom">
@@ -219,7 +219,7 @@
                                 </div>
                             </div>
 
-                            <div class="row mt-2">
+                            <div class="row mt-2 g-2">
                                 <div class="col-md-6">
                                     <div class="card h-100">
                                         <div class="card-header d-flex justify-content-between align-items-center border-bottom">
@@ -239,9 +239,9 @@
                                         <div class="card-header border-bottom">
                                             <h5 class="mb-0">Event Logs</h5>
                                         </div>
-                                        <div class="card-body">
-                                            <div class="responsive-table">
-                                                <table class="table">
+                                        <div class="card-body p-0 px-1">
+                                            <div class="table-responsive">
+                                                <table id="event-table" class="table table-hover align-middle w-100 mb-0">
                                                     <thead>
                                                         <th>Event Type</th>
                                                         <th>ASIN</th>
@@ -270,7 +270,9 @@
                     <button id="openEditItems" type="button" class="btn btn-soft-primary edit-item-btn" data-id="1">
                         Edit Items
                     </button>
-                    <button class="btn btn-soft-primary">Show Events <i class="ti ti-eye"></i></button>
+                    <button id="toggleShipping" class="btn btn-soft-primary">
+                        Show Events <i class="ti ti-eye"></i>
+                    </button>
                     <div class="btn-group">
                         <button class="btn btn-soft-primary" data-bs-toggle="dropdown" data-bs-container="body" aria-expanded="false">
                             Create Event
@@ -282,12 +284,18 @@
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item mark-fixed" data-id="{{ $order->id }}" href="#">
                                     Mark Order as Fixed
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">
+                                <a class="dropdown-item disabled"
+                                href="#"
+                                tabindex="-1"
+                                aria-disabled="true"
+                                data-bs-toggle="tooltip"
+                                data-bs-title="Coming Soon"
+                                style="pointer-events: none; opacity: 0.5;">
                                     List to FBA
                                 </a>
                             </li>
@@ -305,224 +313,6 @@
                                 </div>
 
                                 <div class="card-body p-2">
-                                    <!-- ✅ Sortable list -->
-                                    {{-- <div class="column-list-draggable">
-                                        <!-- Publish Date -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-publish_time" checked>
-                                                <label class="form-check-label ms-2" for="col-publish_time">Publish Date</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- Image -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-image" checked>
-                                                <label class="form-check-label ms-2" for="col-image">Image</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- Type -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-type" checked>
-                                                <label class="form-check-label ms-2" for="col-type">Type</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- Tags -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-tags" checked>
-                                                <label class="form-check-label ms-2" for="col-tags">Tags</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- Last Updated -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-latest_updated_at" checked>
-                                                <label class="form-check-label ms-2" for="col-latest_updated_at">Last Updated</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- Product Title -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-name" checked>
-                                                <label class="form-check-label ms-2" for="col-name">Product Title</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- ASIN -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-asin" checked>
-                                                <label class="form-check-label ms-2" for="col-asin">ASIN</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- Supplier -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-supplier" checked>
-                                                <label class="form-check-label ms-2" for="col-supplier">Supplier</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- Brand -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-brand">
-                                                <label class="form-check-label ms-2" for="col-brand">Brand</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- Cost -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-cost" checked>
-                                                <label class="form-check-label ms-2" for="col-cost">Cost</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- Sale Price -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-selling_price" checked>
-                                                <label class="form-check-label ms-2" for="col-selling_price">Sale Price</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- Net Profit -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-net_profit_input" checked>
-                                                <label class="form-check-label ms-2" for="col-net_profit_input">Net Profit</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- ROI -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-roi_input" checked>
-                                                <label class="form-check-label ms-2" for="col-roi_input">ROI</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- BSR 90D Avg -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-bsr_ninety" checked>
-                                                <label class="form-check-label ms-2" for="col-bsr_ninety">BSR 90D Avg</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- Category -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-category" checked>
-                                                <label class="form-check-label ms-2" for="col-category">Category</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- Promo -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-promo" checked>
-                                                <label class="form-check-label ms-2" for="col-promo">Promo</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- Coupon Code -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-coupon_code" checked>
-                                                <label class="form-check-label ms-2" for="col-coupon_code">Coupon Code</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- Lead Note -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-list_item_note" checked>
-                                                <label class="form-check-label ms-2" for="col-list_item_note">Lead Note</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- New Offers -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-new_offers_count">
-                                                <label class="form-check-label ms-2" for="col-new_offers_count">New Offers</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- Rating -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-rating">
-                                                <label class="form-check-label ms-2" for="col-rating">Rating</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- Reviews -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-review_count">
-                                                <label class="form-check-label ms-2" for="col-review_count">Reviews</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- BSR Current -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-bsr_current" checked>
-                                                <label class="form-check-label ms-2" for="col-bsr_current">BSR Current</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- Lead Source -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-list_group_id">
-                                                <label class="form-check-label ms-2" for="col-list_group_id">Lead Source</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-
-                                        <!-- Variations -->
-                                        <div class="d-flex justify-content-between align-items-center draggable-item">
-                                            <div>
-                                                <input class="form-check-input" type="checkbox" id="col-variations">
-                                                <label class="form-check-label ms-2" for="col-variations">Variations</label>
-                                            </div>
-                                            <i class="ti ti-grip-vertical grip-icon"></i>
-                                        </div>
-                                    </div> --}}
                                     <div class="column-list-draggable"></div>
                                 </div>
                             </div>
@@ -546,7 +336,7 @@
             <div class="card mt-3">
                 <div class="card-body p-0"> 
                     <div class="table-responsive">
-                        <table id="order-items-table" class="table align-middle w-100 mb-0 table-hover">
+                        <table id="order-items-table" data-order-id="{{ $order->id }}" class="table align-middle w-100 mb-0">
                             <thead class="table-light">
                                 <tr class="text-nowrap small">
                                     <th><input type="checkbox" id="selectAll" class="form-check-input"></th>
@@ -583,6 +373,7 @@
     @include('modals.order.order-detail.attachment-modal')
     @include('modals.order.order-detail.lineitems-edit-modal')
     @include('modals.order.order-detail.create-event-modal')
+    @include('modals.order.order-detail.edit-event-modal')
 @endsection
 
 @section('scripts')
@@ -722,11 +513,11 @@
 
         // ✅ Populate modal with data
         function populateModal(data) {
-            console.log(data);
-            modal.find('#editItemsModalLabel').text(data.name ?? '-');
+            // console.log(data);
+            modal.find('#editItemsModalLabel').text(data.raw.name ?? '-');
             modal.find('img[alt="Product Image"]').attr('src', 'https://app.sourceflow.io/storage/images/no-image-thumbnail.png');
 
-            modal.find('#name').val(data.name ?? '');
+            modal.find('#name').val(data.raw.name ?? '');
             modal.find('#asin').val(data.raw ? data.raw.asin_input ?? '' : data.asin ?? '');
             modal.find('#variation').val(data.variation_details ?? '');
             modal.find('#msku').val(data.msku ?? '');
@@ -1374,5 +1165,725 @@
         });
     });
 
+    $(document).ready(function () {
+        function showSection(type) {
+            $("#section-listing, #section-replacement, #section-refund, #section-never")
+                .addClass("d-none");
+
+            if (type === "listing") $("#section-listing").removeClass("d-none");
+            if (type === "replace") $("#section-replacement").removeClass("d-none");
+            if (type === "return") $("#section-refund").removeClass("d-none");
+            if (type === "received") $("#section-never").removeClass("d-none");
+        }
+        // Load default
+        showSection($("#eventType").val());
+        // When select changes
+        $("#eventType").on("change", function () {
+            showSection($(this).val());
+        });
+    });
+
+    // Check All
+    $('#qcAll').on('change', function () {
+        $('.qc-option').prop('checked', $(this).is(':checked'));
+        updateQcStatus();
+    });
+
+    // Individual options
+    $('.qc-option').on('change', function () {
+
+        // If all selected → Check All = checked
+        if ($('.qc-option:checked').length === $('.qc-option').length) {
+            $('#qcAll').prop('checked', true);
+        } else {
+            $('#qcAll').prop('checked', false);
+        }
+
+        updateQcStatus();
+    });
+
+    // Update button color only
+    function updateQcStatus() {
+        let selected = $('.qc-option:checked').length;
+        let total = $('.qc-option').length;
+
+        // Text always same
+        $('#qcCheckText').text('Options');
+
+        // If ALL selected → green button
+        if (selected === total && total > 0) {
+            qcButtonSuccess();
+        }
+        // Not all selected → default button
+        else {
+            qcButtonDefault();
+        }
+    }
+
+    function qcButtonSuccess() {
+        $('.qc-btn').removeClass('btn-light').addClass('btn-success text-white');
+    }
+
+    function qcButtonDefault() {
+        $('.qc-btn').removeClass('btn-success text-white').addClass('btn-light');
+    }
+
+    $(document).on('click', '.create-event-btn', function () {
+        let orderId = $(this).data('order-id');
+        let itemId  = $(this).data('order-item-id');
+
+        let minPrice  = $(this).data('min');
+        let maxPrice  = $(this).data('max');
+        let listPrice  = $(this).data('list-price');
+
+        $("#order_id").val(orderId);
+        $("#order_item_id").val(itemId);
+
+        $('#list_price').val(listPrice);
+        $('#max_list_price').val(maxPrice);
+        $('#min_list_price').val(minPrice);
+    });
+
+    $('#createEventForm').on('submit', function (e) {
+        e.preventDefault();
+
+        let eventType = $('#eventType').val();
+
+        // 1️⃣ Disable all inputs first
+        $('#section-listing :input').prop('disabled', true);
+        $('#section-replacement :input').prop('disabled', true);
+        $('#section-refund :input').prop('disabled', true);
+        $('#section-never :input').prop('disabled', true);
+
+        // 2️⃣ Enable only the active section inputs
+        if (eventType === 'listing') {
+            $('#section-listing :input').prop('disabled', false);
+        } else if (eventType === 'replace') {
+            $('#section-replacement :input').prop('disabled', false);
+        } else if (eventType === 'return') {
+            $('#section-refund :input').prop('disabled', false);
+        } else if (eventType === 'received') {
+            $('#section-never :input').prop('disabled', false);
+        }
+
+        // 3️⃣ Now serialize – this will include ONLY enabled inputs
+        let formData = $('#createEventForm').serialize();
+        formData += '&_token={{ csrf_token() }}';
+
+        // 4️⃣ Select correct route
+        let url =
+            eventType === 'listing'
+                ? "{{ route('ship-events.store') }}"
+                : "{{ route('event-logs.store') }}";
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: formData,
+            success: function (response) {
+                $('#createEventModal').modal('hide');
+                // $('#order-items-table').DataTable().ajax.reload();
+                $('#event-table').DataTable().ajax.reload(null, false);
+
+                // Reset form
+                $('#createEventForm')[0].reset();
+
+                // Reset QC button
+                $('#qcCheckText').text("Options");
+                $('.qc-btn').removeClass("btn-success text-white").addClass("btn-light");
+
+                // ✅ Re-enable ALL inputs again
+                $('#section-listing :input').prop('disabled', false);
+                $('#section-replacement :input').prop('disabled', false);
+                $('#section-refund :input').prop('disabled', false);
+                $('#section-never :input').prop('disabled', false);
+
+                toastr.success("Event created successfully");
+            },
+            error: function (xhr) {
+                console.log(xhr.responseText);
+            }
+        });
+    });
+
+    $('#event-table').DataTable({
+        ajax: {
+            url: "{{ route('orders.events', $order->id) }}",
+            type: "GET"
+        },
+        paging: false,
+        searching: false,
+        info: false,
+        ordering: false,
+        lengthChange: false,
+
+        columns: [
+            {
+                data: 'type',
+                render: function(type) {
+                    if (!type) return '-';
+                    let label = type.charAt(0).toUpperCase() + type.slice(1);
+
+                    let badgeClass = 'badge-soft-secondary';
+                    if (type === 'listing') badgeClass = 'badge-soft-success';
+                    else if (type === 'Event Log') badgeClass = 'badge-soft-warning text-dark';
+                    else badgeClass = 'badge-soft-danger';
+
+                    return `<span class="badge ${badgeClass} p-1">${label}</span>`;
+                }
+            },
+            { 
+                data: 'asin',
+                render: d => d ?? '-'
+            },
+
+            { 
+                data: 'qty',
+                render: d => d ?? '-'
+            },
+
+            // ✅ CREATED AT — m/d/y
+            {
+                data: 'created_at',
+                render: function(d){
+                    if (!d) return '-';
+                    let date = new Date(d);
+                    const m = String(date.getMonth() + 1).padStart(2, '0');
+                    const t = String(date.getDate()).padStart(2, '0');
+                    const y = String(date.getFullYear()).slice(-2);
+                    return `${m}/${t}/${y}`;
+                }
+            },
+
+            // ✅ UPDATED AT — m/d/y
+            {
+                data: 'updated_at',
+                render: function(d){
+                    if (!d) return '-';
+                    let date = new Date(d);
+                    const m = String(date.getMonth() + 1).padStart(2, '0');
+                    const t = String(date.getDate()).padStart(2, '0');
+                    const y = String(date.getFullYear()).slice(-2);
+                    return `${m}/${t}/${y}`;
+                }
+            },
+
+            {
+                data: null,
+                render: function (data, type, row) {
+                    return `<div class="dropdown">
+                                <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body">
+                                    <i class="ti ti-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item edit-event-btn" href="#" 
+                                        data-id="${row.id}" 
+                                        data-type="${row.type ?? 'listing'}">Edit</a></li>
+                                    <li><a class="dropdown-item event-delete-btn" href="#" 
+                                        data-id="${row.id}" 
+                                        data-source="${row.source}">Delete</a></li>
+                                </ul>
+                            </div>`;
+                }
+
+            }
+        ]
+    });
+
+    $(document).on('click', '.event-delete-btn', function (e) {
+        e.preventDefault();
+
+        let id = $(this).data('id');
+        let source = $(this).data('source');
+
+        let url = source === "ship_event"
+            ? "{{ url('/ship-event') }}/" + id
+            : "{{ url('/event-log') }}/" + id;
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This event will be permanently deleted.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, delete it"
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: url,
+                    type: "DELETE",
+                    data: { _token: "{{ csrf_token() }}" },
+
+                    success: function () {
+                        $('#event-table').DataTable().ajax.reload();
+                        Swal.fire("Deleted!", "Event deleted successfully.", "success");
+                    }
+                });
+            }
+        });
+    });
+
+    $(document).on('click', '.mark-fixed', function (e) {
+        e.preventDefault();
+
+        let orderId = $(this).data('id');
+
+        $.ajax({
+            url: "{{ route('orders.markFixed') }}",
+            type: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                order_id: orderId
+            },
+            success: function (res) {
+                toastr.success("Order marked as Received In Full");
+                location.reload();
+            },
+            error: function (xhr) {
+                console.log(xhr.responseText);
+            }
+        });
+    });
+
+    let eventsOpen = false;
+    $('#toggleShipping').on('click', function () {
+
+        if (!eventsOpen) {
+            loadEventsFromServer();
+            $(this).html(`Hide Events <i class="ti ti-eye-off"></i>`);
+            eventsOpen = true;
+
+        } else {
+            collapseAllEvents();
+            $(this).html(`Show Events <i class="ti ti-eye"></i>`);
+            eventsOpen = false;
+        }
+    });
+
+    function loadEventsFromServer() {
+        let orderId = $('#order-items-table').data('order-id');
+        $.ajax({
+            url: `/orders/items/${orderId}/events`,
+            type: "GET",
+            success: function (res) {
+                // console.log(res);
+                expandAllRows(res.listing, res.errors);
+            }
+        });
+    }
+
+    function expandAllRows(listing, errors) {
+        $('#order-items-table tbody tr').each(function () {
+            let itemId = $(this).data('item-id');
+
+            // Skip if already expanded
+            if ($(this).next().hasClass('event-expanded')) return;
+
+            // Filter events by item_id
+            let listingEvents = listing ? listing.filter(ev => ev.order_item_id == itemId) : [];
+            let errorEvents   = errors  ? errors.filter(ev => ev.order_item_id == itemId)  : [];
+
+            let expandHtml = `
+                <tr class="event-expanded">
+                    <td colspan="32" class="px-1 py-1">
+
+                        <h6 class="fw-bold text-primary mb-2">Listing Events</h6>
+                        ${buildListingTable(listingEvents)}
+
+                        <h6 class="fw-bold text-danger mt-4 mb-2">Error Events</h6>
+                        ${buildErrorTable(errorEvents)}
+
+                    </td>
+                </tr>
+            `;
+
+            $(this).after(expandHtml);
+        });
+
+        initDropdowns();
+    }
+
+    function initDropdowns() {
+        document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(el => {
+            new bootstrap.Dropdown(el);
+        });
+    }
+
+    function collapseAllEvents() {
+        $('.event-expanded').remove();
+    }
+
+    function buildListingTable(events) {
+        if (!events.length) return `<p class="text-muted">No Listing Events</p>`;
+
+        let rows = events.map(ev => {
+            // Determine QC status
+            let qcPass = ev.title_matches_flag && ev.image_matches_flag && ev.description_matches_flag && ev.upc_matches_flag;
+            let qcBadge = qcPass 
+                ? '<span class="badge badge-soft-success p-1">Pass</span>' 
+                : '<span class="badge badge-soft-danger p-1">Fail</span>';
+
+            return `
+                <tr>
+                    <td>ship to fba</td>
+                    <td>${ev.shippingbatch?.name ?? '-'}</td>
+                    <td>${ev.items ?? '-'}</td>
+                    <td>${qcBadge}</td>
+                    <td>${ev.order_date ?? '-'}</td>
+                    <td>${ev.asin_override ?? '-'}</td>
+                    <td>${ev.product_name_override ?? '-'}</td>
+                    <td>${ev.condition ?? '-'}</td>
+                    <td>${ev.product_upc ?? '-'}</td>
+                    <td>${ev.msku_orderride ?? '-'}</td>
+                    <td>${ev.shipping_notes ?? '-'}</td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body">
+                                <i class="ti ti-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a href="#" 
+                                    class="dropdown-item">
+                                        View
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="dropdown-item edit-event-btn" 
+                                    data-id="${ev.id}" 
+                                    data-type="listing">
+                                    Edit
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-danger"
+                                    href="#">
+                                    Delete
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        return `
+            <table class="table table-bordered table-sm mb-3">
+                <thead class="table-light">
+                    <tr>
+                        <th>Type</th>
+                        <th>Shipping Batch</th>
+                        <th>Shipped</th>
+                        <th>QC</th>
+                        <th>Order Date</th>
+                        <th>ASIN Override</th>
+                        <th>Title Override</th>
+                        <th>Condition</th>
+                        <th>UPC</th>
+                        <th>MSKU</th>
+                        <th>Notes</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+        `;
+    }
+
+    function buildErrorTable(events) {
+
+        if (!events.length) return `<p class="text-muted">No Error Events</p>`;
+
+        let rows = events.map(ev => `
+            <tr>
+                <td>${ev.issue_type ?? '-'}</td>
+                <td>${ev.item_quantity ?? '-'}</td>
+                <td>${ev.tracking_number ?? '-'}</td>
+                <td>${ev.refund_expected ?? '-'}</td>
+                <td>${ev.refund_actual ?? '-'}</td>
+                <td>${checkbox(ev.refunded)}</td>
+                <td>${checkbox(ev.cc_charged)}</td>
+                <td>${checkbox(ev.cancelled)}</td>
+                <td>${ev.supplier_notes ?? '-'}</td>
+                <td>${ev.issue_notes ?? '-'}</td>
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body">
+                            <i class="ti ti-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a href="#" 
+                                class="dropdown-item">
+                                    View
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="dropdown-item edit-event-btn" 
+                                data-id="${ev.id}" 
+                                data-type="${ev.issue_type}">
+                                Edit
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-danger"
+                                href="#">
+                                Delete
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+
+        return `
+            <table class="table table-bordered table-sm mb-3">
+                <thead class="table-light">
+                    <tr>
+                        <th>Issue Type</th>
+                        <th>Qty</th>
+                        <th>Tracking</th>
+                        <th>Expected Refund</th>
+                        <th>Actual Refund</th>
+                        <th>Refunded</th>
+                        <th>CC Charged</th>
+                        <th>Cancelled</th>
+                        <th>Supplier Notes</th>
+                        <th>Issuer Notes</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+        `;
+    }
+
+    // Handle eye icon click per row
+    $(document).on('click', '.btn-event-item', function(e) {
+        e.preventDefault();
+
+        let $btn = $(this);
+        let $row = $btn.closest('tr');                     // row of the clicked eye icon
+        let orderId = $btn.data('order-id');              // get order id
+        let itemId  = $btn.data('order-item-id');         // get item id
+
+        // If events already expanded, collapse them
+        if ($row.next().hasClass('event-expanded')) {
+            $row.next().remove();                          // remove expanded row
+            $btn.html('<i class="ti ti-eye"></i>');        // reset icon
+            return;
+        }
+
+        // Fetch events for this item only
+        $.ajax({
+            url: `/orders/items/${orderId}/events`,
+            type: "GET",
+            success: function(res) {
+                // Filter events for this item
+                let listingEvents = res.listing ? res.listing.filter(ev => ev.order_item_id == itemId) : [];
+                let errorEvents   = res.errors  ? res.errors.filter(ev => ev.order_item_id == itemId)  : [];
+
+                // Build HTML
+                let expandHtml = `
+                    <tr class="event-expanded">
+                        <td colspan="32" class="px-1 py-1">
+                            <h6 class="fw-bold text-primary mb-2">Listing Events</h6>
+                            ${buildListingTable(listingEvents)}
+                            <h6 class="fw-bold text-danger mt-4 mb-2">Error Events</h6>
+                            ${buildErrorTable(errorEvents)}
+                        </td>
+                    </tr>
+                `;
+
+                $row.after(expandHtml);
+                initDropdowns();
+
+                // Change icon to hide
+                $btn.html('<i class="ti ti-eye-off"></i>');
+            }
+        });
+    });
+
+    function formatDate(d) {
+        if (!d) return '-';
+        let dt = new Date(d);
+        return `${dt.getMonth()+1}/${dt.getDate()}/${dt.getFullYear()}`;
+    }
+
+    function checkbox(val) {
+        return `<input type="checkbox" disabled ${val ? 'checked' : ''}>`;
+    }
+
+    $(document).on("click", ".edit-event-btn", function () {
+        let eventId = $(this).data("id");
+        let eventType = $(this).data("type");
+
+        // Reset form
+        $("#EditEventForm").trigger("reset");
+
+
+        // Hide all sections first
+        $("#edit-section-listing, #edit-section-replacement, #edit-section-refund, #edit-section-never").addClass("d-none");
+
+        // Show the correct section only
+        if (eventType === "listing") $("#edit-section-listing").removeClass("d-none");
+        if (eventType === "replace") $("#edit-section-replacement").removeClass("d-none");
+        if (eventType === "return") $("#edit-section-refund").removeClass("d-none");
+        if (eventType === "received") $("#edit-section-never").removeClass("d-none");
+
+        // Load event details from backend
+        $.ajax({
+            url: "/events/get/" + eventType + "/" + eventId,
+            method: "GET",
+            success: function (res) {
+
+                let type = res.type;
+                let ev = res.data;
+
+                // Fill common fields
+                $("#order_id").val(ev.order_id);
+                $("#order_item_id").val(ev.order_item_id);
+                $("#edit_event_id").val(eventId);
+                $("#edit_event_type").val(type);
+
+                // ✅ LISTING
+                if (type === "listing") {
+
+                    $("#edit_shipping_batch").val(ev.shipping_batch);
+                    $("#edit_items").val(ev.items);
+                    $("#edit_expire_date").val(ev.expire_date);
+                    $("#edit_product_upc").val(ev.product_upc);
+                    $("#edit_msku").val(ev.msku_orderride);
+                    $("#edit_list_price").val(ev.list_price_orverride);
+                    $("#edit_min_list_price").val(ev.min_orverride);
+                    $("#edit_max_list_price").val(ev.max_orverride);
+                    $("#edit_shipping_notes").val(ev.shipping_notes);
+
+                    // QC CHECKBOXES
+                    $(".edit-qc-option").prop("checked", false);
+                    if (ev.upc_matches_flag)
+                        $("input.edit-qc-option[value='upc_matches']").prop("checked", true);
+                    if (ev.title_matches_flag)
+                        $("input.edit-qc-option[value='title_matches']").prop("checked", true);
+                    if (ev.image_matches_flag)
+                        $("input.edit-qc-option[value='image_matches']").prop("checked", true);
+                    if (ev.description_matches_flag)
+                        $("input.edit-qc-option[value='description_matches']").prop("checked", true);
+
+                    setTimeout(() => {
+                        // Update Check All & button color
+                        $('#edit_qcAll').prop(
+                            $('.edit-qc-option:checked').length === $('.edit-qc-option').length
+                        );
+
+                        updateEditQcStatus();
+                    }, 50);
+
+                }
+
+                if (type === "replace") {
+                    $("#edit_item_quantity_replace").val(ev.item_quantity);
+                    $("#edit_tracking_number_replace").val(ev.tracking_number);
+                    $("#edit_supplier_notes_replace").val(ev.supplier_notes);
+                    $("#edit_issue_notes_replace").val(ev.issue_notes);
+                    $("#edit_received_replace").prop("checked", ev.received == 1);
+                }
+
+                if (type === "return") {
+                    $("#edit_item_quantity_return").val(ev.item_quantity);
+                    $("#edit_refund_expected_return").val(ev.refund_expected);
+                    $("#edit_refund_actual_return").val(ev.refund_actual);
+                    $("#edit_tracking_number_return").val(ev.tracking_number);
+                    $("#edit_supplier_notes_return").val(ev.supplier_notes);
+                    $("#edit_issue_notes_return").val(ev.issue_notes);
+                    $("#edit_refunded_return").prop("checked", ev.refunded == 1);
+                }
+
+                if (type === "received") {
+                    $("#edit_item_quantity_received").val(ev.item_quantity);
+                    $("#edit_refund_expected_received").val(ev.refund_expected);
+                    $("#edit_refund_actual_received").val(ev.refund_actual);
+                    $("#edit_tracking_number_received").val(ev.tracking_number);
+                    $("#edit_supplier_notes_received").val(ev.supplier_notes);
+                    $("#edit_issue_notes_received").val(ev.issue_notes);
+                    $("#edit_cancelled_received").prop("checked", ev.cancelled == 1);
+                    $("#edit_cc_charged_received").prop("checked", ev.cc_charged == 1);
+                    $("#edit_refunded_received").prop("checked", ev.refunded == 1);
+                }
+
+                // ✅ FINALLY OPEN MODAL
+                $("#EditEventModal").modal("show");
+            }
+        });
+    });
+
+    // Check All
+    $('#edit_qcAll').on('change', function () {
+        $('.edit-qc-option').prop('checked', $(this).is(':checked'));
+        updateEditQcStatus();
+    });
+
+    // Individual items
+    $('.edit-qc-option').on('change', function () {
+        if ($('.edit-qc-option:checked').length === $('.edit-qc-option').length) {
+            $('#edit_qcAll').prop('checked', true);
+        } else {
+            $('#edit_qcAll').prop('checked', false);
+        }
+
+        updateEditQcStatus();
+    });
+
+    // Update only button color
+    function updateEditQcStatus() {
+        let selected = $('.edit-qc-option:checked').length;
+        let total = $('.edit-qc-option').length;
+
+        // Update text
+        $('#editQcCheckText').text('Options');
+
+        // All selected → success
+        if (selected === total && total > 0) {
+            editQcButtonSuccess();
+        } else {
+            editQcButtonDefault();
+        }
+    }
+
+    function editQcButtonSuccess() {
+        $('.edit-qc-btn')
+            .removeClass('btn-light')
+            .addClass('btn-success text-white');
+    }
+
+    function editQcButtonDefault() {
+        $('.edit-qc-btn')
+            .removeClass('btn-success text-white')
+            .addClass('btn-light');
+    }
+
+    $("#EditEventForm").submit(function(e){
+        e.preventDefault();
+
+        let eventId = $("#edit_event_id").val(); // 🚨 You must set hidden input in modal
+        let formData = $(this).serialize();
+
+        $.ajax({
+            url: "/events/update/" + eventId,
+            method: "POST",
+            data: formData,
+            success: function(res) {
+                if(res.success){
+                    $("#EditEventModal").modal("hide");
+                    toastr.success("Event Updated!");
+                    loadTable(); // ✅ refresh listing
+                }
+            }
+        });
+    });
 </script>
 @endsection

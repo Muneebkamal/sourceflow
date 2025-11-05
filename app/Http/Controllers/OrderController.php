@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EventLog;
 use App\Models\LineItem;
 use App\Models\Order;
+use App\Models\ShipEvent;
+use App\Models\Shipping;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -158,7 +161,8 @@ class OrderController extends Controller
 
     public function ordersItems()
     {
-        return view('orders.orders-items');
+        $shippings = Shipping::all();
+        return view('orders.orders-items', compact('shippings'));
     }
 
     public function getDataOrdersItems(Request $request)
@@ -170,7 +174,7 @@ class OrderController extends Controller
             ->select([
                 'line_items.*',
                 'orders.date as order_date',
-                'orders.order_id as order_id',
+                // 'orders.order_id as order_id',
                 'orders.status as status',
                 'orders.subtotal as subtotal',
                 'orders.total as order_total',
@@ -184,7 +188,7 @@ class OrderController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $lineItems->where(function($query) use ($search) {
-                $query->where('orders.order_id', 'like', "%{$search}%")
+                $query->where('line_items.order_id', 'like', "%{$search}%")
                     ->orWhere('line_items.name', 'like', "%{$search}%");
             });
         }
@@ -285,17 +289,31 @@ class OrderController extends Controller
             })
             ->addColumn('actions', function ($row) {
                 $showUrl = route('order.show', $row->id);
+                $url = $row->source_url;
                 return '
                     <div class="d-flex justify-content-center gap-1">
                         <a href="' . $showUrl . '" class="btn btn-sm btn-light"><i class="ti ti-eye"></i></a>
+                        <a href="'. $url .'" target="_blank" class="btn btn-sm btn-light">
+                            <i class="ti ti-external-link"></i>
+                        </a>
                         <div class="dropdown">
                             <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body">
                                 <i class="ti ti-dots-vertical"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#"><i class="ti ti-copy me-2"></i>Copy</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
+                                <li>
+                                    <a class="dropdown-item create-event-btn"
+                                    href="#"
+                                    data-order-id="' .$row->order_id. '"
+                                    data-order-item-id="' .$row->id. '"
+                                    data-min="' .$row->min. '"
+                                    data-max="' .$row->max. '"
+                                    data-list-price="' .$row->list_price. '">
+                                    Create Event
+                                    </a>
+                                </li>
+                                <li><a class="dropdown-item" href="#">Mark as Fixed</a></li>
+                                <li><a class="dropdown-item" href="#">Edit Item</a></li>
                             </ul>
                         </div>
                     </div>';
@@ -501,9 +519,10 @@ class OrderController extends Controller
      * Display the specified resource.
      */
     public function show(string $id)
-    {
+    {   
+        $shippings = Shipping::all();
         $order = Order::where('id', $id)->first();
-        return view('orders.show', compact('order'));
+        return view('orders.show', compact('order', 'shippings'));
     }
 
     public function getOrderItems($orderId)
@@ -599,8 +618,13 @@ class OrderController extends Controller
             ->addColumn('actions', function ($row) {
                 return '
                     <div class="d-flex justify-content-center gap-1">
-                        <a href="#" class="btn btn-sm btn-light"><i class="ti ti-eye"></i></a>
-                        <a href="#" class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#createEventModal">
+                        <a href="#" class="btn btn-sm btn-light btn-event-item" 
+                        data-order-id="' . $row->order_id . '" 
+                        data-order-item-id="' . $row->id . '">
+                            <i class="ti ti-eye"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-light create-event-btn" data-bs-toggle="modal" data-bs-target="#createEventModal" data-order-id="'.$row->order_id.'"
+                            data-order-item-id="'.$row->id.'" data-min="'.$row->min.'" data-max="'.$row->max.'" data-list-price="'.$row->list_price.'">
                             <i class="ti ti-plus"></i>
                         </a>
                         <div class="dropdown">
@@ -648,6 +672,11 @@ class OrderController extends Controller
                         </div>
                     </div>';
             })
+            ->setRowAttr([
+                'data-item-id' => function($row) {
+                    return $row->id;
+                }
+            ])
             ->addColumn('raw', fn($row) => [
                 'id' => $row->id,
                 'product_id' => $row->product_id,
@@ -765,6 +794,222 @@ class OrderController extends Controller
                 ? "Items successfully moved back to buylist"
                 : "Items deleted successfully"
         ]);
+    }
+
+    public function shipEventStore(Request $request)
+    {
+        ShipEvent::create([
+            'order_id' => $request->order_id,
+            'order_item_id' => $request->order_item_id,
+            'shipping_batch' => $request->shipping_batch,
+            'items' => $request->items,
+            'upc_matches_flag' => in_array('upc_matches', $request->qc_check ?? []) ? 1 : 0,
+            'title_matches_flag' => in_array('title_matches', $request->qc_check ?? []) ? 1 : 0,
+            'image_matches_flag' => in_array('image_matches', $request->qc_check ?? []) ? 1 : 0,
+            'description_matches_flag' => in_array('description_matches', $request->qc_check ?? []) ? 1 : 0,
+
+            'expire_date' => $request->expire_date,
+            'product_upc' => $request->product_upc,
+            'msku_orderride' => $request->msku,
+            'min_orverride' => $request->min_list_price,
+            'list_price_orverride' => $request->list_price,
+            'max_orverride' => $request->max_list_price,
+            'shipping_notes' => $request->shipping_notes,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function logEventStore(Request $request)
+    {
+        EventLog::create([
+            'order_id' => $request->order_id,
+            'order_item_id' => $request->order_item_id,
+            'issue_type' => $request->eventType,
+            'item_quantity' => $request->item_quantity,
+            'refund_expected' => $request->refund_expected ?? 0,
+            'refund_actual' => $request->refund_actual ?? 0,
+            'tracking_number' => $request->tracking_number,
+            'cancelled' => $request->cancelled ?? 0,
+            'cc_charged' => $request->cc_charged ?? 0,
+            'refunded' => $request->refunded ?? 0,
+            'received' => $request->received ?? 0,
+            'supplier_notes' => $request->supplier_notes,
+            'issue_notes' => $request->issue_notes,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function getEvents($id)
+    {
+        // Load Event Logs
+        $events = EventLog::where('order_id', $id)
+            ->with('LineItem')
+            ->latest()
+            ->get()
+            ->map(function ($e) {
+                return [
+                    'id'          => $e->id,            // ✅ add id
+                    'source'      => 'event_log',       // ✅ identify source
+                    'type'        => $e->issue_type ?? 'Event Log',
+                    'asin'        => $e->LineItem->asin ?? null,
+                    'qty'         => $e->item_quantity ?? null,
+                    'created_at'  => $e->created_at,
+                    'updated_at'  => $e->updated_at,
+                ];
+            });
+
+        // Load Ship Events
+        $shippingEvents = ShipEvent::where('order_id', $id)
+            ->with('shippingbatch', 'orderItem')
+            ->latest()
+            ->get()
+            ->map(function ($s) {
+                return [
+                    'id'          => $s->id,            // ✅ add id
+                    'source'      => 'ship_event',       // ✅ identify source
+                    'type'        => 'listing',
+                    'asin'        => $s->orderItem->asin ?? null,
+                    'qty'         => $s->items ?? null,
+                    'created_at'  => $s->created_at,
+                    'updated_at'  => $s->updated_at,
+                ];
+            });
+
+        // ✅ Convert to base collection to avoid getKey() error
+        $events = collect($events);
+        $shippingEvents = collect($shippingEvents);
+
+        // ✅ Now safe
+        $allEvents = $events->merge($shippingEvents)
+            ->sortByDesc('created_at')
+        ->values();
+        // Merge
+        // $allEvents = $events->merge($shippingEvents);
+        // $allEvents = $allEvents->sortByDesc('created_at')->values();
+
+        return response()->json(['data' => $allEvents]);
+    }
+
+    public function destroyEvent($id)
+    {
+        EventLog::findOrFail($id)->delete();
+        return response()->json(['status' => true]);
+    }
+
+    public function destroyShipEvent($id)
+    {
+        ShipEvent::findOrFail($id)->delete();
+        return response()->json(['status' => true]);
+    }
+
+    public function markFixed(Request $request)
+    {
+        $order = Order::findOrFail($request->order_id);
+        $order->status = 'received in full';
+        $order->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function getEventsForItem($orderId)
+    {
+        $items = LineItem::where('order_id', $orderId)->pluck('id');
+
+        $listing = ShipEvent::whereIn('order_item_id', $items)
+            ->with('shippingbatch')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $errors = EventLog::whereIn('order_item_id', $items)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'listing' => $listing,
+            'errors'  => $errors
+        ]);
+    }
+
+    public function getEventEdit($eventType, $id)
+    {
+        if ($eventType === 'listing') {
+            $event = ShipEvent::with('shippingbatch')->findOrFail($id);
+
+            return response()->json([
+                'type' => 'listing',
+                'data' => $event
+            ]);
+        }
+
+        // Otherwise EventLog
+        $event = EventLog::findOrFail($id);
+
+        return response()->json([
+            'type' => $event->issue_type,
+            'data' => $event
+        ]);
+    }
+
+    public function updateEvent(Request $request, $id)
+    {
+        // dd($request->all());
+        $type = $request->event_type;
+        if ($type === 'listing') {
+            $event = ShipEvent::findOrFail($id);
+
+            $event->update([
+                'shipping_batch' => $request->shipping_batch,
+                'items' => $request->items,
+                'expire_date' => $request->expire_date,
+                'product_upc' => $request->product_upc,
+                'msku_orderride' => $request->msku,
+                'min_orverride' => $request->min_list_price,
+                'list_price_orverride' => $request->list_price,
+                'max_orverride' => $request->max_list_price,
+                'shipping_notes' => $request->shipping_notes,
+                'upc_matches_flag' => in_array('upc_matches', $request->edit_qc_check ?? []),
+                'title_matches_flag' => in_array('title_matches', $request->edit_qc_check ?? []),
+                'image_matches_flag' => in_array('image_matches', $request->edit_qc_check ?? []),
+                'description_matches_flag' => in_array('description_matches', $request->edit_qc_check ?? []),
+            ]);
+        } elseif ($type === 'replace') {
+            $log = EventLog::findOrFail($id);
+            $log->update([
+                'item_quantity'   => $request->item_quantity_replace,
+                'tracking_number' => $request->tracking_number_replace,
+                'supplier_notes'  => $request->supplier_notes_replace,
+                'issue_notes'     => $request->issue_notes_replace,
+                'received'        => $request->received_replace ?? 0,
+            ]);
+        } elseif ($type === 'return') {
+            $log = EventLog::findOrFail($id);
+            $log->update([
+                'item_quantity'   => $request->item_quantity_return,
+                'refund_expected' => $request->refund_expected_return ?? 0,
+                'refund_actual'   => $request->refund_actual_return ?? 0,
+                'tracking_number' => $request->tracking_number_return,
+                'supplier_notes'  => $request->supplier_notes_return,
+                'issue_notes'     => $request->issue_notes_return,
+                'refunded'        => $request->refunded_return ?? 0,
+            ]);
+        } elseif ($type === 'received') {
+            $log = EventLog::findOrFail($id);
+            $log->update([
+                'item_quantity'   => $request->item_quantity_received,
+                'refund_expected' => $request->refund_expected_received ?? 0,
+                'refund_actual'   => $request->refund_actual_received ?? 0,
+                'tracking_number' => $request->tracking_number_received,
+                'supplier_notes'  => $request->supplier_notes_received,
+                'issue_notes'     => $request->issue_notes_received,
+                'cancelled'       => $request->cancelled_received ?? 0,
+                'cc_charged'      => $request->cc_charged_received ?? 0,
+                'refunded'        => $request->refunded_received ?? 0,
+            ]);
+        }
+
+        return response()->json(['success' => true]);
     }
 
     /**

@@ -340,7 +340,7 @@ class SmartDataController extends Controller
                         $url = 'https://' . $lead->url;
                     }
                     return '
-                        <div class="d-flex justify-content-center gap-1 actions-buttons">
+                        <div class="d-flex justify-content-center flex-column gap-1 actions-buttons">
                             <button class="btn btn-sm btn-success movetobuylist" data-id="' . $lead->id . '"><i class="ti ti-currency-dollar"></i></button>
                             <a href="' . e($url) . '" class="btn btn-sm btn-light"><i class="ti ti-external-link"></i></a>
                             <div class="dropdown">

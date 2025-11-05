@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Orders')
+@section('title', 'Ordered Items')
 
 @section('content')
     <div class="row">
@@ -356,6 +356,7 @@
         </div>
     </div>
 
+    @include('modals.order.order-detail.create-event-modal')
 @endsection
 
 @section('scripts')
@@ -528,6 +529,120 @@
             });
         });
 
+    });
+
+    // ✅ When user clicks "Create Event"
+    $(document).on('click', '.create-event-btn', function () {
+        let orderId = $(this).data('order-id');
+        let itemId  = $(this).data('order-item-id');
+
+        let minPrice  = $(this).data('min');
+        let maxPrice  = $(this).data('max');
+        let listPrice = $(this).data('list-price');
+
+        // Reset modal fields
+        $("#createEventForm")[0].reset();
+
+        $("#order_id").val(orderId);
+        $("#order_item_id").val(itemId);
+
+        $('#list_price').val(listPrice);
+        $('#max_list_price').val(maxPrice);
+        $('#min_list_price').val(minPrice);
+
+        // Open modal
+        $("#createEventModal").modal("show");
+    });
+
+    // ✅ Show/Hide Sections Based on Event Type
+    $("#eventType").on("change", function () {
+        let type = $(this).val();
+
+        // ✅ First hide ALL sections
+        $("#section-listing").addClass("d-none");
+        $("#section-replacement").addClass("d-none");
+        $("#section-refund").addClass("d-none");
+        $("#section-never").addClass("d-none");
+
+        // ✅ Show ONLY the selected one
+        if (type === "listing") {
+            $("#section-listing").removeClass("d-none");
+        }
+        else if (type === "replace") {
+            $("#section-replacement").removeClass("d-none");
+        }
+        else if (type === "return") {
+            $("#section-refund").removeClass("d-none");
+        }
+        else if (type === "received") {
+            $("#section-never").removeClass("d-none");
+        }
+    });
+
+    // ✅ Auto trigger on modal open (default type=listing)
+    $('#createEventModal').on('shown.bs.modal', function () {
+        $("#eventType").trigger('change');
+    });
+
+    $('#createEventForm').on('submit', function (e) {
+        e.preventDefault();
+
+        let eventType = $('#eventType').val();
+
+        // 1️⃣ Disable all inputs first
+        $('#section-listing :input').prop('disabled', true);
+        $('#section-replacement :input').prop('disabled', true);
+        $('#section-refund :input').prop('disabled', true);
+        $('#section-never :input').prop('disabled', true);
+
+        // 2️⃣ Enable only the active section inputs
+        if (eventType === 'listing') {
+            $('#section-listing :input').prop('disabled', false);
+        } else if (eventType === 'replace') {
+            $('#section-replacement :input').prop('disabled', false);
+        } else if (eventType === 'return') {
+            $('#section-refund :input').prop('disabled', false);
+        } else if (eventType === 'received') {
+            $('#section-never :input').prop('disabled', false);
+        }
+
+        // 3️⃣ Now serialize – this will include ONLY enabled inputs
+        let formData = $('#createEventForm').serialize();
+        formData += '&_token={{ csrf_token() }}';
+
+        // 4️⃣ Select correct route
+        let url =
+            eventType === 'listing'
+                ? "{{ route('ship-events.store') }}"
+                : "{{ route('event-logs.store') }}";
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: formData,
+            success: function (response) {
+                $('#createEventModal').modal('hide');
+                // $('#order-items-table').DataTable().ajax.reload();
+
+                // Reset form
+                $('#createEventForm')[0].reset();
+
+                // Reset QC button
+                $('#qcCheckText').text("Options");
+                $('.qc-btn').removeClass("btn-success text-white").addClass("btn-light");
+
+                // ✅ Re-enable ALL inputs again
+                $('#section-listing :input').prop('disabled', false);
+                $('#section-replacement :input').prop('disabled', false);
+                $('#section-refund :input').prop('disabled', false);
+                $('#section-never :input').prop('disabled', false);
+
+                toastr.success("Event created successfully");
+            },
+            error: function (xhr) {
+                console.log(xhr.responseText);
+            }
+        });
     });
 </script>
 @endsection
