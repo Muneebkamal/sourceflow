@@ -96,7 +96,21 @@ Route::middleware(['auth'])->group(function () {
     ->name('order.items.delete');
     Route::post('/order-items/bulk-delete', [OrderController::class, 'bulkDeleteItems'])
     ->name('order.items.bulk.delete');
+    Route::post('/orders/mark-fixed', [OrderController::class, 'markFixed'])
+    ->name('orders.markFixed');
 
+    // event routes
+    Route::post('/ship-events/store', [OrderController::class, 'shipEventStore'])
+    ->name('ship-events.store');
+    Route::post('/event-logs/store', [OrderController::class, 'logEventStore'])
+    ->name('event-logs.store');
+    Route::get('/orders/{id}/events', [OrderController::class, 'getEvents'])->name('orders.events');
+    Route::delete('/event-log/{id}', [OrderController::class, 'destroyEvent'])->name('event-log.delete');
+    Route::delete('/ship-event/{id}', [OrderController::class, 'destroyShipEvent'])->name('ship-event.delete');
+    Route::get('/orders/items/{orderId}/events', [OrderController::class, 'getEventsForItem'])
+     ->name('orders.items.events');
+    Route::get('/events/get/{type}/{id}', [OrderController::class, 'getEventEdit']);
+    Route::post('/events/update/{id}', [OrderController::class, 'updateEvent']);
 
 
     // Shipping routes

@@ -415,152 +415,6 @@
     
 @section('scripts')
     <script>
-        // $(document).ready(function () {
-        //     const table = $('#buylist-table').DataTable({
-        //         processing: true,
-        //         serverSide: true,
-        //         stateSave: true,
-        //         colReorder: true,
-        //         ajax: {
-        //             url: "{{ route('buylist.data') }}",
-        //             data: function (d) {
-        //                 d.buylist_ids = $('.buylist-filter:checked').map(function () {
-        //                     return $(this).val();
-        //                 }).get();
-        //                 d.search = $('#searchInput').val();
-        //             }
-        //         },
-        //         drawCallback: function () {
-        //             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        //             tooltipTriggerList.map(el => new bootstrap.Tooltip(el));
-        //         },
-        //         scrollY: '40vh',
-        //         scrollX: true,
-        //         paging: true,
-        //         searching: false,
-        //         ordering: true,
-        //         lengthChange: false,
-        //         order: [],
-        //         columns: [
-        //             { data: 'id', orderable: false, render: data => `<input type="checkbox" class="form-check-input buylist-checkbox" data-id="${data}">` },
-        //             { data: 'order_note', defaultContent: '--' },
-        //             { data: 'created_at', defaultContent: '--' },
-        //             { data: 'asin', defaultContent: '--' },
-        //             { data: 'image', defaultContent: '--', orderable: false, searchable: false },
-        //             { data: 'name', defaultContent: '--' },
-        //             { data: 'variations', defaultContent: '--' },
-        //             { data: 'supplier', defaultContent: '--' },
-        //             { data: 'cost', defaultContent: '--' },
-        //             { data: 'selling_price', defaultContent: '$0.00', render: d => d ? `$${parseFloat(d).toFixed(2)}` : '$0.00' },
-        //             { data: 'unit_purchased', defaultContent: '--' },
-        //             { data: 'bsr', defaultContent: '--' },
-        //             { data: 'promo', defaultContent: '--' },
-        //             { data: 'coupon_code', defaultContent: '--' },
-        //             { data: 'order_note', defaultContent: '--' },
-        //             { data: 'product_buyer_notes', defaultContent: '--' },
-        //             { data: 'upc', defaultContent: '--' },
-        //             { data: 'brand', defaultContent: '--' },
-        //             { data: 'monthly_sold', defaultContent: '--' },
-        //             { data: 'offers', defaultContent: '--' },
-        //             { data: 'rating', defaultContent: '--' },
-        //             { data: 'reviews', defaultContent: '--' },
-        //             { data: 'buylist_name', defaultContent: '--' },
-        //             { data: 'lead_type', defaultContent: '--' },
-        //             { data: 'sku_total', defaultContent: '$0.00', render: d => d ? `$${parseFloat(d).toFixed(2)}` : '$0.00' },
-        //             { data: 'roi_est', defaultContent: '--' },
-        //             { data: 'net_profit_est', defaultContent: '--' },
-        //             { data: 'bsr_current', defaultContent: '--' },
-        //             { data: 'category', defaultContent: '--' },
-        //             { data: 'actions', orderable: false, searchable: false, defaultContent: '' },
-        //         ],
-        //     });
-
-        //     /** 🔹 Helper: Get column index by data name */
-        //     function getColumnIndexByData(dataName) {
-        //         const columns = table.settings().init().columns;
-        //         return columns.findIndex(col => col.data === dataName);
-        //     }
-
-        //     /** 🧹 Clear invalid saved state if column count changed */
-        //     table.on('stateLoaded.dt', function (e, settings, data) {
-        //         const currentCount = table.columns().count();
-        //         const savedCount = data?.columns?.length ?? 0;
-        //         if (currentCount !== savedCount) {
-        //             console.warn('⚠️ State cleared: column count mismatch');
-        //             table.state.clear();
-        //             location.reload();
-        //         }
-        //     });
-
-        //     /** ✅ Sync column visibility checkboxes */
-        //     function syncCheckboxStates() {
-        //         table.columns().every(function () {
-        //             const checkbox = $(`#col-${this.dataSrc()}`);
-        //             if (checkbox.length) checkbox.prop('checked', this.visible());
-        //         });
-        //     }
-        //     table.on('init.dt stateLoaded.dt', syncCheckboxStates);
-
-        //     /** ✅ Sortable drag setup (only 1 → 28 allowed) */
-        //     $(".column-list-draggable").sortable({
-        //         handle: ".grip-icon",
-        //         update: function () {
-        //             const totalCols = table.columns().count();
-        //             const firstFixed = 0;
-        //             const lastFixed = totalCols - 1;
-        //             const newOrder = [firstFixed];
-
-        //             $(".column-list-draggable .form-check-input").each(function () {
-        //                 const colId = $(this).attr('id').replace('col-', '');
-        //                 const idx = getColumnIndexByData(colId);
-
-        //                 // only allow drag between 1–28
-        //                 if (idx >= 1 && idx <= 28) newOrder.push(idx);
-        //             });
-
-        //             newOrder.push(lastFixed);
-        //             const safeOrder = [...new Set(newOrder.filter(i => i >= 0 && i < totalCols))];
-
-        //             if (safeOrder.length !== totalCols) {
-        //                 console.warn('⚠️ Reorder skipped: mismatch column count', { safeOrder, totalCols });
-        //                 return;
-        //             }
-
-        //             table.colReorder.order(safeOrder, true);
-        //             table.state.save();
-        //             console.log("✅ Reordered (1–28 only):", safeOrder);
-        //         }
-        //     });
-
-        //     /** 🔄 Keep draggable list synced when user drags in DataTable */
-        //     table.on('column-reorder', function () {
-        //         const order = table.colReorder.order();
-        //         const sortedItems = order
-        //             .filter(i => i >= 1 && i <= 28)
-        //             .map(i => $(`.column-list-draggable .draggable-item:has(#col-${table.column(i).dataSrc()})`));
-
-        //         $(".column-list-draggable .draggable-item").not('.hidden-placeholder').remove();
-        //         $(".column-list-draggable").append(sortedItems);
-        //         console.log("🔁 Synced drag order:", order);
-        //     });
-
-        //     /** 🔹 Filters & Search */
-        //     $(document).on('change', '.buylist-filter', () => table.ajax.reload());
-        //     $('#searchInput').on('keyup', () => table.ajax.reload());
-
-        //     /** 🔹 Reset Button */
-        //     $('#reset-btn').on('click', function () {
-        //         const $btn = $(this);
-        //         $btn.prop('disabled', true).html('<span class="spinner-grow spinner-grow-sm me-1"></span>Reset');
-        //         $('#searchInput').val('');
-        //         table.state.clear();
-        //         table.ajax.reload(() => {
-        //             syncCheckboxStates();
-        //             $btn.prop('disabled', false).html('Reset');
-        //         });
-        //     });
-        // });
-
         $(document).ready(function () {
             if ($.fn.DataTable.isDataTable('#buylist-table')) {
                 $('#buylist-table').DataTable().destroy();
@@ -581,6 +435,11 @@
                         }).get();
                         d.search = $('#searchInput').val();
                     }
+                },
+                drawCallback: function (settings) {
+                    // Re-init tooltips
+                    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                    tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
                 },
                 scrollY: '40vh',
                 scrollX: true,
