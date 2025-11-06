@@ -193,7 +193,7 @@
                     <button class="btn btn-danger" id="btnResetFilters">Reset</button>
                 </div>
 
-                <div id="sorting-for-card" class="d-flex gap-1 d-none">
+                <div id="sorting-for-card" class="d-flex gap-1">
                     <select id="card-sort-by" class="form-select">
                         <option value="date">Publish Date</option>
                         <option value="updated_at">Last Updated</option>
@@ -479,7 +479,7 @@
                 $('#table-section').addClass('d-none');  
                 $('#cards-section').removeClass('d-none');
                 $('.customize-btn').addClass('d-none');
-                $('.actions-buttons').addClass('flex-column');
+                $('.actions-buttons').addClass('flex-column-reverse');
                 $('#sorting-for-card').removeClass('d-none');
 
                 // Button active state
@@ -491,7 +491,7 @@
                 $('#cards-section').addClass('d-none');  
                 $('#table-section').removeClass('d-none'); 
                 $('.customize-btn').removeClass('d-none');
-                 $('.actions-buttons').removeClass('flex-column');
+                 $('.actions-buttons').removeClass('flex-column-reverse');
                  $('#sorting-for-card').addClass('d-none');
 
                 // Button active state
@@ -706,9 +706,8 @@
                                             type="checkbox"
                                             data-id="${item.id}">
                                         </div>
-                                        ${item.image ?? ''}
                                         <div>
-                                            <h5 class="fw-semibold mb-3">${item.name ?? '-'}</h5>
+                                            <h5 class="fw-semibold mb-2">${item.name ?? '-'}</h5>
                                             <span class="">${item.tags ?? ''}</span>
                                         </div>
                                     </div>
@@ -718,20 +717,22 @@
                                 <div class="col-md-7">
                                     <div class="d-flex justify-content-between align-items-start gap-3">
                                         <div class="flex-fill w-100">
-                                            <div><small class="text-muted me-1">ASIN:</small> <a href="#" class="text-primary">${item.asin ?? '-'}</a></div>
-                                            <div><small class="text-muted me-1">Supplier:</small> <a href="#" class="text-primary">${item.supplier ?? '-'}</a></div>
-                                            <div><small class="text-muted me-1">Category:</small> <span>${item.category ?? '-'}</span></div>
-                                            <div><small class="text-muted me-1">Variation Details:</small> <span>${item.variation ?? '-'}</span></div>
+                                            <div><span class="me-1">ASIN:</span> <a href="#" class="text-primary asin-value">${item.asin ?? '-'}</a>
+                                                <i class="ti ti-copy text-secondary ms-2 asin-copy" style="cursor:pointer;"></i>
+                                            </div>
+                                            <div><span class="me-1">Supplier:</span> <a href="#" class="text-primary">${item.supplier ?? '-'}</a></div>
+                                            <div><span class="me-1">Category:</span> <span>${item.category ?? '-'}</span></div>
+                                            <div><span class="me-1">Variation Details:</span> <span>${item.variation ?? '-'}</span></div>
                                         </div>
 
-                                        <div class="flex-fill">
+                                        <div class="flex-fill w-100">
                                             <div class="row">
-                                                <div class="col-4 mb-3"><small class="text-muted d-block">Cost</small><div class="fw-semibold">${item.cost ?? '0.00'}</div></div>
-                                                <div class="col-4 mb-3"><small class="text-muted d-block">Sale Price</small><div class="fw-semibold text-success">${item.sell_price ?? '0.00'}</div></div>
-                                                <div class="col-4 mb-3"><small class="text-muted d-block">Net Profit</small><div class="fw-semibold text-success">${item.net_profit ?? '0.00'}</div></div>
-                                                <div class="col-4 mb-3"><small class="text-muted d-block">ROI</small><div class="fw-semibold text-success">${item.roi ?? '0'}%</div></div>
-                                                <div class="col-4 mb-3"><small class="text-muted d-block">BSR</small><div class="fw-semibold">${item.bsr ?? '-'}</div></div>
-                                                <div class="col-4 mb-3"><small class="text-muted d-block">90d BSR Avg.</small><div class="fw-semibold">${item.bsr_current ?? '-'}</div></div>
+                                                <div class="col-4 mb-3"><span class="text-muted d-block">Cost</span><div class="fw-semibold">${item.cost ?? '0.00'}</div></div>
+                                                <div class="col-4 mb-3"><span class="text-muted d-block">Sale Price</span><div class="fw-semibold text-success">${item.sell_price ?? '0.00'}</div></div>
+                                                <div class="col-4 mb-3"><span class="text-muted d-block">Net Profit</span><div class="fw-semibold text-success">${item.net_profit ?? '0.00'}</div></div>
+                                                <div class="col-4 mb-3"><span class="text-muted d-block">ROI</span><div class="fw-semibold text-success">${item.roi ?? '0'}%</div></div>
+                                                <div class="col-4 mb-3"><span class="text-muted d-block">BSR</span><div class="fw-semibold">${item.bsr ?? '-'}</div></div>
+                                                <div class="col-4 mb-3"><span class="text-muted d-block">90d BSR Avg.</span><div class="fw-semibold">${item.bsr_current ?? '-'}</div></div>
                                             </div>
                                         </div>
 
@@ -741,23 +742,29 @@
                             </div>
 
                             <hr>
-                            <div class="row">
+                            <div class="row" style="border: 1px solid #e7e9eb; padding: 15px; border-radius: 5px;">
                                 <div class="col-md-4 border-end">
-                                    <h6 class="fw-semibold mb-2">Sourcing Info</h6>
+                                    <div class="mb-2 text-center border-bottom">
+                                        <h6 class="fw-semibold mb-2">Sourcing Info</h6>
+                                    </div>
                                     <div class="d-flex justify-content-between"><small class="text-muted">Promo Code:</small><div>${item.promo ?? '-'}</div></div>
                                     <div class="d-flex justify-content-between mt-1"><small class="text-muted">Coupon Code:</small><div>${item.coupon ?? '-'}</div></div>
                                     <div class="d-flex justify-content-between mt-1"><small class="text-muted text-nowrap">Lead Note:</small><div>${item.notes ?? '-'}</div></div>
                                 </div>
 
                                 <div class="col-md-4 border-end">
-                                    <h6 class="fw-semibold mb-2">Lead Info</h6>
+                                    <div class="mb-2 text-center border-bottom">
+                                        <h6 class="fw-semibold mb-2">Lead Info</h6>
+                                    </div>
                                     <div class="d-flex justify-content-between"><small class="text-muted">Publish Date:</small><div>${item.date ?? '-'}</div></div>
                                     <div class="d-flex justify-content-between mt-1"><small class="text-muted">Lead Source:</small><div>${item.source ?? '-'}</div></div>
                                     <div class="d-flex justify-content-between mt-1"><small class="text-muted">Brand:</small><div>${item.brand ?? '-'}</div></div>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <h6 class="fw-semibold mb-2">Order History</h6>
+                                    <div class="mb-2 text-center border-bottom">
+                                        <h6 class="fw-semibold mb-2">Order History</h6>
+                                    </div>
                                     <div class="text-muted small" style="filter: blur(2px); cursor: not-allowed;">[Order data here]</div>
                                 </div>
                             </div>
@@ -767,6 +774,25 @@
                     $cardsSection.append(card);
                 });
             }
+
+            $(document).on('click', '.asin-copy', function () {
+                let asin = $(this).prev('a').text().trim(); // get ASIN from previous <a>
+
+                if (!asin || asin === '-') {
+                    toastr.error("No ASIN available to copy");
+                    return;
+                }
+
+                navigator.clipboard.writeText(asin).then(() => {
+                    toastr.success("ASIN copied to clipboard!");
+                });
+
+                // Optional visual feedback on icon
+                $(this).removeClass('text-secondary').addClass('text-success');
+                setTimeout(() => {
+                    $(this).removeClass('text-success').addClass('text-secondary');
+                }, 800);
+            });
 
             function renderCardPagination(settings) {
                 const api = new $.fn.dataTable.Api(settings);
@@ -983,6 +1009,25 @@
             $('#clearDate').on('click', function () {
                 $('#dateRangeFilter').val('');
                 $(this).addClass('d-none');
+            });
+
+            // ✅ Default "All" filter on page load
+            $(document).ready(function () {
+                let allStart = moment("1970-01-01");
+                let allEnd = moment();
+
+                // ✅ Set input value as All range
+                $('#dateRangeFilter').val(allStart.format('MM/DD/YYYY') + ' - ' + allEnd.format('MM/DD/YYYY'));
+
+                // ✅ Show clear button
+                $('#clearDate').removeClass('d-none');
+
+                // ✅ Force daterangepicker to understand that All is selected
+                let picker = $('#dateRangeFilter').data('daterangepicker');
+                if (picker) {
+                    picker.setStartDate(allStart);
+                    picker.setEndDate(allEnd);
+                }
             });
 
             // 🧭 Apply Filter
@@ -1518,7 +1563,6 @@
                 new bootstrap.Tooltip(this);
             });
         }
-
 
         // Radio buttons
         $('#edit-lead-tab').on('change', '.lead-type-radio', function() {
