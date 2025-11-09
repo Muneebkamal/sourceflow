@@ -638,7 +638,7 @@
                     'Last 7 Days': [moment().subtract(6, 'days'), moment()],
                     'Last 30 Days': [moment().subtract(29, 'days'), moment()],
                     'Last 90 Days': [moment().subtract(89, 'days'), moment()],
-                    'All': [moment().subtract(10, 'years'), moment()]
+                    'All': [moment("1970-01-01"), moment()]
                 },
                 showCustomRangeLabel: true, // Ensure "Custom Range" appears
             }, function(start, end, label) {

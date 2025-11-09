@@ -7,6 +7,7 @@ use App\Models\Source;
 use App\Models\Template;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class LeadController extends Controller
@@ -103,6 +104,151 @@ class LeadController extends Controller
         return response()->json([
             'success' => true,
             'data' => $details
+        ]);
+    }
+
+    public function getTemplateMapping($id)
+    {
+        $template = Template::find($id);
+
+        if (!$template) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Template not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'status'  => true,
+            'mapping' => json_decode($template->mapping_template, true)
+        ]);
+    }
+
+    public function uploadFile(Request $request){
+        $request->validate([
+            'file' => 'required|mimes:csv,txt',
+        ]);
+
+        // Store the file
+        $filePath = $request->file('file')->store('uploads');
+        $fullFilePath = storage_path('app/' . $filePath);
+
+        $file = fopen($fullFilePath, 'r');
+        $headers = fgetcsv($file); // CSV headers
+        $rows = [];
+
+        while (($row = fgetcsv($file)) !== false) {
+            $rows[] = array_combine($headers, $row); // key = column header
+        }
+        fclose($file);
+
+        // Get database columns (filtered)
+        $tableName = 'leads';
+        $columns = DB::getSchemaBuilder()->getColumnListing($tableName);
+        $excludedColumns = ['id', 'source_id', 'created_at', 'deleted_at', 'updated_at','bundle','createdBy','buyer_id','currency','is_hazmat','is_disputed','tags','msku','created_by'];
+        $columns = array_values(array_diff($columns, $excludedColumns));
+
+        return response()->json([
+            'headers' => $headers,
+            'columns' => $columns,
+            'rows' => $rows, // <<< send all CSV data
+            'file_path' => $fullFilePath,
+        ]);
+    }
+
+    public function saveTemplate(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'db_columns' => 'required|array',
+            'mapped_columns' => 'required|array',
+        ]);
+
+        // Check if template with same name exists
+        $templateExists = Template::where('name', $request->name)->exists();
+        if ($templateExists) {
+            return response()->json(['exists' => true]);
+        }
+
+        // Save template
+        $template = new Template();
+        $template->name = $request->name;
+        $template->db_columns = json_encode($request->db_columns);       // All DB columns (with nulls if not mapped)
+        $template->mapping_template = json_encode($request->mapped_columns); // Only mapped columns
+        $template->save();
+
+        return response()->json([
+            'exists' => false,
+            'message' => 'Template saved successfully',
+            'template' => [
+                'id' => $template->id,
+                'name' => $template->name
+            ]
+        ]);
+    }
+
+    public function importLeadsFile(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt',
+            'template_id' => 'required|exists:templates,id',
+        ]);
+
+        $template = Template::find($request->template_id);
+        $mappedColumns = json_decode($template->mapped_columns, true); // { db_column => csv_column }
+
+        if (!$mappedColumns) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No mapped columns found in template.'
+            ]);
+        }
+
+        $file = $request->file('file');
+        $path = $file->getRealPath();
+        
+        $success = [];
+        $failed = [];
+
+        if (($handle = fopen($path, 'r')) !== false) {
+            $headers = fgetcsv($handle); // read CSV header
+            $headerIndex = array_flip($headers); // CSV column => index
+
+            while (($row = fgetcsv($handle)) !== false) {
+                $leadData = [];
+
+                foreach ($mappedColumns as $dbColumn => $csvColumn) {
+                    if (isset($headerIndex[$csvColumn])) {
+                        $leadData[$dbColumn] = $row[$headerIndex[$csvColumn]] ?? null;
+                    } else {
+                        $leadData[$dbColumn] = null;
+                    }
+                }
+
+                // Validation: asin and url required
+                if (empty($leadData['asin']) || empty($leadData['url'])) {
+                    $failedRow = $leadData;
+                    $failedRow['error'] = 'ASIN or URL missing';
+                    $failed[] = $failedRow;
+                    continue;
+                }
+
+                $leadData['template_id'] = $template->id;
+                Lead::create($leadData);
+                $success[] = $leadData;
+            }
+
+            fclose($handle);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Leads processed successfully!',
+            'success' => $success,
+            'failed' => $failed,
+            'success_count' => count($success),
+            'failed_count' => count($failed),
         ]);
     }
 

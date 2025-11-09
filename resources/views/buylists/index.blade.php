@@ -12,11 +12,11 @@
                 <div class="mt-3 mt-sm-0">
                     <form action="javascript:void(0);">
                         <div class="row g-2 mb-0 align-items-center">
-                            <div class="col-auto">
+                            {{-- <div class="col-auto">
                                 <a class="" href="#" target="_blank">
                                     <p class="text-success m-0">🎉 To Add Leads to a Buy List, Use the SF Extension!</p>
                                 </a>
-                            </div>
+                            </div> --}}
                             <div class="col-auto">
                                 <button class="btn btn-soft-primary">
                                     Export

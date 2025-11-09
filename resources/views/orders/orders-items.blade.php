@@ -357,6 +357,7 @@
     </div>
 
     @include('modals.order.order-detail.create-event-modal')
+    @include('modals.order.order-detail.lineitems-edit-modal')
 @endsection
 
 @section('scripts')
@@ -529,6 +530,37 @@
             });
         });
 
+        $(document).on('submit', '#edit-items-form', function (e) {
+            e.preventDefault();
+
+            const itemId = modal.data('item-id');
+            if (!itemId) {
+                toastr.error('No item selected.');
+                return;
+            }
+
+            const formData = $(this).serializeArray();
+            formData.push({ name: 'id', value: itemId });
+
+            $.ajax({
+                url: '{{ route("orders.updateItem") }}',
+                method: 'POST',
+                data: formData,
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message ?? 'Item updated successfully');
+                        modal.modal('hide');
+                        table.ajax.reload(null, false);
+                    } else {
+                        toastr.error(response.message ?? 'Failed to update item');
+                    }
+                },
+                error: function (xhr) {
+                    console.error(xhr.responseText);
+                    toastr.error('Server error. Please try again.');
+                }
+            });
+        });
     });
 
     // ✅ When user clicks "Create Event"
@@ -644,5 +676,103 @@
             }
         });
     });
+
+    const modal = $('#editItemsModal');
+
+    $(document).on('click', '.edit-order-item', function (e) {
+        e.preventDefault();
+
+        const item = $(this).data();
+        itemsData = [item]; // only one item
+        currentIndex = 0;
+
+        populateModal(item);
+        modal.modal('show');
+    });
+
+    function formatShortDate(dateString) {
+        if (!dateString) return '-';
+        const d = new Date(dateString);
+        if (isNaN(d)) return dateString; // in case parsing fails
+
+        let day = String(d.getDate()).padStart(2, '0');
+        let month = String(d.getMonth() + 1).padStart(2, '0');
+        let year = String(d.getFullYear()).slice(-2); // last 2 digits
+
+        return `${day}/${month}/${year}`;
+    }
+
+
+    // ✅ Populate modal with data
+    function populateModal(data) {
+
+        modal.find('#editItemsModalLabel').text(data.name ?? '-');
+
+        modal.find('img[alt="Product Image"]').attr('src',
+            'https://app.sourceflow.io/storage/images/no-image-thumbnail.png'
+        );
+        modal.find('#asin-label').text(data.asin ?? '-');
+
+        modal.find('#name').val(data.name ?? '');
+        modal.find('#asin').val(data.asin ?? '');
+        modal.find('#variation').val(data.variation_details ?? '');
+        modal.find('#msku').val(data.msku ?? '');
+        modal.find('#category').val(data.category ?? '');
+        modal.find('#supplier').val(data.supplier ?? '');
+        modal.find('#unitsPurchased').val(data.unit_purchased ?? '');
+        modal.find('#costPerUnit').val(data.cost ?? '');
+        modal.find('#sellingPrice').val(data.selling_price ?? '');
+        modal.find('#netProfit').val(data.net_profit ?? '');
+        modal.find('#listPrice').val(data.list_price ?? '');
+        modal.find('#minPrice').val(data.min ?? '');
+        modal.find('#maxPrice').val(data.max ?? '');
+        modal.find('#roi').val(data.roi ?? '');
+        modal.find('#bsr_ninety').val(data.bsr ?? '');
+        modal.find('#source_url').val(data.source_url ?? '');
+        modal.find('#promo').val(data.promo ?? '');
+        modal.find('#coupon_code').val(data.coupon ?? '');
+        modal.find('#product_note').val(data.product_notes ?? '');
+        modal.find('#buyerNote').val(data.buyer_notes ?? '');
+
+        // ✅ Smart info
+        modal.find('#smart-date').text(formatShortDate(data.date));
+        modal.find('#smart-supplier').text(data.supplier ?? '-');
+        modal.find('#smart-buy-cost').text(data.cost ? `$${parseFloat(data.cost).toFixed(2)}` : '$0');
+        modal.find('#smart-net-cost').text(data.selling_price ? `$${parseFloat(data.selling_price).toFixed(2)}` : '$0');
+        modal.find('#smart-roi').text(data.roi ? `${data.roi}%` : '0%');
+        modal.find('#smart-bsr').text(data.bsr ?? '-');
+        modal.find('#supplier-link').attr('href', data.source_url ?? '#');
+
+        modal.data('item-id', data.id ?? '');
+    }
+
+    $(document).on('click', '#open-links-btn', function () {
+        let url = $('#supplier-link').attr('href');
+
+        if (url && url !== '#') {
+            window.open(url, '_blank');
+        }
+    });
+
+    $(document).on('click', '#asin-copy', function () {
+        let asin = $('#asin-label').text().trim();
+
+        if (!asin || asin === '-') {
+            toastr.error("No ASIN found!");
+            return;
+        }
+
+        navigator.clipboard.writeText(asin);
+
+        // ✅ Icon small feedback
+        $(this).addClass('text-success');
+        setTimeout(() => {
+            $(this).removeClass('text-success');
+        }, 600);
+
+        // ✅ Toastr popup
+        toastr.success("ASIN copied to clipboard!");
+    });
+
 </script>
 @endsection

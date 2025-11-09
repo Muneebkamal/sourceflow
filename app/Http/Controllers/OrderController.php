@@ -313,7 +313,33 @@ class OrderController extends Controller
                                     </a>
                                 </li>
                                 <li><a class="dropdown-item" href="#">Mark as Fixed</a></li>
-                                <li><a class="dropdown-item" href="#">Edit Item</a></li>
+                                <li>
+                                    <a href="#" 
+                                    class="dropdown-item edit-order-item"
+                                    data-id="' . $row->id . '"
+                                    data-name="' . e($row->name) . '"
+                                    data-asin="' . e($row->asin) . '"
+                                    data-msku="' . e($row->msku) . '"
+                                    data-unit_purchased="' . e($row->unit_purchased) . '"
+                                    data-list_price="' . e($row->list_price) . '"
+                                    data-category="' . e($row->category) . '"
+                                    data-supplier="' . e($row->supplier) . '"
+                                    data-cost="' . e($row->buy_cost) . '"
+                                    data-selling_price="' . e($row->selling_price) . '"
+                                    data-net_profit="' . e($row->net_profit) . '"
+                                    data-roi="' . e($row->roi) . '"
+                                    data-min="' . e($row->min) . '"
+                                    data-max="' . e($row->max) . '"
+                                    data-bsr="' . e($row->bsr) . '"
+                                    data-source_url="' . e($row->source_url) . '"
+                                    data-promo="' . e($row->promo) . '"
+                                    data-coupon="' . e($row->coupon_code) . '"
+                                    data-date="' . e($row->created_at) . '"
+                                    data-product_notes="' . e($row->order_note) . '"
+                                    data-buyer_notes="' . e($row->product_buyer_notes) . '">
+                                        Edit Item
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </div>';

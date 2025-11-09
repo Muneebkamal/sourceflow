@@ -340,11 +340,11 @@ class SmartDataController extends Controller
                         $url = 'https://' . $lead->url;
                     }
                     return '
-                        <div class="d-flex justify-content-center flex-column gap-1 actions-buttons">
-                            <button class="btn btn-sm btn-success movetobuylist" data-id="' . $lead->id . '"><i class="ti ti-currency-dollar"></i></button>
-                            <a href="' . e($url) . '" class="btn btn-sm btn-light"><i class="ti ti-external-link"></i></a>
+                        <div class="d-flex justify-content-center flex-column-reverse gap-1 actions-buttons">
+                            <button class="btn btn-sm btn-success movetobuylist" data-id="' . $lead->id . '"><i class="ti ti-currency-dollar fs-4"></i></button>
+                            <a href="' . e($url) . '" class="btn btn-sm btn-light"><i class="ti ti-external-link fs-4"></i></a>
                             <div class="dropdown">
-                                <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="ti ti-dots-vertical"></i></button>
+                                <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="ti ti-dots-vertical fs-4"></i></button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li><a class="dropdown-item copyNameBtn" href="#" data-name="' . e($lead->name) . '">
                                         <i class="ti ti-copy me-2"></i> Copy to Clipboard

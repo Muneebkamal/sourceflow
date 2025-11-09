@@ -64,16 +64,6 @@
                     <button type="button" class="btn btn-soft-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#leadListSourceModal">
                         Lead List Sources <i class="ti ti-plus"></i>
                     </button>
-                    {{-- <div class="column-list ps-2">
-                        @foreach ($sources as $key => $source)
-                            <div class="d-flex justify-content-between align-items-center my-2 column-item position-relative {{ $key === 0 ? 'active' : '' }}" data-source-id="{{ $source->id }}">
-                                <span class="fw-bold">{{ $source->list_name }}</span>
-                                <div class="column-actions d-none">
-                                    <i class="ti ti-trash text-danger fs-3"></i>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div> --}}
                     <div class="column-list ps-2">
                         @foreach ($sources as $key => $source)
                             <div class="d-flex justify-content-between align-items-center my-2 column-item position-relative {{ $key === 0 ? 'active' : '' }}" data-source-id="{{ $source->id }}">
@@ -277,24 +267,161 @@
                 <div class="step-content d-none" data-step="2">
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="card">
+                            <div id="selectCard" class="card border border-2 border-dashed">
                                 <div class="card-body">
-                                    <h5 class="fw-semibold d-flex justify-centert-center align-items-center">Select Template</h5>
+                                    <span class="fw-semibold d-flex justify-centent-center align-items-center">
+                                        <h5 class="mb-0">Select Template</h5>
+                                    </span>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="card">
+                            <div id="newCard" class="card border border-2 border-dashed">
                                 <div class="card-body">
-                                    <h5 class="fw-semibold d-flex justify-centert-center align-items-center">Create New Template</h5>
+                                    <span class="fw-semibold d-flex justify-centent-center align-items-center">
+                                        <h5 class="mb-0">Create New Template</h5>
+                                    </span>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="mt-4 d-flex justify-content-between">
-                        <button class="btn btn-outline-secondary prev-btn">Back</button>
-                        <button class="btn btn-primary next-btn">Next</button>
+
+                        <div id="select-temp-section" class="col-md-12 d-none">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <label for="">Select Template</label>
+                                    <select class="form-select" name="template" id="">
+                                        <option value=""></option>
+                                        @foreach ($templates as $temp)
+                                            <option value="{{ $temp->id }}">{{ $temp->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between">
+                                    <h3>Upload Preview</h3>
+                                    <button id="upload-data" class="btn btn-success" disabled>Upload Data</button>
+                                </div>
+                                <div class="card-body">
+                                    <table id="select-map-table" class="table table-striped">
+                                        <thead class="bg-light">
+                                            <th>date</th>
+                                            <th>Asin</th>
+                                            <th>Source URL</th>
+                                            <th>Cost</th>
+                                            <th>90d BSR Avg</th>
+                                            <th>Coupon Code</th>
+                                            <th>Promo Details</th>
+                                            <th>Notes</th>
+                                            <th>Tags</th>
+                                            <th>Product Title</th>
+                                            <th>Selling Price</th>
+                                            <th>Net Profit</th>
+                                            <th>ROI</th>
+                                            <th>Category</th>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="new-temp-section" class="col-md-12 d-none">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <input type="text" id="nameTemplate" class="form-control" placeholder="Enter Temp Name">
+                                            </div>
+                                            <hr>
+                                            <div class="column-mapping">
+                                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                                    <span>Date</span>
+                                                    <select class="form-select w-50" name="map_date" id="map_date"></select>
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                                    <span>ASIN</span>
+                                                    <select class="form-select w-50" name="map_asin" id="map_asin"></select>
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                                    <span>Source URL</span>
+                                                    <select class="form-select w-50" name="map_url" id="map_url"></select>
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                                    <span>Cost</span>
+                                                    <select class="form-select w-50" name="map_cost" id="map_cost"></select>
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                                    <span>90d BSR Avg</span>
+                                                    <select class="form-select w-50" name="map_bsr" id="map_bsr"></select>
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                                    <span>Coupon Code</span>
+                                                    <select class="form-select w-50" name="map_coupon" id="map_coupon"></select>
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                                    <span>Promo Details</span>
+                                                    <select class="form-select w-50" name="map_promo" id="map_promo"></select>
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                                    <span>Notes</span>
+                                                    <select class="form-select w-50" name="map_notes" id="map_notes"></select>
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                                    <span>Tags</span>
+                                                    <select class="form-select w-50" name="map_tags" id="map_tags"></select>
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                                    <span>Product Title</span>
+                                                    <select class="form-select w-50" name="map_name" id="map_name"></select>
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                                    <span>Selling Price</span>
+                                                    <select class="form-select w-50" name="map_sell_price" id="map_sell_price"></select>
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                                    <span>Net Profit</span>
+                                                    <select class="form-select w-50" name="map_net_profit" id="map_net_profit"></select>
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                                    <span>ROI</span>
+                                                    <select class="form-select w-50" name="map_roi" id="map_roi"></select>
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                                    <span>Category</span>
+                                                    <select class="form-select w-50" name="map_category" id="map_category"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <div class="table-responsive">
+                                                <table id="new-temp-table" class="table table-striped border border-1 border-dashed">
+                                                    <thead class="bg-light">
+                                                        <th>date</th>
+                                                        <th>Asin</th>
+                                                        <th>Source URL</th>
+                                                        <th>Cost</th>
+                                                        <th>90d BSR Avg</th>
+                                                        <th>Coupon Code</th>
+                                                        <th>Promo Details</th>
+                                                        <th>Notes</th>
+                                                        <th>Tags</th>
+                                                        <th>Product Title</th>
+                                                        <th>Selling Price</th>
+                                                        <th>Net Profit</th>
+                                                        <th>ROI</th>
+                                                        <th>Category</th>
+                                                    </thead>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer text-end">
+                                    <button id="saveTemplateBtn" class="btn btn-primary">Save Template</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -302,13 +429,89 @@
                 <div class="step-content d-none" data-step="3">
                     <div class="card shadow-sm border-0">
                         <div class="card-body">
-                            <h5 class="fw-semibold mb-3">Review & Confirm</h5>
-                            <p class="text-muted">Final review before submission.</p>
+                            <!-- Tabs -->
+                            <ul class="nav nav-tabs mb-3" id="uploadTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="failed-tab" data-bs-toggle="tab" data-bs-target="#failed" type="button" role="tab">
+                                        Failed <span class="badge badge-soft-danger" id="failed-count">0</span>
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="bundle-tab" data-bs-toggle="tab" data-bs-target="#bundle" type="button" role="tab">
+                                        Bundle <span class="badge badge-soft-primary" id="bundle-count">0</span>
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="successful-tab" data-bs-toggle="tab" data-bs-target="#successful" type="button" role="tab">
+                                        Successful <span class="badge badge-soft-success" id="successful-count">0</span>
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <!-- Tab Contents -->
+                            <div class="tab-content" id="uploadTabsContent">
+                                <!-- Failed Table -->
+                                <div class="tab-pane fade show active" id="failed" role="tabpanel">
+                                    <table class="table table-striped table-bordered">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th>Errors</th>
+                                                <th>ASIN</th>
+                                                <th>Product Title</th>
+                                                <th>Source URL</th>
+                                                <th>Supplier</th>
+                                                <th>90d BSR Avg</th>
+                                                <th>Category</th>
+                                                <th>Cost</th>
+                                                <th>Selling Price</th>
+                                                <th>Promo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="failed-body"></tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Bundle Table -->
+                                <div class="tab-pane fade" id="bundle" role="tabpanel">
+                                    <table class="table table-striped table-bordered">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th>ASIN</th>
+                                                <th>Product Title</th>
+                                                <th>Source URL</th>
+                                                <th>Supplier</th>
+                                                <th>90d BSR Avg</th>
+                                                <th>Category</th>
+                                                <th>Cost</th>
+                                                <th>Selling Price</th>
+                                                <th>Promo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="bundle-body"></tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Successful Table -->
+                                <div class="tab-pane fade" id="successful" role="tabpanel">
+                                    <table class="table table-striped table-bordered">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th>ASIN</th>
+                                                <th>Product Title</th>
+                                                <th>Source URL</th>
+                                                <th>Supplier</th>
+                                                <th>90d BSR Avg</th>
+                                                <th>Category</th>
+                                                <th>Cost</th>
+                                                <th>Selling Price</th>
+                                                <th>Promo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="successful-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="mt-4 d-flex justify-content-between">
-                        <button class="btn btn-outline-secondary prev-btn">Back</button>
-                        <button class="btn btn-success finish-btn">Finish</button>
                     </div>
                 </div>
             </div>
@@ -589,9 +792,28 @@
                         $('#leadListSourceModal').modal('hide');
                         $('#leadListSourceForm')[0].reset();
                         toastr.success(response.message);
-                        setTimeout(function() {
-                            location.reload();
-                        }, 2000); 
+
+                        let source = response.data;
+                        $('#lead_source').append(`
+                            <option value="${source.id}" selected>${source.list_name}</option>
+                        `);
+                        $('#lead_source').val(source.id).change();
+
+                        let newItem = `
+                            <div class="d-flex justify-content-between align-items-center my-2 column-item position-relative"
+                                data-source-id="${source.id}">
+
+                                <span class="fw-bold">
+                                    ${source.list_name}
+                                </span>
+
+                                <div class="">
+                                    <span class="badge bg-success ms-2 new-badge">New</span>
+                                </div>
+                            </div>
+                        `;
+
+                        $('.column-list').prepend(newItem);
                     } else {
                         toastr.error(response.message || 'Something went wrong.');
                     }
@@ -1077,6 +1299,24 @@
 
 <script>
     $(document).ready(function() {
+        const HEADER_KEY_MAP = {
+            "date": "date",
+            "asin": "asin",
+            "source_url": "url",
+            "cost": "cost",
+            "90d_bsr_avg": "bsr",
+            "coupon_code": "coupon",
+            "promo_details": "promo",
+            "notes": "notes",
+            "tags": "tags",
+            "product_title": "name",
+            "selling_price": "sell_price",
+            "net_profit": "net_profit",
+            "roi": "roi",
+            "category": "category"
+        };
+
+
         Dropzone.autoDiscover = false;
 
         let fileSelected = false;
@@ -1094,13 +1334,16 @@
 
         // ✅ Initialize Dropzone
         var myDropzone = new Dropzone("#myAwesomeDropzone", {
+            url: "{{ route('leads.upload') }}",
             paramName: "file",
+            maxFiles: 1,
             maxFilesize: 5, // MB
             acceptedFiles: ".csv",
             previewsContainer: "#file-previews",
             previewTemplate: document.querySelector("#uploadPreviewTemplate").innerHTML,
             addRemoveLinks: false,
             dictDefaultMessage: "Drop files here or click to upload",
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
             init: function() {
                 const dzForm = $(this.element); // entire dropzone form
 
@@ -1164,6 +1407,344 @@
         $('.finish-btn').click(function() {
             alert('Wizard Completed ✅');
         });
+
+
+        let csvColumns = [];
+        let csvRows = [];
+        let mappingTemplate = {}; // Global mapping for new template
+
+        // -------------------- Dropzone Success --------------------
+        myDropzone.on("success", function(file, response) {
+            const csvHeaders = response.headers;
+            csvRows = response.rows;
+
+            // Fill new template select boxes
+            $("#new-temp-section .column-mapping select").each(function() {
+                const $select = $(this);
+                $select.empty().append('<option value="">Select Column</option>');
+                csvHeaders.forEach(col => $select.append(`<option value="${col}">${col}</option>`));
+
+                // Optional: auto-match header with DB column name
+                const name = $select.attr("name").replace("map_", "");
+                const match = csvHeaders.find(col => col.toLowerCase() === name);
+                if (match) $select.val(match);
+                mappingTemplate[name] = $select.val() || null;
+            });
+
+            // Bind change handler for new template
+            $("#new-temp-section .column-mapping select").off("change").on("change", function() {
+                const name = $(this).attr("name").replace("map_", "");
+                mappingTemplate[name] = $(this).val();
+                updateNewTempTable();
+            });
+
+            updateNewTempTable();
+        });
+
+        // -------------------- Update New Template Table --------------------
+        function updateNewTempTable() {
+            const $table = $("#new-temp-table");
+            $table.find("tbody").remove();
+            const tbody = $("<tbody></tbody>");
+
+            csvRows.forEach(row => {
+                const tr = $("<tr></tr>");
+                $table.find("thead th").each(function() {
+                    let key = $(this).text().trim().replace(/\s+/g, '_').toLowerCase();
+                    let mapKey = HEADER_KEY_MAP[key] || key;
+                    const col = mappingTemplate[mapKey];
+                    tr.append(`<td>${row[col] || ""}</td>`);
+                });
+                tbody.append(tr);
+            });
+
+            $table.append(tbody);
+        }
+
+        // -------------------- Save Template --------------------
+        $('#saveTemplateBtn').on('click', function() {
+            // const requiredColumns = ['name', 'asin'];
+            // const missingColumns = requiredColumns.filter(col => !mappingTemplate[col]);
+            // if (missingColumns.length) {
+            //     toastr.error(`Please map the following required fields: ${missingColumns.join(', ')}`);
+            //     return;
+            // }
+
+            const nameTemplate = $('#nameTemplate').val();
+            if (!nameTemplate) {
+                toastr.error('Template Name is Required');
+                return;
+            }
+
+            let mappedColumns = {};
+            Object.keys(mappingTemplate).forEach(k => {
+                if (mappingTemplate[k]) mappedColumns[k] = mappingTemplate[k];
+            });
+
+            $.ajax({
+                url: "{{ url('save-mapping-template') }}",
+                type: 'POST',
+                data: { db_columns: mappingTemplate, mapped_columns: mappedColumns, name: nameTemplate, _token: '{{ csrf_token() }}' },
+                success: function(response) {
+                    if (response.exists){ 
+                        toastr.error('Template with this name already exists');
+                    } else { 
+                        toastr.success('Template saved successfully!');
+                        // ✅ Highlight Select Template card (reuse toggle logic)
+                        $("#selectCard").addClass("bg-soft-primary");
+                        $("#newCard").removeClass("bg-soft-primary");
+
+                        // ✅ Show select section & hide new template section
+                        $("#select-temp-section").removeClass("d-none");
+                        $("#new-temp-section").addClass("d-none");
+
+                        // ✅ Add new template to select dropdown and select it
+                        const $select = $('select[name="template"]');
+                        const newOption = $('<option></option>')
+                            .val(response.template.id)
+                            .text(response.template.name);
+                        $select.append(newOption).val(response.template.id);
+
+                        // ✅ Trigger change to fill the select-map-table
+                        $select.trigger('change');
+
+                        // ✅ Disable upload button until needed
+                        $('#select-temp-section .btn-success').prop('disabled', true);
+                        $('#upload-data').prop('disabled', false);
+
+                        // Optional: Reset new template form
+                        $('#nameTemplate').val('');
+                        $("#new-temp-section select").val('');
+                    }
+                },
+                error: function(xhr, status, error) { console.error('Error:', error); }
+            });
+        });
+
+        // -------------------- Load Saved Template Mapping --------------------
+        $('select[name="template"]').on('change', function() {
+            const templateId = $(this).val();
+            if (templateId) {
+                $('#upload-data').prop('disabled', false);
+            } else {
+                $('#upload-data').prop('disabled', true);
+            }
+            if (!templateId) return;
+
+            $.ajax({
+                url: `/templates/${templateId}/mapping`,
+                method: "GET",
+                success: function(res) {
+                    if (res.status) {
+                        const mapping = res.mapping; // { Date: "date_col", ... }
+                        console.log(mapping);
+                        // Highlight mapped columns (optional)
+                        fillSelectedTemplate(mapping);
+
+                        // Fill the Select Template table
+                        const $table = $("#select-map-table");
+                        $table.find("tbody").remove();
+                        const tbody = $("<tbody></tbody>");
+
+                        csvRows.forEach(row => {
+                            const tr = $("<tr></tr>");
+                            $table.find("thead th").each(function() {
+                                // const header = $(this).text().trim();
+                                // const col = mapping[header] || mapping[header.toLowerCase()] || "";
+                                let key = $(this).text().trim().replace(/\s+/g, '_').toLowerCase();
+                                let mapKey = HEADER_KEY_MAP[key] || key;
+                                const col = mapping[mapKey] || "";
+
+                                tr.append(`<td>${row[col] || ""}</td>`);
+                            });
+                            tbody.append(tr);
+                        });
+
+                        $table.append(tbody);
+                    }
+                }
+            });
+        });
+
+        // -------------------- Highlight Select Template Mapping --------------------
+        function fillSelectedTemplate(map) {
+            $("#select-temp-section table thead th").each(function() {
+                let key = $(this).text().trim();
+                let match = map[key] ?? map[key.toLowerCase()] ?? null;
+
+                if (match) {
+                    $(this).css("background", "#d1e7ff").attr("title", "Mapped: " + match);
+                } else {
+                    $(this).css("background", "#f8d7da").attr("title", "Not Mapped");
+                }
+            });
+        }
+
+        // Upload Data click handler
+        // $('#upload-data').on('click', function() {
+
+        //     showStep(3);
+
+        //     const failedBody = $("#failed-body");
+        //     const successfulBody = $("#successful-body");
+        //     const failedTable = $("#failed table");
+        //     const successTable = $("#successful table");
+
+        //     failedBody.empty();
+        //     successfulBody.empty();
+        //     failedTable.find("thead").empty();
+        //     successTable.find("thead").empty();
+
+        //     let failedCount = 0;
+        //     let successCount = 0;
+
+        //     const headers = Object.keys(mappingTemplate).filter(k => mappingTemplate[k]);
+
+        //     // ---------- Build Table Headers ----------
+        //     const failedHeaders = ['Errors', ...headers];
+
+        //     const failedThead = $("<tr></tr>");
+        //     failedHeaders.forEach(h => failedThead.append(`<th>${h}</th>`));
+        //     failedTable.find("thead").append(failedThead);
+
+        //     const successThead = $("<tr></tr>");
+        //     headers.forEach(h => successThead.append(`<th>${h}</th>`));
+        //     successTable.find("thead").append(successThead);
+
+        //     // ✅ Extract cleaned header keys from select-map-table only ONCE
+        //     const selectHeaders = $("#select-map-table thead th").map(function() {
+        //         let cleaned = $(this).text()
+        //             .trim()
+        //             .replace(/\s+/g, '_')
+        //             .replace(/[^\w]/g, '')
+        //             .toLowerCase();
+
+        //         return HEADER_KEY_MAP[cleaned] || cleaned;
+        //     }).get();
+
+        //     // ---------- Process Rows ----------
+        //     $("#select-map-table tbody tr").each(function() {
+
+        //         const rowMapped = {};
+
+        //         // ✅ Correct column-matching here
+        //         headers.forEach(key => {
+        //             const thIndex = selectHeaders.indexOf(key);
+        //             rowMapped[key] = thIndex >= 0
+        //                 ? $(this).find("td").eq(thIndex).text().trim()
+        //                 : "";
+        //         });
+
+        //         // ---------- Required Fields ----------
+        //         if (!rowMapped.asin || !rowMapped.url) {
+        //             const tr = $("<tr class='text-danger'></tr>");
+        //             tr.append("<td>ASIN or URL missing</td>");
+        //             failedHeaders.slice(1).forEach(k => tr.append(`<td>${rowMapped[k] || ""}</td>`));
+        //             failedBody.append(tr);
+        //             failedCount++;
+        //         } else {
+        //             const tr = $("<tr></tr>");
+        //             headers.forEach(k => tr.append(`<td>${rowMapped[k] || ""}</td>`));
+        //             successfulBody.append(tr);
+        //             successCount++;
+        //         }
+        //     });
+
+        //     $('#failed-count').text(failedCount);
+        //     $('#successful-count').text(successCount);
+
+        //     if (failedCount) new bootstrap.Tab($('#failed-tab')).show();
+
+        //     $(this).prop('disabled', true);
+        // });
+        $("#upload-data").on("click", function() {
+            const templateId = $('select[name="template"]').val(); // get selected template
+            const fileInput = $("#myAwesomeDropzone input[type=file]")[0];
+
+            if (!fileInput || !fileInput.files.length) {
+                toastr.error("Please upload a CSV file first");
+                return;
+            }
+
+            if (!templateId) {
+                toastr.error("Please select a template");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('template_id', templateId);
+            formData.append('_token', '{{ csrf_token() }}');
+
+            $.ajax({
+                url: "{{ route('leads.import.file') }}",
+                type: "POST",
+                data: formData,
+                processData: false, // important for FormData
+                contentType: false, // important for FormData
+                success: function(res) {
+                    if (res.status) {
+                        // Successful Leads
+                        const $success = $("#successful-body").empty();
+                        res.success.forEach(r => {
+                            let tr = "<tr>";
+                            Object.keys(r).forEach(k => tr += `<td>${r[k]||''}</td>`);
+                            tr += "</tr>";
+                            $success.append(tr);
+                        });
+
+                        // Failed Leads
+                        const $failed = $("#failed-body").empty();
+                        res.failed.forEach(r => {
+                            let tr = "<tr class='text-danger'>";
+                            tr += `<td>${r.error}</td>`;
+                            Object.keys(r).forEach(k => { if(k!=='error') tr += `<td>${r[k]||''}</td>`; });
+                            tr += "</tr>";
+                            $failed.append(tr);
+                        });
+
+                        $('#successful-count').text(res.success_count);
+                        $('#failed-count').text(res.failed_count);
+                        toastr.success(res.message);
+                    } else {
+                        toastr.error(res.message);
+                    }
+                },
+                error: function(xhr) {
+                    console.error(xhr.responseText);
+                    toastr.error("Error uploading file");
+                }
+            });
+        });
     });
+
+    $(document).ready(function () {
+
+        // When select template card clicked
+        $("#selectCard").on("click", function () {
+
+            // highlight this card
+            $("#selectCard").addClass("bg-soft-primary");
+            $("#newCard").removeClass("bg-soft-primary");
+
+            // show and hide sections
+            $("#select-temp-section").removeClass("d-none");
+            $("#new-temp-section").addClass("d-none");
+        });
+
+        // When create new template card clicked
+        $("#newCard").on("click", function () {
+
+            // highlight this card
+            $("#newCard").addClass("bg-soft-primary");
+            $("#selectCard").removeClass("bg-soft-primary");
+
+            // show and hide sections
+            $("#new-temp-section").removeClass("d-none");
+            $("#select-temp-section").addClass("d-none");
+        });
+
+    });
+
 </script>
 @endsection

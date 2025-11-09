@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\BuylistController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LeadController;
@@ -99,6 +100,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/orders/mark-fixed', [OrderController::class, 'markFixed'])
     ->name('orders.markFixed');
 
+    Route::post('/save-attachment', [AttachmentController::class, 'store'])->name('attachments.store');
+    Route::get('/orders/{order}/attachments', [AttachmentController::class, 'list'])->name('orders.attachments.list');
+    Route::delete('/orders/attachments/{attachment}', [AttachmentController::class, 'destroy'])->name('orders.attachments.delete');
+
+
     // event routes
     Route::post('/ship-events/store', [OrderController::class, 'shipEventStore'])
     ->name('ship-events.store');
@@ -139,6 +145,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/leads/bulk-publish-date', [LeadController::class, 'bulkPublishDate'])->name('leads.bulkPublishDate');
 
     Route::get('/templates/{id}/details', [LeadController::class, 'details'])->name('templates.details');
+
+    Route::get('/templates/{id}/mapping', [LeadController::class, 'getTemplateMapping'])
+     ->name('templates.mapping');
+    Route::post('/leads/upload', [LeadController::class, 'uploadFile'])->name('leads.upload');
+    Route::post('/save-mapping-template', [LeadController::class, 'saveTemplate'])->name('save-mapping-template');
+    Route::post('/leads/import', [LeadController::class, 'importLeadsFile'])->name('leads.import.file');
+
 
     // OAC routes
     Route::get('/oacleads', [OACLeadController::class, 'index'])->name('oac.leads.index');
