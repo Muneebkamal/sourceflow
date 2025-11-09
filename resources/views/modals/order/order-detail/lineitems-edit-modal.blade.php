@@ -29,7 +29,7 @@
 
                 <div class="d-flex align-items-center gap-2">
                   <label class="form-label mb-0 fw-medium" id="asin-label">-</label>
-                  <i class="ti ti-clipboard-text text-primary fs-5"></i>
+                  <i class="ti ti-clipboard-text text-primary fs-5" id="asin-copy"></i>
                 </div>
 
                 <button type="button" class="btn btn-link text-primary fw-semibold p-0 d-flex align-items-center gap-2" id="open-links-btn">

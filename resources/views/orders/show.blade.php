@@ -22,7 +22,7 @@
                     <div class="mt-3 mt-sm-0">
                         <div class="row g-4 mb-0 align-items-start">
                             <div class="col-auto">
-                                <button class="btn btn-light mt-1" data-bs-toggle="modal" data-bs-target="#attachmentsModal">
+                                <button type="button" id="attachment-list" data-order-id="{{ $order->id }}" class="btn btn-light mt-1" data-bs-toggle="modal" data-bs-target="#attachmentsModal">
                                     <i class="ti ti-paperclip fs-4"></i> Attachments (0)
                                 </button>
                             </div>
@@ -371,6 +371,7 @@
     </div>
 
     @include('modals.order.order-detail.attachment-modal')
+    @include('modals.order.order-detail.add-attachment-modal')
     @include('modals.order.order-detail.lineitems-edit-modal')
     @include('modals.order.order-detail.create-event-modal')
     @include('modals.order.order-detail.edit-event-modal')
@@ -511,13 +512,26 @@
         let itemsData = [];
         let currentIndex = 0;
 
+        function formatShortDate(dateString) {
+            if (!dateString) return '-';
+            const d = new Date(dateString);
+            if (isNaN(d)) return dateString; // in case parsing fails
+
+            let day = String(d.getDate()).padStart(2, '0');
+            let month = String(d.getMonth() + 1).padStart(2, '0');
+            let year = String(d.getFullYear()).slice(-2); // last 2 digits
+
+            return `${day}/${month}/${year}`;
+        }
+
         // ✅ Populate modal with data
         function populateModal(data) {
             // console.log(data);
-            modal.find('#editItemsModalLabel').text(data.raw.name ?? '-');
+            modal.find('#editItemsModalLabel').text(data.raw ? data.raw.name ?? '' : data.name ?? '-');
             modal.find('img[alt="Product Image"]').attr('src', 'https://app.sourceflow.io/storage/images/no-image-thumbnail.png');
+            modal.find('#asin-label').text(data.asin ?? '-');
 
-            modal.find('#name').val(data.raw.name ?? '');
+            modal.find('#name').val(data.raw ? data.raw.name ?? '' : data.name ?? '');
             modal.find('#asin').val(data.raw ? data.raw.asin_input ?? '' : data.asin ?? '');
             modal.find('#variation').val(data.variation_details ?? '');
             modal.find('#msku').val(data.msku ?? '');
@@ -539,9 +553,13 @@
             modal.find('#buyerNote').val(data.buyer_note ?? data.buyer_notes ?? '');
 
             // Smart info
-            modal.find('#smart-date').text(data.created_at ?? data.date ?? '-');
+            modal.find('#smart-date').text(formatShortDate(data.created_at ?? data.date) ?? '-');
             modal.find('#smart-supplier').text(data.supplier ?? '-');
-            modal.find('#smart-buy-cost').text(data.cost ? `$${parseFloat(data.cost).toFixed(2)}` : '$0');
+            modal.find('#smart-buy-cost').text(
+                data.raw?.cost
+                    ? `$${parseFloat(data.raw.cost).toFixed(2)}`
+                    : (data.cost ? `$${parseFloat(data.cost).toFixed(2)}` : '$0')
+            );
             modal.find('#smart-net-cost').text(data.selling_price ? `$${parseFloat(data.selling_price).toFixed(2)}` : '$0');
             modal.find('#smart-roi').text(data.roi ? `${data.roi}%` : '0%');
             modal.find('#smart-bsr').text(data.bsr ?? '-');
@@ -555,6 +573,34 @@
             modal.find('#prev-item').prop('disabled', currentIndex === 0);
             modal.find('#next-item').prop('disabled', currentIndex === itemsData.length - 1);
         }
+
+        $(document).on('click', '#open-links-btn', function () {
+            let url = $('#supplier-link').attr('href');
+
+            if (url && url !== '#') {
+                window.open(url, '_blank');
+            }
+        });
+
+        $(document).on('click', '#asin-copy', function () {
+            let asin = $('#asin-label').text().trim();
+
+            if (!asin || asin === '-') {
+                toastr.error("No ASIN found!");
+                return;
+            }
+
+            navigator.clipboard.writeText(asin);
+
+            // ✅ Icon small feedback
+            $(this).addClass('text-success');
+            setTimeout(() => {
+                $(this).removeClass('text-success');
+            }, 600);
+
+            // ✅ Toastr popup
+            toastr.success("ASIN copied to clipboard!");
+        });
 
         // -------------------------------
         // BULK EDIT LOGIC (main button)
@@ -1885,5 +1931,172 @@
             }
         });
     });
+
+    // When file is selected
+    $('#att-file').on('change', function () {
+        let file = this.files[0];
+
+        if (file) {
+            $('#file-name').text(file.name);
+            $('#file-preview').removeClass('d-none');
+        }
+    });
+
+    // Remove selected file
+    $('#remove-file').on('click', function () {
+        $('#att-file').val('');      // Clear input
+        $('#file-preview').addClass('d-none');
+    });
+
+    // Save attachment via AJAX
+    $('#saveAttachment').on('click', function () {
+        const title = $('#att-title').val();
+        const note  = $('#att-note').val();
+        const fileInput = $('#att-file')[0].files[0];
+
+        if (!fileInput) {
+            toastr.error('Please select a file!');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('note', note);
+        formData.append('file', fileInput);
+        formData.append('order_id', {{ $order->id }});
+        formData += '&_token={{ csrf_token() }}';
+
+        $.ajax({
+            url: '/save-attachment',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                if (res.success) {
+                    toastr.success('Attachment saved successfully!');
+                    $('#addAttachmentModal').modal('hide');
+                    // Optionally reload attachment list
+                } else {
+                    toastr.error(res.message || 'Failed to save attachment');
+                }
+            },
+            error: function (err) {
+                console.error(err.responseText);
+                toastr.error('Server error. Please try again.');
+            }
+        });
+    });
+
+    $('#add-attach-modal').on('click', function (e) {
+        e.preventDefault();
+
+        // Open second modal on top of first
+        const addModal = new bootstrap.Modal(document.getElementById('addAttachmentModal'), {
+            backdrop: false, // first modal backdrop stays
+            keyboard: false
+        });
+        addModal.show();
+    });
+
+    // Open Attachments Modal and load list
+    $(document).on('click', '#attachment-list', function() {
+        let orderId = $(this).data('order-id');
+        $('#add-attach-modal').data('order-id', orderId); // Pass order id to upload button
+        loadAttachments(orderId);
+        $('#attachmentsModal').modal('show');
+    });
+
+    // Load attachments via AJAX
+    function loadAttachments(orderId) {
+        $.ajax({
+            url: `/orders/${orderId}/attachments`,
+            method: 'GET',
+            success: function(res) {
+                let container = $('#attachments-list');
+                container.empty();
+
+                if (res.length === 0) {
+                    container.html('<h4 class="mb-0">No attachments available.</h4><p class="text-muted">Please upload a file to see it here.</p>');
+                    return;
+                }
+
+                let html = '<div class="row g-3">'; // Bootstrap row with gap
+                res.forEach(att => {
+                    html += `
+                    <div class="col-12" data-id="${att.id}">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-body d-flex align-items-center">
+                                <div class="me-3 d-flex align-items-center justify-content-center bg-light border rounded" style="width:64px; height:64px;">
+                                    <svg class="bi" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M14 4.5V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h6.5L14 4.5zM10.5 0h-7A1.5 1.5 0 0 0 2 1.5v13A1.5 1.5 0 0 0 3.5 16h9A1.5 1.5 0 0 0 14 14.5V5.5L10.5 0z"/>
+                                    </svg>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title mb-1 text-truncate">${att.name}</h5>
+                                    <small class="text-muted">${att.created_at}</small>
+                                    <div class="mt-2">
+                                        <a href="/${att.path}" target="_blank" class="btn btn-sm btn-outline-primary me-2">Download</a>
+                                        <button class="btn btn-sm btn-outline-danger delete-attachment">Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                });
+                html += '</div>';
+                container.html(html);
+            },
+            error: function(err) {
+                console.error(err);
+                toastr.error('Failed to load attachments.');
+            }
+        });
+    }
+
+    // Delete attachment with SweetAlert2 and CSRF
+    $(document).on('click', '.delete-attachment', function() {
+        let attachmentId = $(this).closest('[data-id]').data('id');
+        let orderId = $('#add-attach-modal').data('order-id');
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This will permanently delete the attachment!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/orders/attachments/${attachmentId}`,
+                    method: 'DELETE',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                    },
+                    success: function(res) {
+                        Swal.fire(
+                            'Deleted!',
+                            'Attachment has been deleted.',
+                            'success'
+                        );
+                        loadAttachments(orderId); // Reload list
+                    },
+                    error: function(err) {
+                        console.error(err);
+                        Swal.fire(
+                            'Error!',
+                            'Failed to delete attachment.',
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
+    });
+
 </script>
 @endsection
