@@ -31,12 +31,28 @@ class AttachmentController extends Controller
     public function store(Request $request)
     {
         $file = $request->file('file');
-        $filename = uniqid() . '.' . $file->getClientOriginalExtension();
-        $path = $file->storeAs('order_attachments/' . $request->order_id, $filename, 'public');
 
+        if (!$file) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No file uploaded'
+            ]);
+        }
+
+        // Get original extension
+        $extension = $file->getClientOriginalExtension();
+
+        // Use title as filename
+        $title = preg_replace('/[^A-Za-z0-9_\-]/', '_', $request->title); // sanitize title
+        $filename = $title . '.' . $extension;
+
+        // Store file in storage/app/order_attachments/{order_id}/
+        $path = $file->storeAs('order_attachments/' . $request->order_id, $filename);
+
+        // Create database record
         $attachment = OrderFile::create([
             'order_id' => $request->order_id,
-            'name' => $filename,
+            'name' => $request->title,
             'path' => $path,
             'note' => $request->note,
             'uploaded_by' => Auth::user()->name ?? 'Admin',
@@ -59,11 +75,26 @@ class AttachmentController extends Controller
                     'id' => $att->id,
                     'name' => $att->name,
                     'path' => $att->path,
+                    'note' => $att->note,
                     'created_at' => $att->created_at->format('d/m/y'),
                 ];
             });
 
         return response()->json($attachments);
+    }
+
+    public function download($id)
+    {
+        $attachment = OrderFile::findOrFail($id);
+
+        // Full path in storage/app
+        $filePath = storage_path('app/' . $attachment->path);
+
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found');
+        }
+
+        return response()->download($filePath, $attachment->name);
     }
 
     /**

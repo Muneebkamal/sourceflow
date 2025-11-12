@@ -196,7 +196,7 @@ class LeadController extends Controller
         ]);
 
         $template = Template::find($request->template_id);
-        $mappedColumns = json_decode($template->mapped_columns, true); // { db_column => csv_column }
+        $mappedColumns = json_decode($template->mapping_template, true); // { db_column => csv_column }
 
         if (!$mappedColumns) {
             return response()->json([
@@ -226,6 +226,30 @@ class LeadController extends Controller
                     }
                 }
 
+                // ✅ Extract supplier name from URL
+                if (!empty($leadData['url'])) {
+
+                    $url = $leadData['url'];
+
+                    // Ensure URL has a protocol
+                    if (!str_starts_with($url, 'http://') && !str_starts_with($url, 'https://')) {
+                        $url = 'https://' . $url;
+                    }
+
+                    $host = parse_url($url, PHP_URL_HOST); // e.g., www.thepaperstore.com
+
+                    if ($host) {
+                        // Remove "www."
+                        $host = preg_replace('/^www\./', '', $host);
+
+                        // Split by dot
+                        $parts = explode('.', $host);
+
+                        // Supplier = first part (domain name)
+                        $leadData['supplier'] = $parts[0];   // ✅ thepaperstore
+                    }
+                }
+
                 // Validation: asin and url required
                 if (empty($leadData['asin']) || empty($leadData['url'])) {
                     $failedRow = $leadData;
@@ -235,8 +259,24 @@ class LeadController extends Controller
                 }
 
                 $leadData['template_id'] = $template->id;
-                Lead::create($leadData);
-                $success[] = $leadData;
+                $leadData['source_id'] = $request->source_id;
+
+                // ✅ Convert empty numeric values to 0
+                $numericFields = ['sell_price', 'net_profit', 'roi', 'cost', 'bsr'];
+
+                foreach ($numericFields as $field) {
+                    if (!isset($leadData[$field]) || $leadData[$field] === '' || $leadData[$field] === null) {
+                        $leadData[$field] = 0;
+                    } else {
+                        // Remove commas, spaces, etc.
+                        $leadData[$field] = round(floatval(str_replace([',', ' '], '', $leadData[$field])), 2);
+                    }
+                }
+
+                // Lead::create($leadData);
+                // $success[] = $leadData;
+                $lead = Lead::create($leadData);
+                $success[] = $lead->toArray();
             }
 
             fclose($handle);
@@ -249,6 +289,43 @@ class LeadController extends Controller
             'failed' => $failed,
             'success_count' => count($success),
             'failed_count' => count($failed),
+        ]);
+    }
+
+    public function storeNewLead(Request $request)
+    {
+        $request->validate([
+            'e_l_asin' => 'required|string',
+            'e_l_source_url' => 'required|url',
+            // add other validations as needed
+        ]);
+
+        $leadData = [
+            'source_id' => $request->source_id_failed,
+            'name' => $request->e_l_name,
+            'asin' => $request->e_l_asin,
+            'url' => $request->e_l_source_url,
+            'supplier' => $request->e_l_supplier ?? null,
+            'bsr' => $request->e_l_bsr_ninety ?? 0,
+            'category' => $request->e_l_category ?? null,
+            'cost' => $request->e_l_buy_cost ?? 0,
+            'sell_price' => $request->e_l_selling_price ?? 0,
+            // 'currency_code' => $request->e_l_currency_code ?? null,
+            'promo' => $request->e_l_promo ?? null,
+            'coupon' => $request->e_l_coupon_code ?? null,
+            // 'line_item_note' => $request->e_l_line_item_note ?? null,
+            'date' => $request->e_l_publish_time ?? null,
+            // 'parent_asin' => $request->e_l_parent_asin ?? null,
+            'roi' => $request->e_l_roi ?? 0,
+            'net_profit' => $request->e_l_net_profit ?? 0,
+            // 'tags' => $request->e_l_tags ?? null,
+        ];
+
+        $lead = Lead::create($leadData);
+
+        return response()->json([
+            'status' => true,
+            'lead' => $lead,
         ]);
     }
 

@@ -433,17 +433,17 @@
                             <ul class="nav nav-tabs mb-3" id="uploadTabs" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active" id="failed-tab" data-bs-toggle="tab" data-bs-target="#failed" type="button" role="tab">
-                                        Failed <span class="badge badge-soft-danger" id="failed-count">0</span>
+                                        Failed <span class="badge badge-soft-danger fs-5" id="failed-count">0</span>
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="bundle-tab" data-bs-toggle="tab" data-bs-target="#bundle" type="button" role="tab">
-                                        Bundle <span class="badge badge-soft-primary" id="bundle-count">0</span>
+                                        Bundle <span class="badge badge-soft-primary fs-5" id="bundle-count">0</span>
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="successful-tab" data-bs-toggle="tab" data-bs-target="#successful" type="button" role="tab">
-                                        Successful <span class="badge badge-soft-success" id="successful-count">0</span>
+                                        Successful <span class="badge badge-soft-success fs-5" id="successful-count">0</span>
                                     </button>
                                 </li>
                             </ul>
@@ -452,9 +452,19 @@
                             <div class="tab-content" id="uploadTabsContent">
                                 <!-- Failed Table -->
                                 <div class="tab-pane fade show active" id="failed" role="tabpanel">
-                                    <table class="table table-striped table-bordered">
+                                    <div class="d-flex justify-content-end mb-2">
+                                        <button class="btn btn-danger me-1 discard-all-failed">Discard All Failed</button>
+                                        <button class="btn btn-primary failed-leads-edit me-1" data-index="0">Edit</button>
+                                        <button id="FailedTableDone" class="btn btn-success">Done</button>
+                                    </div>
+                                    <table class="table table-striped">
                                         <thead class="bg-light">
                                             <tr>
+                                                <th>
+                                                    <div class="form-check">
+                                                        <input type="checkbox" class="form-check-input" id="checkAllFailed">
+                                                    </div>
+                                                </th>
                                                 <th>Errors</th>
                                                 <th>ASIN</th>
                                                 <th>Product Title</th>
@@ -465,6 +475,7 @@
                                                 <th>Cost</th>
                                                 <th>Selling Price</th>
                                                 <th>Promo</th>
+                                                <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody id="failed-body"></tbody>
@@ -473,6 +484,9 @@
 
                                 <!-- Bundle Table -->
                                 <div class="tab-pane fade" id="bundle" role="tabpanel">
+                                    <div class="d-flex justify-content-end mb-2">
+                                        <button class="btn btn-primary">Done</button>
+                                    </div>
                                     <table class="table table-striped table-bordered">
                                         <thead class="bg-light">
                                             <tr>
@@ -493,9 +507,31 @@
 
                                 <!-- Successful Table -->
                                 <div class="tab-pane fade" id="successful" role="tabpanel">
-                                    <table class="table table-striped table-bordered">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <div id="select-count-success-leads" class="d-flex mb-2 align-items-center d-none">
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-light" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="true">
+                                                    <i class="ti ti-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item updatepublishdateSuccess" href="#">Change Publish Date</a></li>
+                                                    <li><a class="dropdown-item text-danger bulkDelBtnSuccess" href="#">Delete</a></li>
+                                                </ul>
+                                            </div>
+                                            <span class="fw-bold ms-3 d-flex">Selected: <span id="selectedCountSuccess">0</span></span>
+                                        </div>
+                                        <div class="d-flex justify-content-end w-100">
+                                            <button id="successTableDone" class="btn btn-success">Done</button>
+                                        </div>
+                                    </div>
+                                    <table class="table table-striped">
                                         <thead class="bg-light">
                                             <tr>
+                                                <th>
+                                                    <div class="form-check">
+                                                        <input type="checkbox" class="form-check-input" id="checkAllSuccess">
+                                                    </div>
+                                                </th>
                                                 <th>ASIN</th>
                                                 <th>Product Title</th>
                                                 <th>Source URL</th>
@@ -505,6 +541,7 @@
                                                 <th>Cost</th>
                                                 <th>Selling Price</th>
                                                 <th>Promo</th>
+                                                <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody id="successful-body"></tbody>
@@ -544,6 +581,7 @@
     @include('modals.leads.add-lead-modal')
     @include('modals.leads.bulk-move-leads-modal')
     @include('modals.leads.leads-bulk-date-update-modal')
+    @include('modals.leads.edit-failed-leads-modal')
 @endsection
 
 @section('scripts')
@@ -958,9 +996,11 @@
         });
     });
 
+    let editingLeadId = null;
     $(document).on('click', '.edit-lead', function (e) {
         e.preventDefault();
         const leadId = $(this).data('id');
+        editingLeadId = leadId;
 
         $.ajax({
             url: "{{ route('leads.show', ':id') }}".replace(':id', leadId),
@@ -971,7 +1011,7 @@
 
                     // Fill form fields
                     $('#lead_id').val(d.id);
-                    $('#lead_source').val(d.source_id);
+                    $('#lead_source_id').val(String(d.source_id)).trigger('change');
                     $('#name').val(d.name);
                     $('#asin').val(d.asin);
                     $('#parent_asin').val(d.parent_asin);
@@ -1005,6 +1045,7 @@
     });
 
     $('#addLeadModalBtn').on('click', function () {
+        editingLeadId = null;
         $('#addLeadForm')[0].reset();
         $('#lead_id').val('');
         $('#addLeadModalLabel').text('Add New Lead');
@@ -1014,6 +1055,7 @@
 
     $(document).on('click', '.singleLeadDel', function (e) {
         e.preventDefault();
+        const $btn = $(this);
         const leadId = $(this).data('id');
 
         Swal.fire({
@@ -1073,6 +1115,16 @@
                     success: function (response) {
                         if (response.success) {
                             toastr.success(response.message);
+                            // Remove the row from the table
+                            const $row = $btn.closest('tr');
+                            const $tableBody = $row.closest('tbody');
+                            $row.remove();
+
+                            // Update counts dynamically
+                            if ($tableBody.attr('id') === 'successful-body') {
+                                $('#successful-count').text($tableBody.find('tr').length);
+                            }
+
                             $('#leads-table').DataTable().ajax.reload(null, false);
                         } else {
                             toastr.error(response.message || 'Something went wrong.');
@@ -1425,10 +1477,10 @@
                 csvHeaders.forEach(col => $select.append(`<option value="${col}">${col}</option>`));
 
                 // Optional: auto-match header with DB column name
-                const name = $select.attr("name").replace("map_", "");
-                const match = csvHeaders.find(col => col.toLowerCase() === name);
-                if (match) $select.val(match);
-                mappingTemplate[name] = $select.val() || null;
+                // const name = $select.attr("name").replace("map_", "");
+                // const match = csvHeaders.find(col => col.toLowerCase() === name);
+                // if (match) $select.val(match);
+                // mappingTemplate[name] = $select.val() || null;
             });
 
             // Bind change handler for new template
@@ -1537,9 +1589,9 @@
                 success: function(res) {
                     if (res.status) {
                         const mapping = res.mapping; // { Date: "date_col", ... }
-                        console.log(mapping);
+                        // console.log(mapping);
                         // Highlight mapped columns (optional)
-                        fillSelectedTemplate(mapping);
+                        // fillSelectedTemplate(mapping);
 
                         // Fill the Select Template table
                         const $table = $("#select-map-table");
@@ -1567,145 +1619,182 @@
         });
 
         // -------------------- Highlight Select Template Mapping --------------------
-        function fillSelectedTemplate(map) {
-            $("#select-temp-section table thead th").each(function() {
-                let key = $(this).text().trim();
-                let match = map[key] ?? map[key.toLowerCase()] ?? null;
+        // function fillSelectedTemplate(map) {
+        //     $("#select-temp-section table thead th").each(function() {
+        //         let key = $(this).text().trim();
+        //         let match = map[key] ?? map[key.toLowerCase()] ?? null;
 
-                if (match) {
-                    $(this).css("background", "#d1e7ff").attr("title", "Mapped: " + match);
-                } else {
-                    $(this).css("background", "#f8d7da").attr("title", "Not Mapped");
-                }
-            });
-        }
-
-        // Upload Data click handler
-        // $('#upload-data').on('click', function() {
-
-        //     showStep(3);
-
-        //     const failedBody = $("#failed-body");
-        //     const successfulBody = $("#successful-body");
-        //     const failedTable = $("#failed table");
-        //     const successTable = $("#successful table");
-
-        //     failedBody.empty();
-        //     successfulBody.empty();
-        //     failedTable.find("thead").empty();
-        //     successTable.find("thead").empty();
-
-        //     let failedCount = 0;
-        //     let successCount = 0;
-
-        //     const headers = Object.keys(mappingTemplate).filter(k => mappingTemplate[k]);
-
-        //     // ---------- Build Table Headers ----------
-        //     const failedHeaders = ['Errors', ...headers];
-
-        //     const failedThead = $("<tr></tr>");
-        //     failedHeaders.forEach(h => failedThead.append(`<th>${h}</th>`));
-        //     failedTable.find("thead").append(failedThead);
-
-        //     const successThead = $("<tr></tr>");
-        //     headers.forEach(h => successThead.append(`<th>${h}</th>`));
-        //     successTable.find("thead").append(successThead);
-
-        //     // ✅ Extract cleaned header keys from select-map-table only ONCE
-        //     const selectHeaders = $("#select-map-table thead th").map(function() {
-        //         let cleaned = $(this).text()
-        //             .trim()
-        //             .replace(/\s+/g, '_')
-        //             .replace(/[^\w]/g, '')
-        //             .toLowerCase();
-
-        //         return HEADER_KEY_MAP[cleaned] || cleaned;
-        //     }).get();
-
-        //     // ---------- Process Rows ----------
-        //     $("#select-map-table tbody tr").each(function() {
-
-        //         const rowMapped = {};
-
-        //         // ✅ Correct column-matching here
-        //         headers.forEach(key => {
-        //             const thIndex = selectHeaders.indexOf(key);
-        //             rowMapped[key] = thIndex >= 0
-        //                 ? $(this).find("td").eq(thIndex).text().trim()
-        //                 : "";
-        //         });
-
-        //         // ---------- Required Fields ----------
-        //         if (!rowMapped.asin || !rowMapped.url) {
-        //             const tr = $("<tr class='text-danger'></tr>");
-        //             tr.append("<td>ASIN or URL missing</td>");
-        //             failedHeaders.slice(1).forEach(k => tr.append(`<td>${rowMapped[k] || ""}</td>`));
-        //             failedBody.append(tr);
-        //             failedCount++;
+        //         if (match) {
+        //             $(this).css("background", "#d1e7ff").attr("title", "Mapped: " + match);
         //         } else {
-        //             const tr = $("<tr></tr>");
-        //             headers.forEach(k => tr.append(`<td>${rowMapped[k] || ""}</td>`));
-        //             successfulBody.append(tr);
-        //             successCount++;
+        //             $(this).css("background", "#f8d7da").attr("title", "Not Mapped");
         //         }
         //     });
+        // }
 
-        //     $('#failed-count').text(failedCount);
-        //     $('#successful-count').text(successCount);
-
-        //     if (failedCount) new bootstrap.Tab($('#failed-tab')).show();
-
-        //     $(this).prop('disabled', true);
-        // });
+        // Upload Data click handler
         $("#upload-data").on("click", function() {
-            const templateId = $('select[name="template"]').val(); // get selected template
-            const fileInput = $("#myAwesomeDropzone input[type=file]")[0];
+            const $btn = $(this);
+            $btn.html('<span class="spinner-grow spinner-grow-sm me-1" role="status" aria-hidden="true"></span>Uploading');
+            $btn.prop('disabled', true);
 
-            if (!fileInput || !fileInput.files.length) {
-                toastr.error("Please upload a CSV file first");
-                return;
-            }
+            const templateId = $('select[name="template"]').val();
+            const sourceId = $("#lead_source").val();
 
             if (!templateId) {
                 toastr.error("Please select a template");
+                $btn.html('Upload Data'); // reset button
+                $btn.prop('disabled', false);
+                return;
+            }
+
+            // Get uploaded file from Dropzone
+            if (!myDropzone.files || myDropzone.files.length === 0) {
+                toastr.error("Please upload a CSV file first");
+                $btn.html('Upload Data'); // reset button
+                $btn.prop('disabled', false);
                 return;
             }
 
             let formData = new FormData();
-            formData.append('file', fileInput.files[0]);
+            formData.append('file', myDropzone.files[0]); // first uploaded file
             formData.append('template_id', templateId);
+            formData.append('source_id', sourceId);
             formData.append('_token', '{{ csrf_token() }}');
 
             $.ajax({
                 url: "{{ route('leads.import.file') }}",
                 type: "POST",
                 data: formData,
-                processData: false, // important for FormData
-                contentType: false, // important for FormData
+                processData: false,
+                contentType: false,
                 success: function(res) {
+                    // console.log(res);
                     if (res.status) {
-                        // Successful Leads
+                        /* ================================
+                        ✅ SUCCESSFUL LEADS TABLE
+                        ================================= */
+                        const successOrder = [
+                            "asin", "name", "url", "supplier",
+                            "bsr", "category", "cost", "sell_price", "promo"
+                        ];
+
                         const $success = $("#successful-body").empty();
+
                         res.success.forEach(r => {
-                            let tr = "<tr>";
-                            Object.keys(r).forEach(k => tr += `<td>${r[k]||''}</td>`);
+                            const leadId = r.id ?? 0;
+
+                            let tr = `<tr data-id="${leadId}">`;
+
+                            // ✅ Checkbox
+                            tr += `
+                                <td>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input row-check" data-id="${r.id || ''}">
+                                    </div>
+                                </td>`;
+
+                            // ✅ Add fields in FIXED ORDER (always match table header)
+                            successOrder.forEach(key => {
+                                tr += `<td>${r[key] ?? ''}</td>`;
+                            });
+
+                            // ✅ ALWAYS last → ACTIONS
+                            tr += `
+                                <td>
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <a href="" data-id="${leadId}" class="btn btn-sm btn-light singleLeadDel">
+                                            <i class="ti ti-trash"></i>
+                                        </a>
+                                        <a href="" data-id="${leadId}" class="btn btn-sm btn-light edit-lead">
+                                            <i class="ti ti-edit"></i>
+                                        </a>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body">
+                                                <i class="ti ti-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li><a class="dropdown-item" data-id="" href="#">Un-Bundle</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
+                            `;
+
                             tr += "</tr>";
                             $success.append(tr);
                         });
 
-                        // Failed Leads
+
+                        /* ================================
+                        ✅ FAILED LEADS TABLE
+                        ================================= */
+                        const failedOrder = [
+                            "asin", "product_title", "url", "supplier",
+                            "bsr_90d_avg", "category", "cost", "selling_price", "promo"
+                        ];
+
                         const $failed = $("#failed-body").empty();
-                        res.failed.forEach(r => {
-                            let tr = "<tr class='text-danger'>";
+
+                        window.failedList = res.failed;
+                        // let index = 0;
+                        // res.failed.forEach(r => {
+                        $failed.empty();
+                        res.failed.forEach((r, i) => {
+
+                            let tr = `<tr class="text-danger" >`;
+                            // index++;
+
+                            // ✅ Checkbox
+                            tr += `
+                                <td>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input row-check">
+                                    </div>
+                                </td>`;
+
+                            // ✅ Error column
                             tr += `<td>${r.error}</td>`;
-                            Object.keys(r).forEach(k => { if(k!=='error') tr += `<td>${r[k]||''}</td>`; });
+
+                            // ✅ Add fields in fixed order
+                            failedOrder.forEach(key => {
+                                tr += `<td>${r[key] ?? ''}</td>`;
+                            });
+
+                            // ✅ ALWAYS LAST → ACTIONS
+                            tr += `
+                                <td>
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <a href="" class="btn btn-sm btn-light remove-row">
+                                            <i class="ti ti-trash"></i>
+                                        </a>
+                                        <a href="" class="btn btn-sm btn-light failed-leads-edit"  data-index="${i}">
+                                            <i class="ti ti-edit"></i>
+                                        </a>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body">
+                                                <i class="ti ti-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li><a class="dropdown-item" data-id="" href="#">Duplicate Item</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
+                            `;
+
                             tr += "</tr>";
                             $failed.append(tr);
                         });
 
+                        /* ================================
+                        ✅ COUNTS + SUCCESS MESSAGE
+                        ================================= */
                         $('#successful-count').text(res.success_count);
                         $('#failed-count').text(res.failed_count);
                         toastr.success(res.message);
+                        showStep(3);
+
                     } else {
                         toastr.error(res.message);
                     }
@@ -1715,6 +1804,375 @@
                     toastr.error("Error uploading file");
                 }
             });
+        });
+
+        $(document).on('input change', '#addLeadModal input, #addLeadModal select, #addLeadModal textarea', function () {
+            if (!editingLeadId) return; // no lead currently being edited
+
+            // Get updated values from modal
+            const name = $('#name').val();
+            const asin = $('#asin').val();
+            const url = $('#source_url').val();
+            const supplier = $('#supplier').val();
+            const bsr = $('#bsr_current').val();
+            const category = $('#category').val();
+            const cost = $('#cost').val();
+            const sellPrice = $('#selling_price').val();
+            const promo = $('#promo').val();
+
+            // Find table row matching lead ID
+            const $row = $(`#successful-body tr[data-id="${editingLeadId}"]`);
+            if ($row.length) {
+                // Update specific columns in correct order
+                const tds = $row.find('td');
+
+                // Order based on your header (after checkbox)
+                $(tds[1]).text(asin);
+                $(tds[2]).text(name);
+                $(tds[3]).text(url);
+                $(tds[4]).text(supplier);
+                $(tds[5]).text(bsr);
+                $(tds[6]).text(category);
+                $(tds[7]).text(cost);
+                $(tds[8]).text(sellPrice);
+                $(tds[9]).text(promo);
+            }
+        });
+
+        // let currentFailedIndex = 0;
+        // $(document).on("click", ".failed-leads-edit", function(e) {
+        //     e.preventDefault();
+
+        //     // Only proceed if button has a data-index
+        //     const index = $(this).data("index");
+        //     if (index === undefined) return;
+
+        //     currentFailedIndex = parseInt(index);
+        //     loadFailedItem(currentFailedIndex);
+
+        //     $("#editFailedLeadsModal").modal("show");
+        // });
+        let currentFailedIndex = -1;
+        $(document).on("click", ".failed-leads-edit", function(e) {
+            e.preventDefault();
+
+            const rawIndex = $(this).data("index");
+            if (rawIndex === undefined) return;
+
+            const index = Number(rawIndex);
+            if (Number.isNaN(index) || !window.failedList || index < 0 || index >= window.failedList.length) return;
+
+            currentFailedIndex = index;
+            loadFailedItem(currentFailedIndex);
+
+            $("#editFailedLeadsModal").modal("show");
+        });
+
+        function loadFailedItem(index) {
+            const item = window.failedList[index];
+            console.log(item);
+            if (!item) return;
+            var failedSourceId = $("#lead_source").val();
+            $("#item-position-failed").text((index + 1) + " of " + window.failedList.length);
+
+            // ✅ Fill modal fields
+            $("#source_id_failed").val(failedSourceId);
+            $("#e_l_name").val(item.product_title);
+            $("#e_l_category").val(item.category);
+            $("#e_l_asin").val(item.asin);
+            $("#e_l_source_url").val(item.url);
+            $("#e_l_supplier").val(item.supplier);
+            $("#e_l_bsr_ninety").val(item.bsr_90d_avg);
+            $("#e_l_costPerUnit").val(item.cost);
+            $("#e_l_sellingPrice").val(item.selling_price);
+            // $("#e_l_currency_code").val(item.currency_code ?? "");
+            $("#e_l_promo").val(item.promo);
+            $("#e_l_coupon_code").val(item.coupon_code ?? "");
+            // $("#e_l_line_item_note").val(item.line_item_note ?? "");
+            $("#e_l_publish_time").val(item.publish_time ?? "");
+            // $("#e_l_parent_asin").val(item.parent_asin ?? "");
+            $("#e_l_roi").val(item.roi ?? "");
+            $("#e_l_netProfit").val(item.net_profit ?? "");
+            // $("#e_l_tags").val(item.tags ?? "");
+
+            // // ✅ Load product image (if exists)
+            // $(".modal-header img").attr("src", item.image ?? "https://app.sourceflow.io/storage/images/no-image-thumbnail.png");
+
+            // // ✅ ASIN text above
+            // $("#asin-label").text(item.asin || "-");
+
+            // ✅ Next / Prev button state
+            $("#prev-item-failed").prop("disabled", index === 0);
+            $("#next-item-failed").prop("disabled", index === window.failedList.length - 1);
+        }
+        // function loadFailedItem(index) {
+        //     if (!Array.isArray(window.failedList)) return;
+        //     if (index < 0 || index >= window.failedList.length) return;
+
+        //     const item = window.failedList[index];
+        //     if (!item) return;
+        //     console.log(item);
+        //     $("#item-position-failed").text((index + 1) + " of " + window.failedList.length);
+
+        //     // fill modal fields...
+        //     // (existing assignments)
+            
+        //     $("#prev-item-failed").prop("disabled", index === 0);
+        //     $("#next-item-failed").prop("disabled", index === window.failedList.length - 1);
+        // }
+
+        $("#prev-item-failed").on("click", function () {
+            if (currentFailedIndex > 0) {
+                currentFailedIndex--;
+                loadFailedItem(currentFailedIndex);
+            }
+        });
+
+        $("#next-item-failed").on("click", function () {
+            if (currentFailedIndex < window.failedList.length - 1) {
+                currentFailedIndex++;
+                loadFailedItem(currentFailedIndex);
+            }
+        });
+
+        $("#failed-lead-edit-form").on("submit", function(e) {
+            e.preventDefault();
+
+            const formData = $(this).serialize(); // serialize all inputs
+
+            $.ajax({
+                url: "{{ route('leads.failed.new') }}", // new route for creating lead
+                type: "POST",
+                data: formData,
+                success: function(res) {
+                    if(res.status) {
+                        // Close modal
+                        $("#editFailedLeadsModal").modal("hide");
+
+                        // Optional: Remove from failed table if applicable
+                        // if(currentFailedIndex !== undefined){
+                        //     window.failedList.splice(currentFailedIndex, 1);
+                        //     $("#failed-body tr").eq(currentFailedIndex).remove();
+
+                        //     // ✅ Re-index remaining failed items
+                        //     $("#failed-body .failed-leads-edit").each(function (i) {
+                        //         $(this).attr("data-index", i);
+                        //     });
+                        // }
+                        if (typeof currentFailedIndex !== 'undefined' && currentFailedIndex !== null) {
+                            // Remove from array and DOM row
+                            window.failedList.splice(currentFailedIndex, 1);
+                            $("#failed-body tr").eq(currentFailedIndex).remove();
+
+                            // Re-index remaining edit buttons (0-based)
+                            $("#failed-body .failed-leads-edit").each(function (i) {
+                                $(this).attr("data-index", i);
+                            });
+
+                            // If current pointer is now past the end, clamp it
+                            if (currentFailedIndex >= window.failedList.length) {
+                                currentFailedIndex = window.failedList.length - 1;
+                            }
+                        }
+
+                        // Prepend to success table
+                        const lead = res.lead;
+                        const successOrder = ["asin", "name", "url", "supplier", "bsr", "category", "cost", "sell_price", "promo"];
+                        
+                        let tr = `<tr data-id="${lead.id}">`;
+                        tr += `<td>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input row-check" data-id="${lead.id}">
+                                </div>
+                            </td>`;
+                        successOrder.forEach(key => {
+                            tr += `<td>${lead[key] ?? ''}</td>`;
+                        });
+                        tr += `<td>
+                                <div class="d-flex justify-content-center gap-1">
+                                    <a href="" data-id="${lead.id}" class="btn btn-sm btn-light singleLeadDel">
+                                        <i class="ti ti-trash"></i>
+                                    </a>
+                                    <a href="" data-id="${lead.id}" class="btn btn-sm btn-light edit-lead">
+                                        <i class="ti ti-edit"></i>
+                                    </a>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" data-bs-container="body">
+                                            <i class="ti ti-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item" data-id="" href="#">Un-Bundle</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </td>`;
+                        tr += "</tr>";
+
+                        $("#successful-body").prepend(tr);
+
+                        // Update counts
+                        $('#successful-count').text(parseInt($('#successful-count').text()) + 1);
+                        if(currentFailedIndex !== undefined){
+                            $('#failed-count').text(parseInt($('#failed-count').text()) - 1);
+                        }
+
+                        toastr.success("Lead added to success table!");
+                    } else {
+                        toastr.error(res.message);
+                    }
+                },
+                error: function(xhr) {
+                    console.error(xhr.responseText);
+                    toastr.error("Error saving lead");
+                }
+            });
+        });
+
+        // ✅ Remove row from SUCCESS or FAILED table
+        $(document).on('click', '.remove-row', function(e) {
+            e.preventDefault();
+
+            const $row = $(this).closest('tr');
+            const $tableBody = $row.closest('tbody');
+
+            // Remove the row
+            $row.remove();
+
+            // Update counts dynamically
+            if ($tableBody.attr('id') === 'failed-body') {
+                $('#failed-count').text($tableBody.find('tr').length);
+            }
+        });
+
+        /* =====================================================
+        ✅ CHECKBOX HANDLING (Select All + Counter + Show Bar)
+        ===================================================== */
+
+        // 1️⃣ Handle Select All
+        $(document).on("change", "#checkAllSuccess", function () {
+            const checked = $(this).is(":checked");
+
+            // check/uncheck all row checkboxes
+            $("#successful-body .row-check").prop("checked", checked);
+
+            updateSuccessSelectedCount();
+        });
+
+
+        // 2️⃣ Handle Single Row Checkbox Change
+        $(document).on("change", "#successful-body .row-check", function () {
+
+            // If any checkbox is unchecked → uncheck Select All
+            if (!$(this).is(":checked")) {
+                $("#checkAllSuccess").prop("checked", false);
+            }
+
+            // If all checkboxes are checked → check Select All
+            const total = $("#successful-body .row-check").length;
+            const selected = $("#successful-body .row-check:checked").length;
+
+            if (selected === total) {
+                $("#checkAllSuccess").prop("checked", true);
+            }
+
+            updateSuccessSelectedCount();
+        });
+
+
+        // 3️⃣ Function: Update Counter + Show/Hide Selected Bar
+        function updateSuccessSelectedCount() {
+            const selectedCount = $("#successful-body .row-check:checked").length;
+            const $bar = $("#select-count-success-leads");
+
+            $("#selectedCountSuccess").text(selectedCount);
+
+            if (selectedCount > 0) {
+                $bar.removeClass("d-none");
+            } else {
+                $bar.addClass("d-none");
+            }
+        }
+
+        $(document).on('click', '.updatepublishdateSuccess', function (e) {
+            e.preventDefault();
+
+            const selectedIds = $('#successful-body .row-check:checked')
+                .map(function () { return $(this).data('id'); }).get();
+
+            if (selectedIds.length === 0) {
+                toastr.error('Please select at least one lead.');
+                return;
+            }
+
+            // Store selected IDs in modal data
+            $('#bulkPublishDateModal').data('lead-ids', selectedIds);
+
+            // Open modal
+            $('#bulkPublishDateModal').modal('show');
+        });
+
+        // 🗑️ Bulk Delete Leads Success Table
+        $(document).on('click', '.bulkDelBtnSuccess', function (e) {
+            e.preventDefault();
+
+            // Collect selected IDs
+            const selectedIds = $('#successful-body .row-check:checked')
+                .map(function () { return $(this).data('id'); })
+                .get();
+
+            if (selectedIds.length === 0) {
+                toastr.error('Please select at least one lead.');
+                return;
+            }
+
+            // Confirm bulk delete
+            Swal.fire({
+                title: `Delete ${selectedIds.length} Lead(s)?`,
+                text: "This action cannot be undone.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Delete',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('lead.bulkDelete') }}",
+                        type: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            lead_ids: selectedIds
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                toastr.success(response.message || 'Leads deleted successfully.');
+                                $('#leads-table').DataTable().ajax.reload(null, false);
+                            } else {
+                                toastr.error(response.message || 'Something went wrong.');
+                            }
+                        },
+                        error: function () {
+                            toastr.error('Server error. Please try again.');
+                        }
+                    });
+                }
+            });
+        });
+
+        // Discard All Failed
+        $(document).on('click', '.discard-all-failed', function(e) {
+            e.preventDefault();
+            $('#failed-body').empty();
+            $('#failed-count').text(0);
+        });
+
+        $(document).on('click', '#FailedTableDone', function(e) {
+            e.preventDefault();
+            location.reload();
+        });
+
+        $(document).on('click', '#successTableDone', function(e) {
+            e.preventDefault();
+            location.reload();
         });
     });
 

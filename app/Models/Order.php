@@ -53,4 +53,10 @@ class Order extends Model
             }
         });
     }
+    // Order.php
+    public function attachments()
+    {
+        return $this->hasMany(OrderFile::class, 'order_id');
+    }
+
 }

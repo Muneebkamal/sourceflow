@@ -314,12 +314,13 @@
                         <div class="card-header d-flex justify-content-between align-items-center border-bottom">
                             <h5 class="card-title mb-0 fw-bold text-dark">Attachments</h5>
                             <button class="btn btn-link text-primary d-flex align-items-center p-0"
-                                    data-bs-toggle="modal" data-bs-target="#addAttachmentModal">
+                                    id="add-attach-btn"
+                                    data-order-id="{{ $order->id }}">
                                 <i class="ti ti-upload me-1"></i>
                                 Upload
                             </button>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body" id="attachments-list">
                             <div class="text-center">
                                 <p class="fw-medium mb-1 text-secondary">No attachments available.</p>
                                 <p class="text-muted small mb-0">Please upload a file to see it here.</p>
@@ -331,70 +332,11 @@
         </div>
     </div>
 
-    @include('modals.order.order-detail.buy-cost-calculator.add-attachment')
+    @include('modals.order.order-detail.add-attachment-modal')
 @endsection
 
 @section('scripts')
 <script>
-    // $(document).ready(function() {
-    //     // Click to edit note
-    //     $('.note-card').on('click', function() {
-    //         const card = $(this).closest('.card');
-
-    //         // Hide note text and show textarea
-    //         card.find('.note-text').hide();
-    //         card.find('textarea').show().focus();
-
-    //         // Show check icon
-    //         card.find('.check-icon').show();
-    //     });
-
-    //     // Click to save note
-    //     $('.check-icon').on('click', function(e) {
-    //         e.preventDefault();
-
-    //         const card = $(this).closest('.card');
-    //         const textarea = card.find('textarea');
-    //         const noteText = card.find('.note-text');
-    //         const noteValue = textarea.val();
-
-    //         // Optional: disable icon while saving
-    //         const icon = $(this).find('i');
-    //         icon.removeClass('ti-check').addClass('ti-loader ti-spin');
-
-    //         // Send AJAX update request
-    //         $.ajax({
-    //             url: "{{ route('orders.updateNote', $order->id) }}",
-    //             type: "POST",
-    //             data: {
-    //                 _token: "{{ csrf_token() }}",
-    //                 note: noteValue
-    //             },
-    //             success: function(response) {
-    //                 icon.removeClass('ti-loader ti-spin').addClass('ti-check');
-
-    //                 if (response.success) {
-    //                     toastr.success(response.message);
-
-    //                     // Update visible note text
-    //                     noteText.text(noteValue);
-    //                 } else {
-    //                     toastr.error(response.message || 'Failed to update note.');
-    //                 }
-
-    //                 // Hide textarea and check icon
-    //                 textarea.hide();
-    //                 noteText.show();
-    //                 card.find('.check-icon').hide();
-    //             },
-    //             error: function(xhr) {
-    //                 icon.removeClass('ti-loader ti-spin').addClass('ti-check');
-    //                 toastr.error('Failed to update note.');
-    //                 console.error(xhr.responseText);
-    //             }
-    //         });
-    //     });
-    // });
     $(document).ready(function () {
         // 🟢 Click to edit note
         $(document).on('click', '.note-card', function () {
@@ -701,74 +643,248 @@
     });
 
     $(document).ready(function() {
-    // Delete icon click
-    $(document).on('click', '.delLineItem', function() {
-        const row = $(this).closest('tr');
-        const lineItemId = row.find('.line-item-id').val();
+        // Delete icon click
+        $(document).on('click', '.delLineItem', function() {
+            const row = $(this).closest('tr');
+            const lineItemId = row.find('.line-item-id').val();
 
-        Swal.fire({
-            title: "Delete or Move?",
-            html: `
-                <p class="mb-2">Do you want to delete this item or move it back to the Buylist?</p>
-                <div class="form-check d-flex align-items-start justify-content-center">
-                    <input class="form-check-input me-2" type="checkbox" id="moveToBuylistCheckbox">
-                    <label class="form-check-label" for="moveToBuylistCheckbox">
-                        Move this item to Buylist instead of deleting
-                    </label>
-                </div>
-            `,
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, continue!"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const isBuylist = $('#moveToBuylistCheckbox').is(':checked') ? 1 : 0;
+            Swal.fire({
+                title: "Delete or Move?",
+                html: `
+                    <p class="mb-2">Do you want to delete this item or move it back to the Buylist?</p>
+                    <div class="form-check d-flex align-items-start justify-content-center">
+                        <input class="form-check-input me-2" type="checkbox" id="moveToBuylistCheckbox">
+                        <label class="form-check-label" for="moveToBuylistCheckbox">
+                            Move this item to Buylist instead of deleting
+                        </label>
+                    </div>
+                `,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, continue!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const isBuylist = $('#moveToBuylistCheckbox').is(':checked') ? 1 : 0;
 
-                $.ajax({
-                    url: "{{ route('orders.deleteLineItem') }}",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        line_item_id: lineItemId,
-                        is_buylist: isBuylist
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            Swal.fire({
-                                icon: "success",
-                                title: "Done!",
-                                text: response.message,
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
+                    $.ajax({
+                        url: "{{ route('orders.deleteLineItem') }}",
+                        type: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            line_item_id: lineItemId,
+                            is_buylist: isBuylist
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Done!",
+                                    text: response.message,
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
 
-                            // Fade out the row smoothly
-                            row.fadeOut(400, function() {
-                                $(this).remove();
-                            });
-                        } else {
+                                // Fade out the row smoothly
+                                row.fadeOut(400, function() {
+                                    $(this).remove();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Error!",
+                                    text: response.message || "Something went wrong."
+                                });
+                            }
+                        },
+                        error: function(xhr) {
                             Swal.fire({
                                 icon: "error",
                                 title: "Error!",
-                                text: response.message || "Something went wrong."
+                                text: "Server error occurred."
                             });
+                            console.error(xhr.responseText);
                         }
-                    },
-                    error: function(xhr) {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Error!",
-                            text: "Server error occurred."
-                        });
-                        console.error(xhr.responseText);
-                    }
-                });
-            }
+                    });
+                }
+            });
         });
     });
-});
+    
+    // When file is selected
+    $('#att-file').on('change', function () {
+        let file = this.files[0];
+
+        if (file) {
+            $('#file-name').text(file.name);
+            $('#file-preview').removeClass('d-none');
+        }
+    });
+
+    // Remove selected file
+    $('#remove-file').on('click', function () {
+        $('#att-file').val('');      // Clear input
+        $('#file-preview').addClass('d-none');
+    });
+
+    $(document).ready(function() {
+        let orderId = {{ $order->id }};
+        loadAttachments(orderId); // Load attachments on page load
+
+        // Handle Upload button click (optional modal)
+        $('#add-attach-btn').on('click', function() {
+            $('#addAttachmentModal').modal('show');
+        });
+
+        function loadAttachments(orderId) {
+            $.ajax({
+                url: `/orders/${orderId}/attachments`,
+                method: 'GET',
+                success: function(res) {
+                    let container = $('#attachments-list');
+                    container.empty();
+
+                    if (res.length === 0) {
+                        container.html(`
+                            <div class="text-center">
+                                <p class="fw-medium mb-1 text-secondary">No attachments available.</p>
+                                <p class="text-muted small mb-0">Please upload a file to see it here.</p>
+                            </div>
+                        `);
+                        return;
+                    }
+
+                    let html = '<div class="row g-2">';
+                    res.forEach(att => {
+                        html += `
+                        <div class="col-12" data-id="${att.id}">
+                            <div class="card shadow-sm border-0 m-0">
+                                <div class="card-body d-flex align-items-center p-1">
+                                    <div class="me-3 d-flex align-items-center justify-content-center border rounded" style="width:64px; height:64px;">
+                                        <svg class="h-10 w-10 text-slate-400" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill="currentColor" d="M23.3333 3.33334H10C8.16667 3.33334 6.66667 4.83334 6.66667 6.66668V33.3333C6.66667 35.1667 8.16667 36.6667 10 36.6667H30C31.8333 36.6667 33.3333 35.1667 33.3333 33.3333V13.3333L23.3333 3.33334ZM30 33.3333H10V6.66668H23.3333V13.3333H30V33.3333ZM20 28.3333C18.1667 28.3333 16.6667 26.8333 16.6667 25V15.8333C16.6667 15.3667 17.0333 15 17.5 15C17.9667 15 18.3333 15.3667 18.3333 15.8333V25H21.6667V15.8333C21.6667 13.5333 19.8 11.6667 17.5 11.6667C15.2 11.6667 13.3333 13.5333 13.3333 15.8333V25C13.3333 28.6833 16.3167 31.6667 20 31.6667C23.6833 31.6667 26.6667 28.6833 26.6667 25V18.3333H23.3333V25C23.3333 26.8333 21.8333 28.3333 20 28.3333Z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="text-start">
+                                        <h5 class="card-title mb-1" 
+                                            data-bs-title="${att.note}" 
+                                            data-bs-toggle="tooltip" 
+                                            data-bs-placement="top">
+                                            ${att.name}
+                                        </h5>
+                                        <small class="text-muted">${att.created_at}</small>
+                                        <div class="mt-1">
+                                            <a href="/attachments/${att.id}/download" target="_blank" class="me-2">Download</a>
+                                            <a href="#" class="text-danger delete-attachment">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                    });
+                    html += '</div>';
+                    container.html(html);
+
+                    // Initialize Bootstrap tooltip
+                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                    tooltipTriggerList.map(function (tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl)
+                    })
+                },
+                error: function(err) {
+                    console.error(err);
+                    toastr.error('Failed to load attachments.');
+                }
+            });
+        }
+
+        // Save attachment via AJAX
+        $('#saveAttachment').on('click', function () {
+            const title = $('#att-title').val();
+            const note  = $('#att-note').val();
+            const fileInput = $('#att-file')[0].files[0];
+
+            if (!fileInput) {
+                toastr.error('Please select a file!');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('note', note);
+            formData.append('file', fileInput);
+            formData.append('order_id', {{ $order->id }});
+            formData.append('_token', '{{ csrf_token() }}');
+
+            $.ajax({
+                url: '/save-attachment',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (res) {
+                    if (res.success) {
+                        toastr.success('Attachment saved successfully!');
+                        $('#addAttachmentModal').modal('hide');
+                        loadAttachments({{ $order->id }});
+                    } else {
+                        toastr.error(res.message || 'Failed to save attachment');
+                    }
+                },
+                error: function (err) {
+                    console.error(err.responseText);
+                    toastr.error('Server error. Please try again.');
+                }
+            });
+        });
+
+        $('#add-attach-modal').on('click', function (e) {
+            e.preventDefault();
+
+            // Open second modal on top of first
+            const addModal = new bootstrap.Modal(document.getElementById('addAttachmentModal'), {
+                backdrop: false, // first modal backdrop stays
+                keyboard: false
+            });
+            addModal.show();
+        });
+
+        // Delete attachment dynamically
+        $(document).on('click', '.delete-attachment', function() {
+            let attachmentId = $(this).closest('[data-id]').data('id');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This will permanently delete the attachment!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/orders/attachments/${attachmentId}`,
+                        method: 'DELETE',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                        },
+                        success: function(res) {
+                            Swal.fire('Deleted!', 'Attachment has been deleted.', 'success');
+                            loadAttachments({{ $order->id }}); // reload list
+                        },
+                        error: function(err) {
+                            console.error(err);
+                            Swal.fire('Error!', 'Failed to delete attachment.', 'error');
+                        }
+                    });
+                }
+            });
+        });
+    });
 
 </script>
 @endsection
