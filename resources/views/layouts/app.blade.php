@@ -170,6 +170,10 @@
             white-space: normal;
             cursor: pointer;
         }
+        :root {
+            --osen-primary: #433ACA;
+            --osen-menu-bg: #433ACA !important;
+        }
     </style>
     @yield('styles')
 </head>

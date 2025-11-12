@@ -15,7 +15,7 @@
                     <!-- Lead Source -->
                     <div class="mb-2">
                         <label class="form-label">Lead Source:</label>
-                        <select class="form-select" name="lead_source" id="lead_source">
+                        <select class="form-select" name="lead_source" id="lead_source_id">
                             @foreach ($sources as $source)
                                 <option value="{{ $source->id }}">{{ $source->list_name }}</option>
                             @endforeach

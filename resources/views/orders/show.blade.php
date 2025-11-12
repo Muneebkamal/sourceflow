@@ -23,7 +23,7 @@
                         <div class="row g-4 mb-0 align-items-start">
                             <div class="col-auto">
                                 <button type="button" id="attachment-list" data-order-id="{{ $order->id }}" class="btn btn-light mt-1" data-bs-toggle="modal" data-bs-target="#attachmentsModal">
-                                    <i class="ti ti-paperclip fs-4"></i> Attachments (0)
+                                    <i class="ti ti-paperclip fs-4"></i> Attachments ({{ $order->attachments->count() }})
                                 </button>
                             </div>
                             <div class="col-auto">
@@ -1964,7 +1964,7 @@
         formData.append('note', note);
         formData.append('file', fileInput);
         formData.append('order_id', {{ $order->id }});
-        formData += '&_token={{ csrf_token() }}';
+        formData.append('_token', '{{ csrf_token() }}');
 
         $.ajax({
             url: '/save-attachment',
@@ -1976,7 +1976,7 @@
                 if (res.success) {
                     toastr.success('Attachment saved successfully!');
                     $('#addAttachmentModal').modal('hide');
-                    // Optionally reload attachment list
+                    loadAttachments({{ $order->id }});
                 } else {
                     toastr.error(res.message || 'Failed to save attachment');
                 }
@@ -2021,23 +2021,28 @@
                     return;
                 }
 
-                let html = '<div class="row g-3">'; // Bootstrap row with gap
+                let html = '<div class="row g-2">'; // Bootstrap row with gap
                 res.forEach(att => {
                     html += `
                     <div class="col-12" data-id="${att.id}">
-                        <div class="card shadow-sm border-0">
-                            <div class="card-body d-flex align-items-center">
-                                <div class="me-3 d-flex align-items-center justify-content-center bg-light border rounded" style="width:64px; height:64px;">
-                                    <svg class="bi" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
-                                        <path d="M14 4.5V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h6.5L14 4.5zM10.5 0h-7A1.5 1.5 0 0 0 2 1.5v13A1.5 1.5 0 0 0 3.5 16h9A1.5 1.5 0 0 0 14 14.5V5.5L10.5 0z"/>
+                        <div class="card shadow-sm border-0 m-0">
+                            <div class="card-body d-flex align-items-center p-0 p-1">
+                                <div class="me-3 d-flex align-items-center justify-content-center border rounded" style="width:64px; height:64px;">
+                                    <svg class="h-10 w-10 text-slate-400" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill="currentColor" d="M23.3333 3.33334H10C8.16667 3.33334 6.66667 4.83334 6.66667 6.66668V33.3333C6.66667 35.1667 8.16667 36.6667 10 36.6667H30C31.8333 36.6667 33.3333 35.1667 33.3333 33.3333V13.3333L23.3333 3.33334ZM30 33.3333H10V6.66668H23.3333V13.3333H30V33.3333ZM20 28.3333C18.1667 28.3333 16.6667 26.8333 16.6667 25V15.8333C16.6667 15.3667 17.0333 15 17.5 15C17.9667 15 18.3333 15.3667 18.3333 15.8333V25H21.6667V15.8333C21.6667 13.5333 19.8 11.6667 17.5 11.6667C15.2 11.6667 13.3333 13.5333 13.3333 15.8333V25C13.3333 28.6833 16.3167 31.6667 20 31.6667C23.6833 31.6667 26.6667 28.6833 26.6667 25V18.3333H23.3333V25C23.3333 26.8333 21.8333 28.3333 20 28.3333Z"></path>
                                     </svg>
                                 </div>
-                                <div class="flex-grow-1">
-                                    <h5 class="card-title mb-1 text-truncate">${att.name}</h5>
+                                <div class="text-start">
+                                    <h5 class="card-title mb-1" 
+                                        data-bs-title="${att.note}" 
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top">
+                                        ${att.name}
+                                    </h5>
                                     <small class="text-muted">${att.created_at}</small>
-                                    <div class="mt-2">
-                                        <a href="/${att.path}" target="_blank" class="btn btn-sm btn-outline-primary me-2">Download</a>
-                                        <button class="btn btn-sm btn-outline-danger delete-attachment">Delete</button>
+                                    <div class="mt-1">
+                                        <a href="/attachments/${att.id}/download" target="_blank" class="me-2">Download</a>
+                                        <a class="text-danger delete-attachment">Delete</a>
                                     </div>
                                 </div>
                             </div>
@@ -2047,6 +2052,13 @@
                 });
                 html += '</div>';
                 container.html(html);
+
+                // After appending the attachment card
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+
             },
             error: function(err) {
                 console.error(err);

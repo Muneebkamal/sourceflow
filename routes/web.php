@@ -103,6 +103,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/save-attachment', [AttachmentController::class, 'store'])->name('attachments.store');
     Route::get('/orders/{order}/attachments', [AttachmentController::class, 'list'])->name('orders.attachments.list');
     Route::delete('/orders/attachments/{attachment}', [AttachmentController::class, 'destroy'])->name('orders.attachments.delete');
+    Route::get('/attachments/{id}/download', [AttachmentController::class, 'download'])->name('attachments.download');
 
 
     // event routes
@@ -151,6 +152,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/leads/upload', [LeadController::class, 'uploadFile'])->name('leads.upload');
     Route::post('/save-mapping-template', [LeadController::class, 'saveTemplate'])->name('save-mapping-template');
     Route::post('/leads/import', [LeadController::class, 'importLeadsFile'])->name('leads.import.file');
+    Route::post('/leads/failed/new', [LeadController::class, 'storeNewLead'])->name('leads.failed.new');
 
 
     // OAC routes
