@@ -60,4 +60,8 @@ class LineItem extends Model
     {
         return $this->belongsTo(Buylist::class, 'buylist_id');
     }
+    public function order()
+    {
+        return $this->belongsTo(order::class, 'order_id');
+    }
 }

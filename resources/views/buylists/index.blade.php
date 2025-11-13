@@ -18,7 +18,7 @@
                                 </a>
                             </div> --}}
                             <div class="col-auto">
-                                <button class="btn btn-soft-primary">
+                                <button class="btn btn-soft-primary export-buylist">
                                     Export
                                 </button>
                                 <button type="button" class="btn btn-soft-primary" data-bs-toggle="modal" data-bs-target="#createBuylistModal">
@@ -586,6 +586,24 @@
                 table.ajax.reload(() => {
                     $btn.prop('disabled', false).html('Reset');
                 });
+            });
+        });
+
+        $(document).on('click', '.export-buylist', function() {
+            toastr.info('Report is generating...');
+
+            $.ajax({
+                url: "{{ route('buylist.export') }}",
+                type: "GET",
+                success: function(res) {
+                    if(res.status === 'success') {
+                        toastr.success(res.message);
+                        loadNotifications();
+                    }
+                },
+                error: function() {
+                    toastr.error('Failed to generate report. Please try again.');
+                }
             });
         });
 

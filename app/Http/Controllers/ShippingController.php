@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Notification;
 use App\Models\Shipping;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -83,6 +84,56 @@ class ShippingController extends Controller
             })
             ->rawColumns(['checkbox', 'status', 'actions'])
             ->make(true);
+    }
+
+    public function export()
+    {
+        $shippings = Shipping::all();
+
+        $filename = 'shipping-batch-report-' . now()->format('Y-m-d_H-i') . '-' . substr(uniqid(), -5) . '.csv';
+        $path = storage_path('app/reports/' . $filename);
+
+        if (!file_exists(dirname($path))) {
+            mkdir(dirname($path), 0755, true);
+        }
+
+        $file = fopen($path, 'w');
+
+        // CSV headers
+        $headers = [
+            'Ship Date', 'Name', 'Status', 'Marketplace', '# Items', 'Tracking #', 'Note'
+        ];
+        fputcsv($file, $headers);
+
+        foreach ($shippings as $shipping) {
+            $row = [
+                isset($shipping->date) ? Carbon::parse($shipping->date)->format('m/d/Y') : null,
+                $shipping->name ?? null,
+                $shipping->status ?? null,
+                $shipping->market_place ?? null,
+                $shipping->items ?? null,
+                $shipping->tracking_number ?? null,
+                $shipping->notes ?? null,
+            ];
+
+            fputcsv($file, $row);
+        }
+
+        fclose($file);
+
+        // Save notification
+        $notification = Notification::create([
+            'title' => 'Shipping Report Ready',
+            'message' => 'Your report is ready.',
+            'file_url' => route('download.report', $filename),
+            'file_name' => $filename,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Shipping report generated successfully!',
+            'notification' => $notification
+        ]);
     }
 
     /**

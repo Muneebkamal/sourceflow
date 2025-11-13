@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Buylist;
 use App\Models\LineItem;
+use App\Models\Notification;
 use App\Models\Order;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -155,6 +156,79 @@ class BuylistController extends Controller
             })
             ->rawColumns(['name', 'asin', 'image', 'variations', 'supplier', 'actions'])
             ->make(true);
+    }
+
+    public function export()
+    {
+        $items = LineItem::with('buylist')
+            ->where('is_buylist', 1)
+            ->where('is_rejected', 0)
+            ->whereNotNull('buylist_id')
+            ->get();
+
+        $filename = 'buy-list-items-report-' . now()->format('Y-m-d_H-i') . '-' . substr(uniqid(), -5) . '.csv';
+        $path = storage_path('app/reports/' . $filename);
+
+        if (!file_exists(dirname($path))) {
+            mkdir(dirname($path), 0755, true);
+        }
+
+        $file = fopen($path, 'w');
+
+        $headers = [
+            'Date Added','ASIN','Image','Title','Variations','Supplier','Cost','Selling Price','Qty',
+            'BSR 90D Avg','Promo','Coupon Code','Product Note','Buyer Note','UPC/GTIN','Brand',
+            'Monthly Sold','Offers','Rating','Reviews','Buy List Name','Lead Type','Category',
+            'ASIN Link','Supplier Link'
+        ];
+        fputcsv($file, $headers);
+
+        foreach ($items as $item) {
+            $row = [
+                isset($item->created_at) ? Carbon::parse($item->created_at)->format('n/j/Y') : null,
+                $item->asin ?? null,
+                $item->image ?? null,
+                $item->name ?? null,
+                $item->variations ?? null,
+                $item->supplier ?? null,
+                $item->buy_cost ?? null,
+                $item->selling_price ?? null,
+                $item->unit_purchased ?? null,
+                $item->bsr ?? null,
+                $item->promo ?? null,
+                $item->coupon_code ?? null,
+                $item->order_note ?? null,
+                $item->product_buyer_notes ?? null,
+                $item->upc ?? null,
+                $item->brand ?? null,
+                $item->monthly_sold ?? null,
+                $item->offers ?? null,
+                $item->rating ?? null,
+                $item->reviews ?? null,
+                optional($item->buylist)->name ?? null, // Buylist Name
+                $item->lead_type ?? null,
+                $item->category ?? null,
+                $item->asin ? 'https://www.amazon.com/dp/' . $item->asin : null,
+                $item->source_url ?? null,
+            ];
+            fputcsv($file, $row);
+        }
+
+        fclose($file);
+
+        // Save notification
+        $notification = Notification::create([
+            'title' => 'Buy List Report Ready',
+            'message' => 'Your report is ready.',
+            'file_url' => route('download.report', $filename),
+            'file_name' => $filename,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Buy List report generated successfully!',
+            'notification' => $notification
+        ]);
     }
 
     public function getDataRejected(Request $request)

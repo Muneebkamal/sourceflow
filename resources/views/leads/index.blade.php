@@ -99,7 +99,7 @@
 
                 <div class="col-md-4">
                     <div class="d-flex align-items-end justify-content-end">
-                        <button class="btn btn-soft-primary me-1"><i class="ti ti-download fs-4 me-1"></i>Export</button>
+                        <button class="btn btn-soft-primary export-leads me-1"><i class="ti ti-download fs-4 me-1"></i>Export</button>
                         <div class="btn-group">
                             <button type="button" class="btn btn-soft-primary dropdown-toggle drop-arrow-none" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="true">
                                 <i class="ti ti-adjustments-horizontal"></i> Customize
@@ -289,7 +289,7 @@
                             <div class="card mb-3">
                                 <div class="card-body">
                                     <label for="">Select Template</label>
-                                    <select class="form-select" name="template" id="">
+                                    <select class="form-select" name="template" id="templateSelect">
                                         <option value=""></option>
                                         @foreach ($templates as $temp)
                                             <option value="{{ $temp->id }}">{{ $temp->name }}</option>
@@ -303,24 +303,26 @@
                                     <button id="upload-data" class="btn btn-success" disabled>Upload Data</button>
                                 </div>
                                 <div class="card-body">
-                                    <table id="select-map-table" class="table table-striped">
-                                        <thead class="bg-light">
-                                            <th>date</th>
-                                            <th>Asin</th>
-                                            <th>Source URL</th>
-                                            <th>Cost</th>
-                                            <th>90d BSR Avg</th>
-                                            <th>Coupon Code</th>
-                                            <th>Promo Details</th>
-                                            <th>Notes</th>
-                                            <th>Tags</th>
-                                            <th>Product Title</th>
-                                            <th>Selling Price</th>
-                                            <th>Net Profit</th>
-                                            <th>ROI</th>
-                                            <th>Category</th>
-                                        </thead>
-                                    </table>
+                                    <div class="table-responsive">
+                                        <table id="select-map-table" class="table table-striped">
+                                            <thead class="bg-light">
+                                                <th>date</th>
+                                                <th>Asin</th>
+                                                <th>Source URL</th>
+                                                <th>Cost</th>
+                                                <th>90d BSR Avg</th>
+                                                <th>Coupon Code</th>
+                                                <th>Promo Details</th>
+                                                <th>Notes</th>
+                                                <th>Tags</th>
+                                                <th>Product Title</th>
+                                                <th>Selling Price</th>
+                                                <th>Net Profit</th>
+                                                <th>ROI</th>
+                                                <th>Category</th>
+                                            </thead>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -741,6 +743,26 @@
         });
     });
 
+    $(document).on('click', '.export-leads', function() {
+        const activeSourceId = $('.column-item.active').data('source-id');
+        toastr.info('Report is generating...');
+
+        $.ajax({
+            url: "{{ route('leads.export') }}",
+            type: "GET",
+            data: { source_id: activeSourceId },
+            success: function(res) {
+                if(res.status === 'success') {
+                    toastr.success(res.message);
+                    loadNotifications();
+                }
+            },
+            error: function() {
+                toastr.error('Failed to generate report. Please try again.');
+            }
+        });
+    });
+
     // Template modal js
     $(document).ready(function () {
         $(document).on('click', '.view-template-btn', function () {
@@ -748,6 +770,7 @@
             let name = $(this).data('name');
 
             // Reset modal content
+            $('#template_id_edit').val(id);
             $('#template_name_edit').val(name);
             $('#templateDetailModal .modal-body .list-group-item:not(:first)').remove();
 
@@ -780,6 +803,110 @@
                 error: function (xhr) {
                     console.error(xhr.responseText);
                     alert('Failed to load template details.');
+                }
+            });
+        });
+
+        // Update template name via AJAX
+        $(document).on('click', '#updateTemplateBtn', function () {
+            let id = $('#template_id_edit').val();
+            let name = $('#template_name_edit').val().trim();
+
+            if (!name) {
+                toastr.error('Template name cannot be empty');
+                return;
+            }
+
+            $.ajax({
+                url: `/update/template/${id}`, // Your update route
+                type: 'PUT',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    name: name
+                },
+                success: function (res) {
+                    if (res.status === 'success') {
+                        toastr.success(res.message);
+                        $('#templateDetailModal').modal('hide');
+
+                        // Update template name in select/options or button list
+                        $(`option[value="${id}"]`).text(name);
+                        $(`.view-template-btn[data-id="${id}"]`).data('name', name);
+                    } else {
+                        toastr.error(res.message);
+                    }
+                },
+                error: function () {
+                    toastr.error('Something went wrong');
+                }
+            });
+        });
+    });
+
+    $(document).ready(function () {
+        // Custom dropdown adapter
+        $.fn.select2.amd.require(['select2/utils', 'select2/dropdown', 'select2/dropdown/attachBody'],
+            function (Utils, Dropdown, AttachBody) {
+                function CustomDropdown() {}
+                CustomDropdown.prototype.render = function () {
+                    var $dropdown = Dropdown.prototype.render.call(this);
+                    $dropdown.addClass('custom-template-dropdown');
+                    return $dropdown;
+                };
+
+                // Apply the adapter
+                var CustomAdapter = Utils.Decorate(Dropdown, AttachBody);
+                $('#templateSelect').select2({
+                    width: '100%',
+                    dropdownAdapter: CustomAdapter,
+                    templateResult: function (data) {
+                        if (!data.id) return data.text;
+                        return $(`
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>${data.text}</span>
+                                <button type="button" class="btn btn-sm btn-soft-danger temp-del" data-id="${data.id}">
+                                    <i class="ti ti-trash"></i>
+                                </button>
+                            </div>
+                        `);
+                    },
+                    escapeMarkup: m => m
+                });
+            });
+
+        // Normal click works fine here
+        $(document).on('click', '.temp-del', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const id = $(this).data('id');
+            const $li = $(this).closest('li');
+
+            Swal.fire({
+                title: 'Delete this template?',
+                text: 'You will not be able to recover it!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!',
+            }).then(result => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/template/' + id,
+                        type: 'DELETE',
+                        data: { _token: '{{ csrf_token() }}' },
+                        success: function (res) {
+                            if (res.status === 'success') {
+                                Swal.fire('Deleted!', res.message, 'success');
+                                
+                                if ($li.length) {
+                                    $li.remove();
+                                }
+                                        
+                                $('#templateSelect option[value="' + id + '"]').remove();
+                                $('#templateSelect').val(null).trigger('change');
+                            }
+                        }
+                    });
                 }
             });
         });
@@ -1466,6 +1593,7 @@
         let mappingTemplate = {}; // Global mapping for new template
 
         // -------------------- Dropzone Success --------------------
+        let uploadedFilePath = "";
         myDropzone.on("success", function(file, response) {
             const csvHeaders = response.headers;
             csvRows = response.rows;
@@ -1475,6 +1603,8 @@
                 const $select = $(this);
                 $select.empty().append('<option value="">Select Column</option>');
                 csvHeaders.forEach(col => $select.append(`<option value="${col}">${col}</option>`));
+
+                uploadedFilePath = response.file_path;
 
                 // Optional: auto-match header with DB column name
                 // const name = $select.attr("name").replace("map_", "");
@@ -1657,7 +1787,7 @@
             }
 
             let formData = new FormData();
-            formData.append('file', myDropzone.files[0]); // first uploaded file
+            formData.append('file', myDropzone.files[0]);
             formData.append('template_id', templateId);
             formData.append('source_id', sourceId);
             formData.append('_token', '{{ csrf_token() }}');
@@ -1671,6 +1801,29 @@
                 success: function(res) {
                     // console.log(res);
                     if (res.status) {
+                        /* =====================================
+                        ✅ DELETE UPLOADED FILE FROM STORAGE
+                        ===================================== */
+                        if (uploadedFilePath) {
+                            $.ajax({
+                                url: "{{ route('leads.delete.upload') }}",
+                                type: "DELETE",
+                                data: {
+                                    _token: "{{ csrf_token() }}",
+                                    file_path: uploadedFilePath
+                                },
+                                success: function(delRes) {
+                                    if (delRes.status) {
+                                        console.log('File deleted successfully');
+                                    } else {
+                                        console.warn('File delete failed:', delRes.message);
+                                    }
+                                },
+                                error: function() {
+                                    console.error('Error deleting uploaded file.');
+                                }
+                            });
+                        }
                         /* ================================
                         ✅ SUCCESSFUL LEADS TABLE
                         ================================= */

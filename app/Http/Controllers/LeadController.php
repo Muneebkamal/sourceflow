@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lead;
+use App\Models\Notification;
 use App\Models\Source;
 use App\Models\Template;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
 class LeadController extends Controller
@@ -85,6 +87,79 @@ class LeadController extends Controller
             ->make(true);
     }
 
+    public function export(Request $request)
+    {
+        $sourceId = $request->get('source_id');
+
+        $leads = Lead::where('source_id', $sourceId)->with('source')->get();
+
+        $filename = 'leads-report-' . now()->format('Y-m-d_H-i') . '-' . substr(uniqid(), -5) . '.csv';
+        $path = storage_path('app/reports/' . $filename);
+
+        if (!file_exists(dirname($path))) {
+            mkdir(dirname($path), 0755, true);
+        }
+
+        $file = fopen($path, 'w');
+
+        // CSV headers
+        $headers = [
+            'Lead Source','Publish Date','Product Name','ASIN','Cost','Selling Price','Supplier','Current BSR',
+            'Category','Latest ROI','Latest Net Profit','Brand','90-Day BSR','Promo','Coupon Code','Product Note',
+            'Type','ROI','Net Profit','Amazon Fees','Latest Low FBA Price','Latest Rank','Uploaded Date',
+            'Last Updated','ASIN Link','Supplier Link'
+        ];
+        fputcsv($file, $headers);
+
+        foreach ($leads as $lead) {
+            $row = [
+                optional($lead->source)->list_name ?? null,
+                isset($lead->date) ? Carbon::parse($lead->date)->format('m/d/Y') : null,
+                $lead->name ?? null,
+                $lead->asin ?? null,
+                $lead->cost ?? null,
+                $lead->sell_price ?? null,
+                $lead->supplier ?? null,
+                $lead->bsr ?? null,
+                $lead->category ?? null,
+                $lead->roi ?? null,
+                $lead->net_profit ?? null,
+                $lead->brand ?? null,
+                $lead->bsr ?? null,
+                $lead->promo ?? null,
+                $lead->coupon ?? null,
+                $lead->notes ?? null,
+                $lead->type ?? null,
+                $lead->roi ?? null,
+                $lead->net_profit ?? null,
+                $lead->amazon_fees ?? null,
+                $lead->latest_low_fba_price ?? null,
+                $lead->latest_rank ?? null,
+                isset($lead->uploaded_at) ? Carbon::parse($lead->uploaded_at)->format('m/d/Y') : null,
+                isset($lead->updated_at) ? Carbon::parse($lead->updated_at)->format('m/d/Y') : null,
+                $lead->asin ? 'https://www.amazon.com/dp/' . $lead->asin : null,
+                $lead->url ?? null,
+            ];
+            fputcsv($file, $row);
+        }
+
+        fclose($file);
+
+        // Save notification
+        $notification = Notification::create([
+            'title' => 'Leads Report Ready',
+            'message' => 'Your report is ready.',
+            'file_url' => route('download.report', $filename),
+            'file_name' => $filename,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Leads report generated successfully!',
+            'notification' => $notification
+        ]);
+    }
+
     public function details($id)
     {
         $template = Template::findOrFail($id);
@@ -154,6 +229,31 @@ class LeadController extends Controller
             'rows' => $rows, // <<< send all CSV data
             'file_path' => $fullFilePath,
         ]);
+    }
+
+    public function deleteUploadedFile(Request $request)
+    {
+        $filePath = $request->input('file_path');
+
+        if (!$filePath) {
+            return response()->json(['status' => false, 'message' => 'No file path provided.']);
+        }
+
+        // Normalize Windows backslashes
+        $filePath = str_replace('\\', '/', $filePath);
+
+        // Remove storage_path('app') prefix if full path is sent
+        $storagePath = str_replace('\\', '/', storage_path('app') . '/');
+        if (str_starts_with($filePath, $storagePath)) {
+            $filePath = substr($filePath, strlen($storagePath));
+        }
+
+        if (Storage::exists($filePath)) {
+            Storage::delete($filePath);
+            return response()->json(['status' => true, 'message' => 'File deleted successfully.']);
+        }
+
+        return response()->json(['status' => false, 'message' => 'File not found at: ' . $filePath]);
     }
 
     public function saveTemplate(Request $request)
@@ -511,6 +611,31 @@ class LeadController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
+    }
+
+    public function updateTemp(Request $request, $id)
+    {
+        $template = Template::findOrFail($id);
+        $template->name = $request->name;
+        $template->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Template name updated successfully!',
+        ]);
+    }
+
+    public function TempDestroy($id)
+    {
+        $template = Template::find($id);
+
+        if(!$template) {
+            return response()->json(['status' => 'error', 'message' => 'Template not found']);
+        }
+
+        $template->delete();
+
+        return response()->json(['status' => 'success', 'message' => 'Template deleted successfully']);
     }
 
     public function deleteSource(Request $request)

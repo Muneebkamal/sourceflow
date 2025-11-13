@@ -37,6 +37,12 @@ Route::middleware(['auth'])->group(function () {
     //dashboard route
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
 
+    Route::get('/notifications/list', [HomeController::class, 'list'])->name('notifications.list');
+    Route::post('/notifications/mark-read/{id}', [HomeController::class, 'markRead'])
+        ->name('notifications.markRead');
+    Route::get('download/report/{file}', [HomeController::class, 'download'])->name('download.report');
+
+
     //Smart Data route
     Route::get('/smart-data', [SmartDataController::class, 'index'])->name('smart.data');
     Route::get('/get-smart-data', [SmartDataController::class, 'getSmartData'])->name('get.smart.data');
@@ -52,8 +58,8 @@ Route::middleware(['auth'])->group(function () {
     ->name('smart-data.destroy');
     Route::post('/leads/bulk-tags', [SmartDataController::class, 'bulkTags'])->name('save.bulk.tags');
     Route::post('/smart-data/lead/update', [SmartDataController::class, 'updateLead'])->name('smartdata.leads.update');
-
-
+    Route::get('/smartdata/export', [SmartDataController::class, 'export'])->name('smartdata.export');
+    
     // Buylists route
     Route::get('/buylists', [BuylistController::class, 'index'])->name('buylists.index');
     Route::get('/buylists/rejected', [BuylistController::class, 'rejected'])->name('buylists.rejected');
@@ -68,6 +74,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/buylist/{id}/delete', [BuylistController::class, 'destroy'])->name('buylist.destroy');
     Route::post('/items/{itemId?}/create-order', [BuylistController::class, 'createSingleOrder']);
     Route::post('/create/multiple/items/orders', [BuylistController::class, 'createMultipleItemsOrder'])->name('orders.createMultiple');
+    Route::get('/buylist/export', [BuylistController::class, 'export'])->name('buylist.export');
 
 
     // Orders routes
@@ -99,6 +106,8 @@ Route::middleware(['auth'])->group(function () {
     ->name('order.items.bulk.delete');
     Route::post('/orders/mark-fixed', [OrderController::class, 'markFixed'])
     ->name('orders.markFixed');
+    Route::get('/orders/export', [OrderController::class, 'export'])->name('orders.export');
+    Route::get('/order/items/export', [OrderController::class, 'ItemsExport'])->name('order.items.export');
 
     Route::post('/save-attachment', [AttachmentController::class, 'store'])->name('attachments.store');
     Route::get('/orders/{order}/attachments', [AttachmentController::class, 'list'])->name('orders.attachments.list');
@@ -131,6 +140,7 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/shipping-batch/bulk-status', [ShippingController::class, 'bulkStatus'])->name('shipping-batch.bulk-status');
     Route::delete('/shipping-batch/bulk-delete', [ShippingController::class, 'bulkDelete'])->name('shipping-batch.bulk-delete');
     Route::delete('/shipping-batch/{id}', [ShippingController::class, 'destroy'])->name('shipping-batch.destroy');
+    Route::get('/shipping/export', [ShippingController::class, 'export'])->name('shipping.export');
 
 
     // Leads routes
@@ -144,8 +154,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/leads/bulk-delete', [LeadController::class, 'bulkDelete'])->name('lead.bulkDelete');
     Route::post('/leads/bulk-move', [LeadController::class, 'bulkMove'])->name('leads.bulk.move');
     Route::post('/leads/bulk-publish-date', [LeadController::class, 'bulkPublishDate'])->name('leads.bulkPublishDate');
+    Route::get('/leads/export', [LeadController::class, 'export'])->name('leads.export');
 
     Route::get('/templates/{id}/details', [LeadController::class, 'details'])->name('templates.details');
+    Route::delete('/template/{id}', [LeadController::class, 'TempDestroy'])->name('template.destroy');
+    Route::put('/update/template/{id}', [LeadController::class, 'updateTemp'])->name('template.update');
 
     Route::get('/templates/{id}/mapping', [LeadController::class, 'getTemplateMapping'])
      ->name('templates.mapping');
@@ -153,6 +166,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/save-mapping-template', [LeadController::class, 'saveTemplate'])->name('save-mapping-template');
     Route::post('/leads/import', [LeadController::class, 'importLeadsFile'])->name('leads.import.file');
     Route::post('/leads/failed/new', [LeadController::class, 'storeNewLead'])->name('leads.failed.new');
+    Route::delete('/delete-uploaded-file', [LeadController::class, 'deleteUploadedFile'])->name('leads.delete.upload');
 
 
     // OAC routes

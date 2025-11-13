@@ -743,6 +743,93 @@
         };
     </script>
 
+    <script>
+        function formatNotificationTime(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            
+            const diffMs = now - date;
+            const diffDays = diffMs / (1000 * 60 * 60 * 24); // difference in days
+
+            if (diffDays <= 2) {
+                // Time ago format
+                const diffMins = Math.floor(diffMs / 60000);
+                if (diffMins < 1) return 'Just now';
+                else if (diffMins < 60) return `${diffMins} mins ago`;
+                else if (diffMins < 1440) return `${Math.floor(diffMins / 60)} hours ago`;
+                else return `${Math.floor(diffMins / 1440)} days ago`;
+            } else {
+                // Full date format
+                const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+                return date.toLocaleDateString('en-US', options); // e.g., Thu Oct 30 2025
+            }
+        }
+
+        function loadNotifications() {
+            $.ajax({
+                url: '/notifications/list',
+                type: 'GET',
+                success: function(data) {
+                    const $list = $('#notification-list');
+                    $list.empty();
+
+                    if (!data.length) {
+                        $('#no-notifications').show();
+                        return;
+                    }
+
+                    $('#no-notifications').hide();
+
+                    // Show only latest 6 notifications
+                    data.slice(0, 6).forEach(notif => {
+                        const formattedTime = formatNotificationTime(notif.created_at);
+
+                        $list.append(`
+                            <div class="dropdown-item d-flex align-items-center p-0 px-1 py-1 ${notif.read_at ? '' : 'bg-light'} border-bottom" id="notification-${notif.id}">
+                                <div class="flex-shrink-0 me-1">
+                                    <div class="bg-primary-subtle text-primary rounded d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="ti ti-bell fs-4"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0 fs-6">${notif.title}</h6>
+                                    <small class="mb-1 fs-7 text-muted">${notif.message}</small>
+                                    
+                                </div>
+                                <div class="ms-2 d-flex flex-column align-items-end">
+                                    <small class="text-muted mb-1">${formattedTime}</small>
+                                    ${notif.file_url ? `<a href="${notif.file_url}" class="btn btn-sm btn-soft-primary" target="_blank">Download</a>` : ''}
+                                </div>
+                            </div>
+                        `);
+                    });
+                },
+                error: function() {
+                    $('#notification-list').html('<div class="text-center text-danger py-3">Failed to load notifications</div>');
+                }
+            });
+        }
+
+        // Call this function on page load
+        $(document).ready(function() {
+            loadNotifications();
+        });
+
+        // Mark single notification as read
+        $(document).on('click', '.mark-read-btn', function() {
+            let notifId = $(this).data('id');
+
+            $.ajax({
+                url: `/notifications/mark-read/${notifId}`,
+                type: 'POST',
+                data: { _token: $('meta[name="csrf-token"]').attr('content') },
+                success: function() {
+                    $(`#notification-${notifId}`).removeClass('active');
+                }
+            });
+        });
+    </script>
+
     @yield('scripts')
   </body>
 </html>

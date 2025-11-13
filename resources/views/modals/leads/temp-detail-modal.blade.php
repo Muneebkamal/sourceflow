@@ -8,6 +8,7 @@
             </div>
 
             <div class="modal-body p-2">
+                <input type="hidden" id="template_id_edit">
                 <div class="mb-3">
                     <label for="template_name_edit">Template Name:</label>
                     <input type="text" class="form-control" id="template_name_edit" name="template_name_edit">
@@ -25,6 +26,7 @@
             </div>
 
             <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="updateTemplateBtn">Update</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>

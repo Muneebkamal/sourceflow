@@ -13,7 +13,7 @@
                     <form action="javascript:void(0);">
                         <div class="row g-2 mb-0 align-items-center">
                             <div class="col-auto">
-                                <button class="btn btn-soft-primary">
+                                <button class="btn btn-soft-primary export-order-items">
                                     <i class="ti ti-download"></i>
                                     Export
                                 </button>
@@ -560,6 +560,24 @@
                     toastr.error('Server error. Please try again.');
                 }
             });
+        });
+    });
+
+    $(document).on('click', '.export-order-items', function() {
+        toastr.info('Report is generating...');
+
+        $.ajax({
+            url: "{{ route('order.items.export') }}",
+            type: "GET",
+            success: function(res) {
+                if(res.status === 'success') {
+                    toastr.success(res.message);
+                    loadNotifications();
+                }
+            },
+            error: function() {
+                toastr.error('Failed to generate report. Please try again.');
+            }
         });
     });
 
