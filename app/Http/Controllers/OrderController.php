@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\EventLog;
 use App\Models\LineItem;
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\ShipEvent;
 use App\Models\Shipping;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use League\Csv\Writer;
 
 class OrderController extends Controller
 {
@@ -157,6 +159,74 @@ class OrderController extends Controller
         })
         ->rawColumns(['checkbox', 'status', 'source', 'order_item_count', 'actions'])
         ->make(true);
+    }
+
+    public function export()
+    {
+        $orders = Order::all();
+
+        $filename = 'orders-report-' . now()->format('Y-m-d_H-i') . '-' . substr(uniqid(), -5) . '.csv';
+        $path = storage_path('app/reports/' . $filename);
+
+        if (!file_exists(dirname($path))) {
+            mkdir(dirname($path), 0755, true);
+        }
+
+        $file = fopen($path, 'w');
+
+        $headers = [
+            'Created','Order Date','Updated','Closed','Order #','Email','Supplier','Subtotal','Tax','Tax Rate',
+            'Shipping','Order Total','Card Used','Amount Charged','Order Status','Destination','Units',
+            'Received','Shipped','Errors','Fixed','Order Note','Cash Back Src','Cash Back %','Cash Back'
+        ];
+        fputcsv($file, $headers);
+
+        foreach ($orders as $order) {
+            $row = [
+                isset($order->created_at) ? Carbon::parse($order->created_at)->format('m/d/Y') : null,
+                isset($order->date) ? Carbon::parse($order->date)->format('m/d/Y') : null,
+                isset($order->updated_at) ? Carbon::parse($order->updated_at)->format('m/d/Y') : null,
+                isset($order->closed_at) ? Carbon::parse($order->closed_at)->format('m/d/Y') : null,
+                $order->order_id ?? null,
+                $order->email ?? null,
+                $order->supplier_name ?? null,
+                $order->subtotal ?? null,
+                $order->sale_tax ?? null,
+                $order->sale_tax_rate ?? null,
+                $order->shipping_cost ?? null,
+                $order->total ?? null,
+                $order->card_used ?? null,
+                $order->amount_charged ?? null,
+                $order->status ?? null,
+                $order->destination ?? null,
+                $order->total_units_purchased ?? null,
+                $order->total_units_received ?? null,
+                $order->total_units_shipped ?? null,
+                $order->unit_errors ?? null,
+                $order->fixed ?? null,
+                $order->note ?? null,
+                $order->cash_back_source ?? null,
+                $order->cash_back_percentage ?? null,
+                $order->cash_back ?? null,
+            ];
+            fputcsv($file, $row);
+        }
+
+        fclose($file);
+
+        // Save notification
+        $notification = Notification::create([
+            'title' => 'Orders Report Ready',
+            'message' => 'Your report is ready.',
+            'file_url' => route('download.report', $filename),
+            'file_name' => $filename,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Orders report generated successfully!',
+            'notification' => $notification
+        ]);
     }
 
     public function ordersItems()
@@ -346,6 +416,85 @@ class OrderController extends Controller
             })
             ->rawColumns(['checkbox', 'supplier', 'name', 'status', 'source', 'order_item_count', 'image', 'actions'])
             ->make(true);
+    }
+
+    public function ItemsExport()
+    {
+        $items = LineItem::whereNotNull('order_id')->with('order')
+            ->get();
+
+        $filename = 'order-items-report-' . now()->format('Y-m-d_H-i') . '-' . substr(uniqid(), -5) . '.csv';
+        $path = storage_path('app/reports/' . $filename);
+
+        if (!file_exists(dirname($path))) {
+            mkdir(dirname($path), 0755, true);
+        }
+
+        $file = fopen($path, 'w');
+
+        // CSV headers
+        $headers = [
+            'Order Date','Order #','Email','Title','ASIN','UPC Code','Brand','MSKU','Cost Per Unit','SKU Total Cost',
+            'Subtotal','Order Total','Card Used','Destination','Supplier','Supplier URL','Order Status','Units Purchased',
+            'Units Received','Units Shipped','Unit Errors','Units Fixed','Order Note','Product Note','List Price',
+            'Min List Price','Max List Price','Buyer Note','Email','Created','ASIN Link','Supplier Link'
+        ];
+        fputcsv($file, $headers);
+
+        foreach ($items as $item) {
+            $row = [
+                isset($item->order->date) ? Carbon::parse($item->order->date)->format('m/d/Y') : null,
+                $item->order_id ?? null,
+                $item->email ?? null,
+                $item->name ?? null,
+                $item->asin ?? null,
+                $item->upc ?? null,
+                $item->brand ?? null,
+                $item->msku ?? null,
+                $item->buy_cost ?? null,
+                $item->sku_total ?? null,
+                $item->subtotal ?? null,
+                $item->total ?? null,
+                $item->card_used ?? null,
+                $item->destination ?? null,
+                $item->supplier ?? null,
+                $item->source_url ?? null,
+                $item->order->status ?? null,
+                $item->total_units_purchased ?? null,
+                $item->total_units_received ?? null,
+                $item->total_units_shipped ?? null,
+                $item->unit_errors ?? null,
+                $item->units_fixed ?? null,
+                $item->order_note ?? null,
+                $item->product_buyer_notes ?? null,
+                $item->list_price ?? null,
+                $item->min ?? null,
+                $item->max ?? null,
+                $item->product_buyer_notes ?? null,
+                $item->email ?? null,
+                isset($item->created_at) ? Carbon::parse($item->created_at)->format('m/d/Y') : null,
+                $item->asin ? 'https://www.amazon.com/dp/' . $item->asin : null,
+                $item->source_url ?? null,
+            ];
+
+            fputcsv($file, $row);
+        }
+
+        fclose($file);
+
+        // Create notification
+        $notification = Notification::create([
+            'title' => 'Order Items Report Ready',
+            'message' => 'Your report is ready.',
+            'file_url' => route('download.report', $filename),
+            'file_name' => $filename,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Order Items report generated successfully!',
+            'notification' => $notification
+        ]);
     }
 
     public function buyCostCalculator($id)

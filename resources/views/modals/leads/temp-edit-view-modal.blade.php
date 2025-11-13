@@ -16,7 +16,7 @@
                                 <button class="btn btn-sm btn-outline-primary view-template-btn" data-id="{{ $temp->id }}" data-name="{{ $temp->name }}">
                                     <i class="ti ti-eye"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-danger">
+                                <button class="btn btn-sm btn-outline-danger temp-del" data-id="{{ $temp->id }}">
                                     <i class="ti ti-trash"></i>
                                 </button>
                             </div>

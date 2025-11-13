@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Buylist;
 use App\Models\Lead;
 use App\Models\LineItem;
+use App\Models\Notification;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use League\Csv\Writer;
 
 class SmartDataController extends Controller
 {
@@ -363,6 +365,79 @@ class SmartDataController extends Controller
                 ->rawColumns(['checkbox', 'image', 'type', 'tags', 'name', 'asin', 'supplier', 'actions'])
                 ->make(true);
         }
+    }
+
+    public function export()
+    {
+        $leads = Lead::with('source:id,list_name')->get();
+
+        // CSV headers
+        $headers = [
+            'Publish Date','Image','Type','Tags','Name','Asin','Supplier','Brand',
+            'Cost','Selling Price','Net Profit Input','ROI Input','Bsr Ninety',
+            'Category','Promo','Coupon Code','List Item Note','Monthly Sold',
+            'New Offers Count','Rating','Review Count','Bsr Current',
+            'Latest Updated At','Lead Source','ASIN Link','Supplier Link'
+        ];
+
+        // Prepare CSV rows
+        $rows = [];
+        foreach ($leads as $lead) {
+            $rows[] = [
+                $lead->date ?? null,
+                $lead->image ?? null,
+                $lead->type ?? null,
+                $lead->tags ?? null,
+                $lead->name ?? null,
+                $lead->asin ?? null,
+                $lead->supplier ?? null,
+                $lead->brand ?? null,
+                $lead->cost ?? null,
+                $lead->sell_price ?? null,
+                $lead->net_profit ?? null,
+                $lead->roi ?? null,
+                $lead->bsr ?? null,
+                $lead->category ?? null,
+                $lead->promo ?? null,
+                $lead->coupon ?? null,
+                $lead->notes ?? null,
+                $lead->monthly_sold ?? null,
+                $lead->new_offers_count ?? null,
+                $lead->rating ?? null,
+                $lead->review_count ?? null,
+                $lead->bsr ?? null,
+                $lead->updated_at ?? null,
+                optional($lead->source)->list_name ?? null,
+                $lead->asin ? 'https://www.amazon.com/dp/' . $lead->asin : null,
+                $lead->url ?? null,
+            ];
+        }
+
+        // Create CSV using League\Csv
+        $filename = 'smart-data-report-' . now()->format('Y-m-d_H-i') . '-' . substr(uniqid(), -5) . '.csv';
+        $path = storage_path('app/reports/' . $filename);
+
+        if (!file_exists(dirname($path))) {
+            mkdir(dirname($path), 0755, true);
+        }
+
+        $csv = Writer::createFromPath($path, 'w+');
+        $csv->insertOne($headers); // add headers
+        $csv->insertAll($rows);    // add rows
+
+        // Save notification
+        $notification = Notification::create([
+            'title' => 'Smart Data Report Ready',
+            'message' => 'Your report is ready.',
+            'file_url' => route('download.report', $filename),
+            'file_name' => $filename,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Report generated successfully!',
+            'notification' => $notification
+        ]);
     }
 
     public function showSmartData($id)

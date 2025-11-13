@@ -43,7 +43,7 @@
 
                             </div>
                             <div class="col-auto">
-                                <a href="javascript: void(0);" class="btn btn-light">
+                                <a href="javascript: void(0);" class="btn btn-light export-smart-data">
                                     <i class="ti ti-download"></i>  Export
                                 </a>
                             </div>
@@ -1077,6 +1077,24 @@
                     $btn.prop('disabled', false);
                     $btn.html('Reset');
                 });
+            });
+        });
+
+        $(document).on('click', '.export-smart-data', function() {
+            toastr.info('Report is generating...');
+
+            $.ajax({
+                url: "{{ route('smartdata.export') }}",
+                type: "GET",
+                success: function(res) {
+                    if(res.status === 'success') {
+                        toastr.success(res.message);
+                        loadNotifications();
+                    }
+                },
+                error: function() {
+                    toastr.error('Failed to generate report. Please try again.');
+                }
             });
         });
         

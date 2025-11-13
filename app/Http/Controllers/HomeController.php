@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Buylist;
 use App\Models\Lead;
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\Shipping;
 use Illuminate\Http\Request;
@@ -71,4 +72,35 @@ class HomeController extends Controller
 
         return view('home', compact('data'));
     }
+
+    public function list()
+    {
+        $notifications = Notification::orderBy('created_at', 'desc')
+            ->take(6)
+            ->get();
+
+        return response()->json($notifications);
+    }
+
+    public function markRead($id)
+    {
+        $notif = Notification::find($id);
+        if ($notif) {
+            $notif->update(['read_at' => now()]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function download($file)
+    {
+        $path = storage_path('app/reports/' . $file);
+
+        if (!file_exists($path)) {
+            abort(404, 'File not found.');
+        }
+
+        return response()->download($path);
+    }
+
 }

@@ -13,7 +13,7 @@
                     <form action="javascript:void(0);">
                         <div class="row g-2 mb-0 align-items-center">
                             <div class="col-auto">
-                                <button class="btn btn-soft-primary">
+                                <button class="btn btn-soft-primary export-shipping-batch">
                                     Export
                                 </button>
                                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addShippingBatchModal">
@@ -331,6 +331,24 @@
                 $btn.prop('disabled', false);
                 $btn.html('Reset');
             });
+        });
+    });
+
+    $(document).on('click', '.export-shipping-batch', function() {
+        toastr.info('Report is generating...');
+
+        $.ajax({
+            url: "{{ route('shipping.export') }}",
+            type: "GET",
+            success: function(res) {
+                if(res.status === 'success') {
+                    toastr.success(res.message);
+                    loadNotifications();
+                }
+            },
+            error: function() {
+                toastr.error('Failed to generate report. Please try again.');
+            }
         });
     });
 
