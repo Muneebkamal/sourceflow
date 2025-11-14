@@ -172,9 +172,17 @@
         }
         :root {
             /* --osen-primary: #433ACA; */
-            --osen-menu-item-active-bg: rgba(255, 255, 255, 0.3) !important;
-            --osen-primary: blue !important;
-            --osen-menu-bg: blue !important;
+            --osen-primary: #0d6ee6;
+            --osen-menu-bg: #0d6ee6 !important;
+        }
+
+        .btn-primary {
+            background-color: #0d6ee6 !important;
+            border-color: #0d6ee6 !important;
+        }
+        .active>.page-link, .page-link.active {
+            background-color: #0d6ee6 !important;
+            border-color: #0d6ee6 !important;
         }
     </style>
     @yield('styles')
