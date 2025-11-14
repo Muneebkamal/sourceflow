@@ -174,5 +174,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Settings routes
     Route::get('/user/profile', [SettingController::class, 'index'])->name('setting.index');
+
+    Route::post('/profile/update', [SettingController::class, 'update'])->name('profile.update');
+    Route::post('/profile/password', [SettingController::class, 'updatePassword'])->name('profile.password');
 });
 

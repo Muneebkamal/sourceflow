@@ -171,8 +171,10 @@
             cursor: pointer;
         }
         :root {
-            --osen-primary: #433ACA;
-            --osen-menu-bg: #433ACA !important;
+            /* --osen-primary: #433ACA; */
+            --osen-menu-item-active-bg: rgba(255, 255, 255, 0.3) !important;
+            --osen-primary: blue !important;
+            --osen-menu-bg: blue !important;
         }
     </style>
     @yield('styles')
