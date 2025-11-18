@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Orders')
+@section('title', 'Purchase Orders')
 
 @section('content')
     <div class="row">
         <div class="col-md-12">
             <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column">
                 <div class="flex-grow-1">
-                    <h4 class="fs-18 fw-semibold m-0">Orders</h4>
+                    <h4 class="fs-18 fw-semibold m-0">Purchase Orders</h4>
                 </div>
                 <div class="mt-3 mt-sm-0">
                     <form action="javascript:void(0);">

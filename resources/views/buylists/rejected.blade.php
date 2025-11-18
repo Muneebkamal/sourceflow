@@ -107,259 +107,7 @@
 
                             <div class="card-body p-2">
                                 <!-- ✅ Sortable list -->
-                                <div class="column-list-draggable">
-                                    <!-- Order note -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-order_note">
-                                            <label class="form-check-label ms-2" for="col-order_note">Order note</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Date Added -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-created_at" checked>
-                                            <label class="form-check-label ms-2" for="col-created_at">Date Added</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- ASIN -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-asin" checked>
-                                            <label class="form-check-label ms-2" for="col-asin">ASIN</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Image -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-image" checked>
-                                            <label class="form-check-label ms-2" for="col-image">Image</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Product Title (Disabled) -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-name" checked disabled>
-                                            <label class="form-check-label ms-2" for="col-name">Product Title</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Variation Details -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-variation_details" checked>
-                                            <label class="form-check-label ms-2" for="col-variation_details">Variation Details</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Supplier -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-supplier" checked>
-                                            <label class="form-check-label ms-2" for="col-supplier">Supplier</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Buy Cost -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-cost_per_unit" checked>
-                                            <label class="form-check-label ms-2" for="col-cost_per_unit">Buy Cost</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Estimated Selling Price -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-estimated_sale_price" checked>
-                                            <label class="form-check-label ms-2" for="col-estimated_sale_price">Estimated Selling Price</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Quantity (To Purchase) -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-units_purchased">
-                                            <label class="form-check-label ms-2" for="col-units_purchased">Quantity (To Purchase)</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- BSR 90D Avg -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-bsr_ninety" checked>
-                                            <label class="form-check-label ms-2" for="col-bsr_ninety">BSR 90D Avg</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Promo -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-promo">
-                                            <label class="form-check-label ms-2" for="col-promo">Promo</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Coupon Code -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-coupon_code">
-                                            <label class="form-check-label ms-2" for="col-coupon_code">Coupon Code</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Product Note -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-product_note" checked>
-                                            <label class="form-check-label ms-2" for="col-product_note">Product Note</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Buyer Note -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-buyer_note" checked>
-                                            <label class="form-check-label ms-2" for="col-buyer_note">Buyer Note</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- UPC/GTIN -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-upc_code">
-                                            <label class="form-check-label ms-2" for="col-upc_code">UPC/GTIN</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Brand -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-brand">
-                                            <label class="form-check-label ms-2" for="col-brand">Brand</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Monthly Sold -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-monthly_sold">
-                                            <label class="form-check-label ms-2" for="col-monthly_sold">Monthly Sold</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Offers -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-new_offers_count">
-                                            <label class="form-check-label ms-2" for="col-new_offers_count">Offers</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Rating -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-rating">
-                                            <label class="form-check-label ms-2" for="col-rating">Rating</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Reviews -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-review_count">
-                                            <label class="form-check-label ms-2" for="col-review_count">Reviews</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Buy List Name -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-buy_list_name">
-                                            <label class="form-check-label ms-2" for="col-buy_list_name">Buy List Name</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Lead Type -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-lead_type">
-                                            <label class="form-check-label ms-2" for="col-lead_type">Lead Type</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- SKU Total Cost -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-sku_total_cost">
-                                            <label class="form-check-label ms-2" for="col-sku_total_cost">SKU Total Cost</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- ROI Est -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-roi_estimated">
-                                            <label class="form-check-label ms-2" for="col-roi_estimated">ROI Est</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Net Profit Est -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-net_profit_estimated">
-                                            <label class="form-check-label ms-2" for="col-net_profit_estimated">Net Profit Est</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- BSR Current -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-bsr_current">
-                                            <label class="form-check-label ms-2" for="col-bsr_current">BSR Current</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-
-                                    <!-- Category -->
-                                    <div class="d-flex justify-content-between align-items-center draggable-item">
-                                        <div>
-                                            <input class="form-check-input" type="checkbox" id="col-category">
-                                            <label class="form-check-label ms-2" for="col-category">Category</label>
-                                        </div>
-                                        <i class="ti ti-grip-vertical grip-icon"></i>
-                                    </div>
-                                </div>
+                                <div class="column-list-draggable"></div>
                             </div>
                         </div>
                     </div>
@@ -369,19 +117,22 @@
     </div>
 
     <div class="row">
-        <div id="select-count-section" class="col-md-12 d-flex mb-2 align-items-center d-none">
-            <div class="dropdown">
-                <button class="btn btn-sm btn-light" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="true">
-                    <i class="ti ti-dots-vertical"></i>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item bulkMoveBtn" href="#">Move to Buylist</a></li>
-                    <li><a class="dropdown-item text-danger bulkDelBtn" href="#">Delete</a></li>
-                </ul>
-            </div>
-            <span class="fw-bold ms-3">Selected: <span id="selectedCount">0</span></span>
-        </div>
         <div class="col-md-12">
+            <div class="d-flex justify-content-between mb-2" id="table-info-top"></div>
+
+            <div id="select-count-section" class="col-md-12 d-flex mb-2 align-items-center d-none">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="true">
+                        <i class="ti ti-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item bulkMoveBtn" href="#">Move to Buylist</a></li>
+                        <li><a class="dropdown-item text-danger bulkDelBtn" href="#">Delete</a></li>
+                    </ul>
+                </div>
+                <span class="fw-bold ms-3">Selected: <span id="selectedCount">0</span></span>
+            </div>
+
             <div class="card">
                 <div class="card-body border border-4 border-danger p-0">
                     <div class="table-responsive">
@@ -389,20 +140,38 @@
                             <thead class="table-light">
                                 <tr class="text-nowrap small">
                                     <th><input type="checkbox" id="selectAll" class="form-check-input"></th>
-                                    <th>Rejected at</th>
+                                    <th>Rejected At</th>
                                     <th>Rejected By</th>
-                                    <th>Rejected Reason</th>
+                                    <th>Rejection Reason</th>
+                                    <th>Order Note</th>
                                     <th>Asin</th>
                                     <th>Image</th>
                                     <th>Product Title</th>
                                     <th>Variations</th>
                                     <th>Supplier</th>
                                     <th>Cost</th>
+                                    <th>Selling Price</th>
+                                    <th>Qty</th>
                                     <th>BSR 90D Avg</th>
+                                    <th>Promo</th>
+                                    <th>Coupon Code</th>
                                     <th>Product Note</th>
                                     <th>Buyer Note</th>
-                                    {{-- <th class="sticky-col">Actions</th> --}}
+                                    <th>UPC/GTIN</th>
+                                    <th>Brand</th>
+                                    <th>Monthly Sold</th>
+                                    <th>Offers</th>
+                                    <th>Rating</th>
+                                    <th>Reviews</th>
+                                    <th>Buy List Name</th>
+                                    <th>Lead Type</th>
+                                    <th>SKU Total Cost</th>
+                                    <th>ROI Est</th>
+                                    <th>Net Profit Est</th>
+                                    <th>BSR Current</th>
+                                    <th>Category</th>
                                     <th>Actions</th>
+                                    {{-- <th class="sticky-col">Actions</th> --}}
                                 </tr>
                             </thead>
                             <tbody>
@@ -411,6 +180,7 @@
                     </div>
                 </div>
             </div>
+            <div class="d-flex justify-content-between my-2" id="table-info-bottom"></div>
         </div>
     </div>
 
@@ -421,75 +191,298 @@
     
 @section('scripts')
     <script>
-        $(document).ready(function() {
-            let table = $('#rejected-buylist-table').DataTable({
+        // $(document).ready(function() {
+        //     let table = $('#rejected-buylist-table').DataTable({
+        //         processing: true,
+        //         serverSide: true,
+        //         ajax: {
+        //             url: "{{ route('buylist.data.rejected') }}",
+        //             data: function (d) {
+        //                 d.buylist_ids = $('.buylist-filter:checked').map(function() {
+        //                     return $(this).val();
+        //                 }).get();
+        //                 d.search = $('#searchInput').val();
+        //             }
+        //         },
+        //         // drawCallback: function () {
+        //         //     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        //         //     tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
+        //         // },
+        //         scrollY: '50vh',
+        //         scrollX: true,
+        //         paging: true,
+        //         searching: false,
+        //         ordering: true,
+        //         lengthChange: true,
+        //         columns: [
+        //             {
+        //                 data: 'id',
+        //                 orderable: false,
+        //                 render: function(data, type, row) {
+        //                     return `<input type="checkbox" class="form-check-input buylist-checkbox" data-id="${row.id}">`;
+        //                 }
+        //             },
+        //             { data: 'created_at' },
+        //             { data: 'created_by' },
+        //             { data: 'rejection_reason' },
+        //             { data: 'asin' },
+        //             { data: 'image', orderable: false, searchable: false },
+        //             { data: 'name' },
+        //             { data: 'variations' },
+        //             { data: 'supplier' },
+        //             { data: 'bsr' },
+        //             { data: 'cost' },
+        //             { data: 'order_note' },
+        //             { data: 'product_buyer_notes' },
+        //             { data: 'actions', orderable: false, searchable: false },
+        //         ],
+        //         dom: `<'d-flex justify-content-between'<'info-top'i><'d-flex'<'paginate-top'p><'length-top'l>>>t<'d-flex justify-content-between'<'info-bottom'i><'d-flex'<'paginate-bottom'p><'length-bottom'l>>>`,
+        //         initComplete: function() {
+        //             // Move elements to external containers once
+        //             $('#table-info-top').append(
+        //                 $('<div class="d-flex justify-content-between w-100"></div>').append(
+        //                     $('.info-top'),
+        //                     $('<div class="d-flex"></div>').append($('.paginate-top').addClass('me-1'), $('.length-top'))
+        //                 )
+        //             );
+
+        //             $('#table-info-bottom').append(
+        //                 $('<div class="d-flex justify-content-between w-100"></div>').append(
+        //                     $('.info-bottom'),
+        //                     $('<div class="d-flex"></div>').append($('.paginate-bottom').addClass('me-1'), $('.length-bottom'))
+        //                 )
+        //             );
+
+        //             // Remove default text and padding
+        //             $('.length-top label, .length-bottom label').contents().filter(function() { return this.nodeType === 3; }).remove();
+        //             $('.paginate-top ul, .paginate-bottom ul').addClass('p-0 m-0');
+        //             $('.dataTables_info, #buylist-table_info, .dataTables_paginate, .paging_simple_numbers').css({ padding: 0, margin: 0 });
+        //         },
+        //         drawCallback: function() {
+        //             // Re-init tooltips
+        //             $('[data-bs-toggle="tooltip"]').each(function() { new bootstrap.Tooltip(this); });
+        //         }
+        //     });
+
+        //     // 🔹 When Buy List checkboxes change, reload the table
+        //     $(document).on('change', '.buylist-filter', function() {
+        //         table.ajax.reload();
+        //     });
+
+        //     // 🔹 Optional: Search + Reset buttons
+        //     $('#searchInput').on('keyup', function() {
+        //         table.ajax.reload();
+        //     });
+
+        //     $('#reset-btn').on('click', function() {
+        //         var $btn = $(this);
+        //         $btn.prop('disabled', true);
+        //         $btn.html('<span class="spinner-grow spinner-grow-sm me-1" role="status" aria-hidden="true"></span>Reset');
+
+        //         $('#searchInput').val('');
+        //         // $('.buylist-filter').prop('checked', false);
+
+        //         table.ajax.reload(function() {
+        //             // Re-enable button after table has fully loaded
+        //             $btn.prop('disabled', false);
+        //             $btn.html('Reset');
+        //         });
+        //     });
+        // });
+
+        $(document).ready(function () {
+            if ($.fn.DataTable.isDataTable('#rejected-buylist-table')) {
+                $('#rejected-buylist-table').DataTable().destroy();
+                $('#rejected-buylist-table').empty();
+            }
+
+            const table = $('#rejected-buylist-table').DataTable({
+                destroy: true,
                 processing: true,
                 serverSide: true,
+                stateSave: true,
+                colReorder: true,
+                lengthChange: true,
                 ajax: {
                     url: "{{ route('buylist.data.rejected') }}",
                     data: function (d) {
-                        d.buylist_ids = $('.buylist-filter:checked').map(function() {
+                        d.buylist_ids = $('.buylist-filter:checked').map(function () {
                             return $(this).val();
                         }).get();
                         d.search = $('#searchInput').val();
                     }
                 },
-                drawCallback: function () {
-                    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                    tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
-                },
-                scrollY: '40vh',
+                scrollY: '50vh',
                 scrollX: true,
                 paging: true,
                 searching: false,
+                autoWidth: false,
                 ordering: true,
-                lengthChange: false,
+                order: [],
                 columns: [
-                    {
-                        data: 'id',
-                        orderable: false,
-                        render: function(data, type, row) {
-                            return `<input type="checkbox" class="form-check-input buylist-checkbox" data-id="${row.id}">`;
+                    { data: 'id', orderable: false, render: data => `<input type="checkbox" class="form-check-input buylist-checkbox" data-id="${data}">` },
+                    { data: 'created_at', title: 'Rejected At', defaultContent: '--' },
+                    { data: 'created_by', title: 'Rejected By', defaultContent: '--' },
+                    { data: 'rejection_reason', title: 'Rejection Reason', defaultContent: '--' },
+                    { data: 'order_note', title: 'Order Note', defaultContent: '--' },
+                    { data: 'asin', title: 'ASIN', defaultContent: '--' },
+                    { data: 'image', title: 'Image', defaultContent: '--', orderable: false, searchable: false },
+                    { data: 'name', title: 'Product Title', defaultContent: '--' },
+                    { data: 'variations', title: 'Variation Details', defaultContent: '--' },
+                    { data: 'supplier', title: 'Supplier', defaultContent: '--' },
+                    { data: 'buy_cost', title: 'Buy Cost', defaultContent: '--' },
+                    { data: 'selling_price', title: 'Estimated Selling Price', defaultContent: '$0.00', render: d => d ? `$${parseFloat(d).toFixed(2)}` : '$0.00' },
+                    { data: 'unit_purchased', title: 'Quantity (To Purchase)', defaultContent: '--' },
+                    { data: 'bsr', title: 'BSR 90D Avg', defaultContent: '--' },
+                    { data: 'promo', title: 'Promo', defaultContent: '--' },
+                    { data: 'coupon_code', title: 'Coupon Code', defaultContent: '--' },
+                    { data: 'product_note', title: 'Product Note', defaultContent: '--' },
+                    { data: 'product_buyer_notes', title: 'Buyer Note', defaultContent: '--' },
+                    { data: 'upc', title: 'UPC/GTIN', defaultContent: '--' },
+                    { data: 'brand', title: 'Brand', defaultContent: '--' },
+                    { data: 'monthly_sold', title: 'Monthly Sold', defaultContent: '--' },
+                    { data: 'offers', title: 'Offers', defaultContent: '--' },
+                    { data: 'rating', title: 'Rating', defaultContent: '--' },
+                    { data: 'reviews', title: 'Reviews', defaultContent: '--' },
+                    { data: 'buylist_name', title: 'Buy List Name', defaultContent: '--' },
+                    { data: 'lead_type', title: 'Lead Type', defaultContent: '--' },
+                    { data: 'sku_total', title: 'SKU Total Cost', defaultContent: '$0.00', render: d => d ? `$${parseFloat(d).toFixed(2)}` : '$0.00' },
+                    { data: 'roi_est', title: 'ROI Est', defaultContent: '--' },
+                    { data: 'net_profit_est', title: 'Net Profit Est', defaultContent: '--' },
+                    { data: 'bsr_current', title: 'BSR Current', defaultContent: '--' },
+                    { data: 'category', title: 'Category', defaultContent: '--' },
+                    { data: 'actions', title: 'Actions', orderable: false, searchable: false, defaultContent: '' },
+                ],
+                dom: `<'d-flex justify-content-between'<'info-top'i><'d-flex'<'paginate-top'p><'length-top'l>>>t<'d-flex justify-content-between'<'info-bottom'i><'d-flex'<'paginate-bottom'p><'length-bottom'l>>>`,
+                initComplete: function() {
+                    // Move elements to external containers once
+                    $('#table-info-top').append(
+                        $('<div class="d-flex justify-content-between w-100"></div>').append(
+                            $('.info-top'),
+                            $('<div class="d-flex"></div>').append($('.paginate-top').addClass('me-1'), $('.length-top'))
+                        )
+                    );
+
+                    $('#table-info-bottom').append(
+                        $('<div class="d-flex justify-content-between w-100"></div>').append(
+                            $('.info-bottom'),
+                            $('<div class="d-flex"></div>').append($('.paginate-bottom').addClass('me-1'), $('.length-bottom'))
+                        )
+                    );
+
+                    // Remove default text and padding
+                    $('.length-top label, .length-bottom label').contents().filter(function() { return this.nodeType === 3; }).remove();
+                    $('.paginate-top ul, .paginate-bottom ul').addClass('p-0 m-0');
+                    $('.dataTables_info, #buylist-table_info, .dataTables_paginate, .paging_simple_numbers').css({ padding: 0, margin: 0, });
+                },
+                drawCallback: function() {
+                    // Re-init tooltips
+                    $('[data-bs-toggle="tooltip"]').each(function() { new bootstrap.Tooltip(this); });
+                }
+            });
+
+            /** 🧩 1. Dynamically build checkbox + drag list */
+            const $list = $(".column-list-draggable").empty();
+            table.columns().every(function (index) {
+                const col = this;
+                const data = col.dataSrc();
+                const title = col.header().textContent.trim();
+
+                // skip hidden placeholders (first and last column)
+                if (data === 'id' || data === 'actions') return;
+
+                const checked = col.visible() ? 'checked' : '';
+                const disabled = data === 'name' ? 'disabled' : '';
+
+                const item = `
+                    <div class="d-flex justify-content-between align-items-center draggable-item" data-col="${data}">
+                        <div>
+                            <input class="form-check-input" type="checkbox" id="col-${data}" ${checked} ${disabled}>
+                            <label class="form-check-label ms-2" for="col-${data}">${title}</label>
+                        </div>
+                        <i class="ti ti-grip-vertical grip-icon"></i>
+                    </div>`;
+                $list.append(item);
+            });
+
+            /** 🧭 Helper: get index by data name */
+            function getColIndex(dataName) {
+                const columns = table.settings().init().columns;
+                return columns.findIndex(c => c.data === dataName);
+            }
+
+            /** ✅ 2. Checkbox show/hide logic */
+            $(document).on('change', '.column-list-draggable .form-check-input', function () {
+                const dataName = $(this).attr('id').replace('col-', '');
+                const colIndex = getColIndex(dataName);
+                const visible = $(this).is(':checked');
+                if (colIndex >= 0) table.column(colIndex).visible(visible);
+                table.state.save();
+            });
+
+            /** ✅ 3. Make list draggable and reorder columns properly */
+            $(".column-list-draggable").sortable({
+                handle: ".grip-icon",
+                update: function () {
+                    const totalCols = table.columns().count();
+                    const firstFixed = 0;
+                    const lastFixed = totalCols - 1;
+
+                    const newOrder = [firstFixed];
+                    $(".column-list-draggable .draggable-item").each(function () {
+                        const dataName = $(this).data("col");
+                        const colIndex = getColIndex(dataName);
+                        if (colIndex >= 1 && colIndex <= lastFixed - 1) {
+                            newOrder.push(colIndex);
                         }
-                    },
-                    { data: 'created_at' },
-                    { data: 'created_by' },
-                    { data: 'rejection_reason' },
-                    { data: 'asin' },
-                    { data: 'image', orderable: false, searchable: false },
-                    { data: 'name' },
-                    { data: 'variations' },
-                    { data: 'supplier' },
-                    { data: 'bsr' },
-                    { data: 'cost' },
-                    { data: 'order_note' },
-                    { data: 'product_buyer_notes' },
-                    { data: 'actions', orderable: false, searchable: false },
-                ]
+                    });
+                    newOrder.push(lastFixed);
+
+                    // Apply new order to DataTable
+                    table.colReorder.order(newOrder, true);
+                    table.state.save();
+
+                    // Sync list visually after reorder
+                    syncListWithTable();
+                }
             });
 
-            // 🔹 When Buy List checkboxes change, reload the table
-            $(document).on('change', '.buylist-filter', function() {
-                table.ajax.reload();
+            /** 🔁 4. Sync list order when columns are reordered from table */
+            table.on('column-reorder', function () {
+                syncListWithTable();
             });
 
-            // 🔹 Optional: Search + Reset buttons
-            $('#searchInput').on('keyup', function() {
-                table.ajax.reload();
-            });
+            /** 🧭 Helper: sync draggable list order with current table order */
+            function syncListWithTable() {
+                const order = table.colReorder.order();
+                const $list = $(".column-list-draggable");
+                const $items = [];
 
-            $('#reset-btn').on('click', function() {
-                var $btn = $(this);
-                $btn.prop('disabled', true);
-                $btn.html('<span class="spinner-grow spinner-grow-sm me-1" role="status" aria-hidden="true"></span>Reset');
+                order.forEach(function (i) {
+                    const col = table.column(i);
+                    const data = col.dataSrc();
+                    if (data !== 'id' && data !== 'actions') {
+                        const $item = $list.find(`.draggable-item[data-col="${data}"]`);
+                        if ($item.length) $items.push($item);
+                    }
+                });
 
+                // Rebuild list in same order as DataTable
+                $list.append($items);
+            }
+
+            /** 🔍 5. Search + filter reload */
+            $(document).on('change', '.buylist-filter', () => table.ajax.reload());
+            $('#searchInput').on('keyup', () => table.ajax.reload());
+
+            /** 🔄 6. Reset button */
+            $('#reset-btn').on('click', function () {
+                const $btn = $(this);
+                $btn.prop('disabled', true).html('<span class="spinner-grow spinner-grow-sm me-1"></span>Reset');
                 $('#searchInput').val('');
-                // $('.buylist-filter').prop('checked', false);
-
-                table.ajax.reload(function() {
-                    // Re-enable button after table has fully loaded
-                    $btn.prop('disabled', false);
-                    $btn.html('Reset');
+                table.state.clear();
+                table.ajax.reload(() => {
+                    $btn.prop('disabled', false).html('Reset');
                 });
             });
         });
