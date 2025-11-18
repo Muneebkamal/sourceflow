@@ -280,7 +280,9 @@ class OrderController extends Controller
 
         // ✅ DataTables
         return DataTables::of($lineItems)
-            ->addColumn('checkbox', fn() => '<input type="checkbox" class="form-check-input">')
+            ->addColumn('checkbox', function ($row) {
+                return '<input type="checkbox" class="form-check-input item-checkbox" data-id="' . $row->id . '">';
+            })
             ->editColumn('date', fn($row) => $row->order_date ? \Carbon\Carbon::parse($row->order_date)->format('m/d/y') : '-')
             ->editColumn('source', function ($row) {
                 if (!$row->source) return '-';

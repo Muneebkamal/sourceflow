@@ -52,7 +52,7 @@ class HomeController extends Controller
                 'ordered' => Order::whereDate('created_at', $today)->sum('total'),
 
                 'shipped' => Shipping::whereDate('created_at', $today)->count(),
-                'date' => $today->format('Y-m-d'),
+                'date' => $today->format('m/d/y'),
             ],
 
             'this_week' => [
@@ -66,8 +66,8 @@ class HomeController extends Controller
                 'ordered' => Order::whereBetween('created_at', [$startWeek, $endWeek])->sum('total'),
 
                 'shipped' => Shipping::whereBetween('created_at', [$startWeek, $endWeek])->count(),
-                'start' => $startWeek->format('Y-m-d'),
-                'end' => $endWeek->format('Y-m-d'),
+                'start' => $startWeek->format('m/d/y'),
+                'end' => $endWeek->format('m/d/y'),
             ],
 
             'last_week' => [
@@ -81,8 +81,8 @@ class HomeController extends Controller
                 'ordered' => Order::whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->sum('total'),
 
                 'shipped' => Shipping::whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->count(),
-                'start' => $lastWeekStart->format('Y-m-d'),
-                'end' => $lastWeekEnd->format('Y-m-d'),
+                'start' => $lastWeekStart->format('m/d/y'),
+                'end' => $lastWeekEnd->format('m/d/y'),
             ],
 
             'last30' => [
@@ -96,8 +96,8 @@ class HomeController extends Controller
                 'ordered' => Order::where('created_at', '>=', $last30)->sum('total'),
 
                 'shipped' => Shipping::where('created_at', '>=', $last30)->count(),
-                'start' => $last30->format('Y-m-d'),
-                'end' => Carbon::now()->format('Y-m-d'),
+                'start' => $last30->format('m/d/y'),
+                'end' => Carbon::now()->format('m/d/y'),
             ],
         ];
 

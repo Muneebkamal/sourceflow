@@ -344,21 +344,23 @@
     </div>
 
     <div class="row">
-        <div id="select-count-section" class="col-md-12 d-flex mb-2 align-items-center d-none">
-            <div class="dropdown">
-                <button class="btn btn-sm btn-light" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="true">
-                    <i class="ti ti-dots-vertical"></i>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item createOrderMultiItem" href="#">Create Order</a></li>
-                    <li><a class="dropdown-item bulkMoveBtn" href="#">Move to Buylist</a></li>
-                    <li><a class="dropdown-item rejectItemsBtn" href="#">Reject Items</a></li>
-                    <li><a class="dropdown-item text-danger bulkDelBtn" href="#">Delete</a></li>
-                </ul>
-            </div>
-            <span class="fw-bold ms-3">Selected: <span id="selectedCount">0</span></span>
-        </div>
         <div class="col-md-12">
+            <div class="d-flex justify-content-between mb-2" id="table-info-top"></div>
+
+            <div id="select-count-section" class="col-md-12 d-flex mb-2 align-items-center d-none">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="true">
+                        <i class="ti ti-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item createOrderMultiItem" href="#">Create Order</a></li>
+                        <li><a class="dropdown-item bulkMoveBtn" href="#">Move to Buylist</a></li>
+                        <li><a class="dropdown-item rejectItemsBtn" href="#">Reject Items</a></li>
+                        <li><a class="dropdown-item text-danger bulkDelBtn" href="#">Delete</a></li>
+                    </ul>
+                </div>
+                <span class="fw-bold ms-3">Selected: <span id="selectedCount">0</span></span>
+            </div>
             <div class="card">
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -404,6 +406,7 @@
                     </div>
                 </div>
             </div>
+            <div class="d-flex justify-content-between my-2" id="table-info-bottom"></div>
         </div>
     </div>
 
@@ -418,7 +421,7 @@
         $(document).ready(function () {
             if ($.fn.DataTable.isDataTable('#buylist-table')) {
                 $('#buylist-table').DataTable().destroy();
-                $('#buylist-table').empty(); // removes cloned thead/tbody
+                $('#buylist-table').empty();
             }
 
             const table = $('#buylist-table').DataTable({
@@ -427,6 +430,7 @@
                 serverSide: true,
                 stateSave: true,
                 colReorder: true,
+                lengthChange: true,
                 ajax: {
                     url: "{{ route('buylist.data') }}",
                     data: function (d) {
@@ -436,18 +440,40 @@
                         d.search = $('#searchInput').val();
                     }
                 },
-                drawCallback: function (settings) {
-                    // Re-init tooltips
-                    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                    tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
-                },
-                scrollY: '40vh',
+                // drawCallback: function (settings) {
+                //     // Re-init tooltips
+                //     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                //     tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
+
+                //     $('#buylist-table_paginate').addClass('p-0');
+                //     const infoEl = $('#buylist-table_info');
+                //     const paginateEl = $('#buylist-table_paginate');
+                //     const lengthEl = $('#buylist-table_length');
+
+                //     $('#table-info-top').html(`
+                //         <div class="d-flex justify-content-between align-items-center w-100">
+                //             <div id="info-container" class="p-0"></div>
+                //             <div class="d-flex">
+                //                 <div id="paginate-container" class="me-2 p-0"></div>
+                //                 <div id="length-container"></div>
+                //             </div>
+                //         </div>
+                //     `);
+
+                //     $('#info-container').append(infoEl);
+                //     $('#paginate-container').append(paginateEl);
+                //     $('#length-container').append(lengthEl);
+
+                //     $('#length-container label').contents().filter(function () {
+                //         return this.nodeType === 3; // text node
+                //     }).remove();
+                // },
+                scrollY: '50vh',
                 scrollX: true,
                 paging: true,
                 searching: false,
                 autoWidth: false,
                 ordering: true,
-                lengthChange: false,
                 order: [],
                 columns: [
                     { data: 'id', orderable: false, render: data => `<input type="checkbox" class="form-check-input buylist-checkbox" data-id="${data}">` },
@@ -481,6 +507,32 @@
                     { data: 'category', title: 'Category', defaultContent: '--' },
                     { data: 'actions', title: 'Actions', orderable: false, searchable: false, defaultContent: '' },
                 ],
+                dom: `<'d-flex justify-content-between'<'info-top'i><'d-flex'<'paginate-top'p><'length-top'l>>>t<'d-flex justify-content-between'<'info-bottom'i><'d-flex'<'paginate-bottom'p><'length-bottom'l>>>`,
+                initComplete: function() {
+                    // Move elements to external containers once
+                    $('#table-info-top').append(
+                        $('<div class="d-flex justify-content-between w-100"></div>').append(
+                            $('.info-top'),
+                            $('<div class="d-flex"></div>').append($('.paginate-top').addClass('me-1'), $('.length-top'))
+                        )
+                    );
+
+                    $('#table-info-bottom').append(
+                        $('<div class="d-flex justify-content-between w-100"></div>').append(
+                            $('.info-bottom'),
+                            $('<div class="d-flex"></div>').append($('.paginate-bottom').addClass('me-1'), $('.length-bottom'))
+                        )
+                    );
+
+                    // Remove default text and padding
+                    $('.length-top label, .length-bottom label').contents().filter(function() { return this.nodeType === 3; }).remove();
+                    $('.paginate-top ul, .paginate-bottom ul').addClass('p-0 m-0');
+                    $('.dataTables_info, #buylist-table_info, .dataTables_paginate, .paging_simple_numbers').css({ padding: 0, margin: 0, });
+                },
+                drawCallback: function() {
+                    // Re-init tooltips
+                    $('[data-bs-toggle="tooltip"]').each(function() { new bootstrap.Tooltip(this); });
+                }
             });
 
             /** 🧩 1. Dynamically build checkbox + drag list */

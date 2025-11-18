@@ -291,8 +291,24 @@
                     color: "#ffc107"
                 }
             ],
-            xaxis: { categories: labels },
+            xaxis: {
+                categories: labels,
+                title: {
+                    text: "Dates",     // ← X-axis label
+                    style: {
+                        fontSize: '14px',
+                        fontWeight: 600
+                    }
+                },
+            },
             yaxis: {
+                title: {
+                    text: "Dollars",   // ← Y-axis label
+                    style: {
+                        fontSize: '14px',
+                        fontWeight: 600
+                    },
+                },
                 labels: {
                     formatter: function (value) {
                         // Show $ only if the value belongs to buylist or ordered

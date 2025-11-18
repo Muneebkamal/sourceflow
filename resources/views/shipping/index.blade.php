@@ -148,19 +148,21 @@
     </div>
 
     <div class="row">
-        <div id="select-count-section" class="col-md-12 d-flex mb-2 align-items-center d-none">
-            <div class="dropdown">
-                <button class="btn btn-sm btn-light" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="true">
-                    <i class="ti ti-dots-vertical"></i>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item updateStatusBtn" href="#">Update Status</a></li>
-                    <li><a class="dropdown-item text-danger bulkDelBtn" href="#">Delete</a></li>
-                </ul>
-            </div>
-            <span class="fw-bold ms-3">Selected: <span id="selectedCount">0</span></span>
-        </div>
         <div class="col-md-12">
+            <div class="d-flex justify-content-between mb-2" id="table-info-top"></div>
+
+            <div id="select-count-section" class="col-md-12 d-flex mb-2 align-items-center d-none">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="true">
+                        <i class="ti ti-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item updateStatusBtn" href="#">Update Status</a></li>
+                        <li><a class="dropdown-item text-danger bulkDelBtn" href="#">Delete</a></li>
+                    </ul>
+                </div>
+                <span class="fw-bold ms-3">Selected: <span id="selectedCount">0</span></span>
+            </div>
             <div id="table-section" class="card">
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -185,6 +187,7 @@
                     </div>
                 </div>
             </div>
+            <div class="d-flex justify-content-between my-2" id="table-info-bottom"></div>
         </div>
     </div>
 
@@ -212,7 +215,7 @@
             scrollCollapse: true,
             ordering: false,
             searching: false,
-            lengthChange: false,
+            lengthChange: true,
             colReorder: true,
             paging: true,
             columns: [
@@ -229,9 +232,37 @@
             createdRow: function(row) {
                 $(row).addClass('text-nowrap small');
             },
-            initComplete: function () {
-                generateColumnList(); // generate the list once table is ready
+            dom: `<'d-flex justify-content-between'<'info-top'i><'d-flex'<'paginate-top'p><'length-top'l>>>t<'d-flex justify-content-between'<'info-bottom'i><'d-flex'<'paginate-bottom'p><'length-bottom'l>>>`,
+            initComplete: function() {
+                generateColumnList();
+
+                // Move elements to external containers once
+                $('#table-info-top').append(
+                    $('<div class="d-flex justify-content-between w-100"></div>').append(
+                        $('.info-top'),
+                        $('<div class="d-flex"></div>').append($('.paginate-top').addClass('me-1'), $('.length-top'))
+                    )
+                );
+
+                $('#table-info-bottom').append(
+                    $('<div class="d-flex justify-content-between w-100"></div>').append(
+                        $('.info-bottom'),
+                        $('<div class="d-flex"></div>').append($('.paginate-bottom').addClass('me-1'), $('.length-bottom'))
+                    )
+                );
+
+                // Remove default text and padding
+                $('.length-top label, .length-bottom label').contents().filter(function() { return this.nodeType === 3; }).remove();
+                $('.paginate-top ul, .paginate-bottom ul').addClass('p-0 m-0');
+                $('.dataTables_info, #buylist-table_info, .dataTables_paginate, .paging_simple_numbers').css({ padding: 0, margin: 0 });
+            },
+            drawCallback: function() {
+                // Re-init tooltips
+                $('[data-bs-toggle="tooltip"]').each(function() { new bootstrap.Tooltip(this); });
             }
+            // initComplete: function () {
+            //     generateColumnList(); // generate the list once table is ready
+            // }
         });
 
         function generateColumnList() {
