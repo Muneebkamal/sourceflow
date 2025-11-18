@@ -365,6 +365,18 @@
         });
     });
 
+    $(document).on('change', '.shipping-status', function () {
+        let status = $(this).val();
+
+        $(this)
+            .removeClass('bg-soft-primary bg-soft-danger bg-soft-secondary')
+            .addClass(
+                status === 'open' ? 'bg-soft-primary' :
+                status === 'closed' ? 'bg-soft-danger' :
+                'bg-soft-secondary'
+            );
+    });
+
     $(document).on('click', '.export-shipping-batch', function() {
         toastr.info('Report is generating...');
 
