@@ -57,7 +57,7 @@
       <li class="side-nav-item">
         <a href="{{ route('orders.index') }}" class="side-nav-link">
           <span class="menu-icon"><i class="ti ti-clipboard-list"></i></span>
-          <span class="menu-text">Orders</span>
+          <span class="menu-text">Purchase Orders</span>
         </a>
       </li>
 

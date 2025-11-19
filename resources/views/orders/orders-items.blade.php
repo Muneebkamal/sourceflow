@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Ordered Items')
+@section('title', 'Purchase Orders Items')
 
 @section('content')
     <div class="row">
         <div class="col-md-12">
             <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column">
                 <div class="flex-grow-1">
-                    <h4 class="fs-18 fw-semibold m-0">Ordered Items</h4>
+                    <h4 class="fs-18 fw-semibold m-0">Purchase Orders Items</h4>
                 </div>
                 <div class="mt-3 mt-sm-0">
                     <form action="javascript:void(0);">
@@ -303,13 +303,27 @@
 
     <div class="row">
         <div class="col-md-12">
+            <div class="d-flex justify-content-between mb-2" id="table-info-top"></div>
+
+            <div id="select-count-section" class="col-md-12 d-flex mb-2 align-items-center d-none">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="true">
+                        <i class="ti ti-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item updateStatusBtn" href="#">Update Status</a></li>
+                        <li><a class="dropdown-item text-danger bulkDelBtn" href="#">Delete</a></li>
+                    </ul>
+                </div>
+                <span class="fw-bold ms-3">Selected: <span id="selectedCount">0</span></span>
+            </div>
             <div class="card">
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table id="order-items-table" class="table align-middle w-100 mb-0 table-hover">
                             <thead class="table-light">
                                 <tr class="text-nowrap small">
-                                    <th><input type="checkbox" class="form-check-input"></th>
+                                    <th><input type="checkbox" id="selectAll" class="form-check-input"></th>
                                     <th>Supplier</th>
                                     <th>Estimated Selling Price</th>
                                     <th>Order Date</th>
@@ -353,6 +367,7 @@
                     </div>
                 </div>
             </div>
+            <div class="d-flex justify-content-between my-2" id="table-info-bottom"></div>
         </div>
     </div>
 
@@ -370,22 +385,26 @@
             stateDuration: -1,
             ajax: {
                 url: '{{ route("data.orders.items") }}',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
                 data: function(d) {
                     d.search = $('#searchInput').val();
                     d.status = $('#statusFilter').val();
                     d.dateRange = $('#dateRangeFilter').val();
                 }
             },
-            drawCallback: function () {
-                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
-            },
-            scrollY: '40vh',
+            // drawCallback: function () {
+            //     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            //     tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
+            // },
+            scrollY: '50vh',
             scrollX: true,
             scrollCollapse: true,
             paging: true,
             searching: false,
-            lengthChange: false,
+            lengthChange: true,
             ordering: false,
             colReorder: true,
             columns: [
@@ -428,7 +447,33 @@
                 { data: 'image', name: 'image' },
 
                 { data: 'actions', orderable: false, searchable: false } // 36 ✅ DO NOT SHOW IN LIST
-            ]
+            ],
+            dom: `<'d-flex justify-content-between'<'info-top'i><'d-flex'<'paginate-top'p><'length-top'l>>>t<'d-flex justify-content-between'<'info-bottom'i><'d-flex'<'paginate-bottom'p><'length-bottom'l>>>`,
+            initComplete: function() {
+                // Move elements to external containers once
+                $('#table-info-top').append(
+                    $('<div class="d-flex justify-content-between w-100"></div>').append(
+                        $('.info-top'),
+                        $('<div class="d-flex"></div>').append($('.paginate-top').addClass('me-1'), $('.length-top'))
+                    )
+                );
+
+                $('#table-info-bottom').append(
+                    $('<div class="d-flex justify-content-between w-100"></div>').append(
+                        $('.info-bottom'),
+                        $('<div class="d-flex"></div>').append($('.paginate-bottom').addClass('me-1'), $('.length-bottom'))
+                    )
+                );
+
+                // Remove default text and padding
+                $('.length-top label, .length-bottom label').contents().filter(function() { return this.nodeType === 3; }).remove();
+                $('.paginate-top ul, .paginate-bottom ul').addClass('p-0 m-0');
+                $('.dataTables_info, #buylist-table_info, .dataTables_paginate, .paging_simple_numbers').css({ padding: 0, margin: 0 });
+            },
+            drawCallback: function() {
+                // Re-init tooltips
+                $('[data-bs-toggle="tooltip"]').each(function() { new bootstrap.Tooltip(this); });
+            }
         });
 
         function generateColumnList() {
@@ -560,6 +605,43 @@
                     toastr.error('Server error. Please try again.');
                 }
             });
+        });
+    });
+
+    $(document).ready(function () {
+        // Select all checkboxes
+        $(document).on('change', '#selectAll', function () {
+            const checked = $(this).is(':checked');
+            $('#order-items-table tbody input[type="checkbox"]').prop('checked', checked);
+            updateSelectedCount();
+        });
+
+        // Handle individual checkbox selection
+        $(document).on('change', '#order-items-table tbody input[type="checkbox"]', function () {
+            const allChecked =
+                $('#order-items-table tbody input[type="checkbox"]').length ===
+                $('#order-items-table tbody input[type="checkbox"]:checked').length;
+
+            $('#selectAll').prop('checked', allChecked);
+            updateSelectedCount();
+        });
+
+        // Function to update the count and toggle visibility
+        function updateSelectedCount() {
+            const count = $('#order-items-table tbody input[type="checkbox"]:checked').length;
+            $('#selectedCount').text(count);
+
+            if (count > 0) {
+                $('#select-count-section').removeClass('d-none');
+            } else {
+                $('#select-count-section').addClass('d-none');
+            }
+        }
+
+        // Reset select-all and hide bar when table redraws
+        $('#order-items-table').on('draw.dt', function () {
+            $('#selectAll').prop('checked', false);
+            updateSelectedCount();
         });
     });
 

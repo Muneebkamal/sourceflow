@@ -20,10 +20,17 @@
 
   <!-- Icons css -->
   <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+
+  <style>
+    .btn-primary {
+        background-color: #0d6ee6 !important;
+    }
+  </style>
+
 </head>
 
 <body>
-  <div class="auth-bg d-flex min-vh-100 justify-content-center align-items-center">
+  <div class="d-flex min-vh-100 justify-content-center align-items-center" style="background-color: #0d6ee6;">
     <div class="row g-0 justify-content-center w-100 m-xxl-5 px-xxl-4 m-3">
         <div class="col-xl-4 col-lg-5 col-md-6">
             <div class="card overflow-hidden text-center h-100 p-xxl-4 p-3 mb-0">

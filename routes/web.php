@@ -38,7 +38,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
 
     Route::get('/notifications/list', [HomeController::class, 'list'])->name('notifications.list');
-    Route::post('/notifications/mark-read/{id}', [HomeController::class, 'markRead'])
+    Route::post('/notifications/mark-read', [HomeController::class, 'markRead'])
         ->name('notifications.markRead');
     Route::get('download/report/{file}', [HomeController::class, 'download'])->name('download.report');
 
@@ -81,7 +81,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders-items', [OrderController::class, 'ordersItems'])->name('orders.items');
     Route::get('/orders/data', [OrderController::class, 'getData'])->name('orders.data');
-    Route::get('/orders-items/data', [OrderController::class, 'getDataOrdersItems'])->name('data.orders.items');
+    Route::post('/orders-items/data', [OrderController::class, 'getDataOrdersItems'])->name('data.orders.items');
     Route::get('/order/{id}', [OrderController::class, 'show'])->name('order.show');
     Route::get('/order/{order}/items', [OrderController::class, 'getOrderItems'])->name('order.items');
     Route::get('buy-cost-calculator/{order}', [OrderController::class, 'buyCostCalculator'])->name('buy.cost.calculator');
@@ -174,5 +174,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Settings routes
     Route::get('/user/profile', [SettingController::class, 'index'])->name('setting.index');
+
+    Route::post('/profile/update', [SettingController::class, 'update'])->name('profile.update');
+    Route::post('/profile/password', [SettingController::class, 'updatePassword'])->name('profile.password');
 });
 

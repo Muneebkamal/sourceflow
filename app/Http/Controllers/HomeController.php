@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Buylist;
 use App\Models\Lead;
+use App\Models\LineItem;
 use App\Models\Notification;
 use App\Models\Order;
 use App\Models\Shipping;
@@ -36,39 +37,96 @@ class HomeController extends Controller
         $lastWeekEnd = Carbon::now()->subWeek()->endOfWeek();
         $last30 = Carbon::now()->subDays(30);
 
+        $last14Days = collect();
+        $start = Carbon::now()->subDays(13);
+
         $data = [
             'today' => [
                 'leads' => Lead::whereDate('created_at', $today)->count(),
-                'buy' => Buylist::whereDate('created_at', $today)->count(),
-                'ordered' => Order::whereDate('created_at', $today)->count(),
+
+                'buy' => LineItem::where('is_buylist', 1)
+                    ->whereNotNull('buylist_id')
+                    ->whereDate('created_at', $today)
+                    ->sum('sku_total'),
+
+                'ordered' => Order::whereDate('created_at', $today)->sum('total'),
+
                 'shipped' => Shipping::whereDate('created_at', $today)->count(),
-                'date' => $today->format('Y-m-d'),
+                'date' => $today->format('m/d/y'),
             ],
+
             'this_week' => [
                 'leads' => Lead::whereBetween('created_at', [$startWeek, $endWeek])->count(),
-                'buy' => Buylist::whereBetween('created_at', [$startWeek, $endWeek])->count(),
-                'ordered' => Order::whereBetween('created_at', [$startWeek, $endWeek])->count(),
+
+                'buy' => LineItem::where('is_buylist', 1)
+                    ->whereNotNull('buylist_id')
+                    ->whereBetween('created_at', [$startWeek, $endWeek])
+                    ->sum('sku_total'),
+
+                'ordered' => Order::whereBetween('created_at', [$startWeek, $endWeek])->sum('total'),
+
                 'shipped' => Shipping::whereBetween('created_at', [$startWeek, $endWeek])->count(),
-                'start' => $startWeek->format('Y-m-d'),
-                'end' => $endWeek->format('Y-m-d'),
+                'start' => $startWeek->format('m/d/y'),
+                'end' => $endWeek->format('m/d/y'),
             ],
+
             'last_week' => [
                 'leads' => Lead::whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->count(),
-                'buy' => Buylist::whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->count(),
-                'ordered' => Order::whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->count(),
+
+                'buy' => LineItem::where('is_buylist', 1)
+                    ->whereNotNull('buylist_id')
+                    ->whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])
+                    ->sum('sku_total'),
+
+                'ordered' => Order::whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->sum('total'),
+
                 'shipped' => Shipping::whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->count(),
-                'start' => $lastWeekStart->format('Y-m-d'),
-                'end' => $lastWeekEnd->format('Y-m-d'),
+                'start' => $lastWeekStart->format('m/d/y'),
+                'end' => $lastWeekEnd->format('m/d/y'),
             ],
+
             'last30' => [
                 'leads' => Lead::where('created_at', '>=', $last30)->count(),
-                'buy' => Buylist::where('created_at', '>=', $last30)->count(),
-                'ordered' => Order::where('created_at', '>=', $last30)->count(),
+
+                'buy' => LineItem::where('is_buylist', 1)
+                    ->whereNotNull('buylist_id')
+                    ->where('created_at', '>=', $last30)
+                    ->sum('sku_total'),
+
+                'ordered' => Order::where('created_at', '>=', $last30)->sum('total'),
+
                 'shipped' => Shipping::where('created_at', '>=', $last30)->count(),
-                'start' => $last30->format('Y-m-d'),
-                'end' => Carbon::now()->format('Y-m-d'),
+                'start' => $last30->format('m/d/y'),
+                'end' => Carbon::now()->format('m/d/y'),
             ],
         ];
+
+        // ---------------------------
+        // 14 DAYS GRAPH DATA
+        // ---------------------------
+
+        for ($i = 0; $i < 14; $i++) {
+            $date = $start->copy()->addDays($i)->format('Y-m-d');
+
+            $last14Days->push([
+                'date' => $date,
+
+                'leads' => Lead::whereDate('created_at', $date)->count(),
+
+                // SAME AS BOXES (sku_total)
+                'buy' => LineItem::where('is_buylist', 1)
+                    ->whereNotNull('buylist_id')
+                    ->whereDate('created_at', $date)
+                    ->sum('sku_total'),
+
+                // Ordered from ORDERS table
+                'ordered' => Order::whereDate('created_at', $date)->sum('total'),
+
+                'shipped' => Shipping::whereDate('created_at', $date)->count(),
+            ]);
+        }
+
+        $data['last14'] = $last14Days;
 
         return view('home', compact('data'));
     }
@@ -78,17 +136,17 @@ class HomeController extends Controller
         $notifications = Notification::orderBy('created_at', 'desc')
             ->take(6)
             ->get();
+        $unread = Notification::where('is_read', 0)->count();    
 
-        return response()->json($notifications);
+        return response()->json([
+            'notifications' => $notifications,
+            'unread_count' => $unread
+        ]);
     }
 
-    public function markRead($id)
+    public function markRead()
     {
-        $notif = Notification::find($id);
-        if ($notif) {
-            $notif->update(['read_at' => now()]);
-        }
-
+        Notification::where('is_read', 0)->update(['is_read' => 1]);
         return response()->json(['success' => true]);
     }
 

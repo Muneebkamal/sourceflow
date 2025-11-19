@@ -50,18 +50,45 @@ class ShippingController extends Controller
             ->addColumn('checkbox', function ($row) {
                 return '<input type="checkbox" class="form-check-input shipping-checkbox" value="' . $row->id . '">';
             })
+            // ->editColumn('status', function ($row) {
+            //     $statuses = [
+            //         'open' => 'Open',
+            //         'in_transit' => 'In Transit',
+            //         'closed' => 'Closed'
+            //     ];
+
+            //     $html = '<select class="form-select form-select-sm shipping-status" data-id="'.$row->id.'">';
+            //     foreach ($statuses as $key => $label) {
+            //         $selected = ($row->status === $key) ? 'selected' : '';
+            //         $html .= '<option value="'.$key.'" '.$selected.'>'.$label.'</option>';
+            //     }
+            //     $html .= '</select>';
+
+            //     return $html;
+            // })
             ->editColumn('status', function ($row) {
+                // Map status => bootstrap color class
+                $statusClass = [
+                    'open' => 'bg-soft-primary',
+                    'in_transit' => 'bg-soft-secondary',
+                    'closed' => 'bg-soft-danger',
+                ];
+
+                $selectClass = $statusClass[$row->status] ?? 'bg-soft-secondary';
+
                 $statuses = [
                     'open' => 'Open',
                     'in_transit' => 'In Transit',
                     'closed' => 'Closed'
                 ];
 
-                $html = '<select class="form-select form-select-sm shipping-status" data-id="'.$row->id.'">';
+                $html = '<select class="form-select form-select-sm shipping-status '.$selectClass.'" data-id="'.$row->id.'">';
+
                 foreach ($statuses as $key => $label) {
                     $selected = ($row->status === $key) ? 'selected' : '';
-                    $html .= '<option value="'.$key.'" '.$selected.'>'.$label.'</option>';
+                    $html .= '<option class="bg-white text-dark" value="'.$key.'" '.$selected.'>'.$label.'</option>';
                 }
+
                 $html .= '</select>';
 
                 return $html;
