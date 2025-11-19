@@ -136,17 +136,17 @@ class HomeController extends Controller
         $notifications = Notification::orderBy('created_at', 'desc')
             ->take(6)
             ->get();
+        $unread = Notification::where('is_read', 0)->count();    
 
-        return response()->json($notifications);
+        return response()->json([
+            'notifications' => $notifications,
+            'unread_count' => $unread
+        ]);
     }
 
-    public function markRead($id)
+    public function markRead()
     {
-        $notif = Notification::find($id);
-        if ($notif) {
-            $notif->update(['read_at' => now()]);
-        }
-
+        Notification::where('is_read', 0)->update(['is_read' => 1]);
         return response()->json(['success' => true]);
     }
 

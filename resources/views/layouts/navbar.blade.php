@@ -206,17 +206,19 @@
 
                 <div class="dropdown-menu p-0 dropdown-menu-end dropdown-menu-lg" style="min-height: 300px;">
                     <div class="p-3 border-bottom border-dashed">
-                        <h6 class="m-0 fs-16 fw-semibold">Notifications</h6>
+                        <h6 class="m-0 fs-16 fw-semibold">Notifications (<span id="notif-count">0</span>)</h6>
                     </div>
 
-                    <div class="position-relative z-2 card shadow-none rounded-0" style="max-height: 300px;" data-simplebar>
-                        <div id="notification-list" class="list-unstyled p-1 m-0">
-                            <!-- Notifications will be loaded via AJAX -->
-                            <div class="text-center py-5 text-secondary" id="notif-loading">
-                                Loading...
-                            </div>
+                    <div class="card shadow-none rounded-0 mb-0" style="height: 300px;">
+                        <div id="notification-list" class="list-unstyled p-1 m-0 overflow-auto" style="height: 240px;">
+                            <!-- Notifications -->
+                        </div>
+
+                        <div class="p-2">
+                            <a class="btn btn-white mark-read-btn w-100 d-none">Mark as read</a>
                         </div>
                     </div>
+
 
                     <div id="no-notifications" class="text-center py-3 text-muted fst-italic" style="display: none;">
                         No new notifications

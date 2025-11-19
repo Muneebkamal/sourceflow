@@ -38,7 +38,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
 
     Route::get('/notifications/list', [HomeController::class, 'list'])->name('notifications.list');
-    Route::post('/notifications/mark-read/{id}', [HomeController::class, 'markRead'])
+    Route::post('/notifications/mark-read', [HomeController::class, 'markRead'])
         ->name('notifications.markRead');
     Route::get('download/report/{file}', [HomeController::class, 'download'])->name('download.report');
 

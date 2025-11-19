@@ -779,19 +779,28 @@
             $.ajax({
                 url: '/notifications/list',
                 type: 'GET',
-                success: function(data) {
+                success: function(response) {
                     const $list = $('#notification-list');
                     $list.empty();
 
-                    if (!data.length) {
+                    $('#notif-count').text(response.unread_count);
+
+                    if (!response.notifications.length) {
                         $('#no-notifications').show();
                         return;
+                    }
+
+                    // Show / hide bottom button
+                    if (response.unread_count > 0) {
+                        $('.mark-read-btn').removeClass('d-none');
+                    } else {
+                        $('.mark-read-btn').addClass('d-none');
                     }
 
                     $('#no-notifications').hide();
 
                     // Show only latest 6 notifications
-                    data.slice(0, 6).forEach(notif => {
+                    response.notifications.slice(0, 6).forEach(notif => {
                         const formattedTime = formatNotificationTime(notif.created_at);
 
                         $list.append(`
@@ -827,14 +836,15 @@
 
         // Mark single notification as read
         $(document).on('click', '.mark-read-btn', function() {
-            let notifId = $(this).data('id');
 
             $.ajax({
-                url: `/notifications/mark-read/${notifId}`,
+                url: `/notifications/mark-read`,
                 type: 'POST',
-                data: { _token: $('meta[name="csrf-token"]').attr('content') },
+                data: { 
+                    _token: '{{ csrf_token() }}'
+                },
                 success: function() {
-                    $(`#notification-${notifId}`).removeClass('active');
+                    loadNotifications();
                 }
             });
         });
